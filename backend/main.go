@@ -26,7 +26,7 @@ func main() {
 	sugar := logger.Sugar()
 
 	// firebase auth
-	fbApp, err := firebase.NewApp(context.TODO(), nil, option.WithCredentialsFile("credentials.json"))
+	fbApp, err := firebase.NewApp(context.TODO(), nil, option.WithCredentialsFile("firebase.json"))
 	if err != nil {
 		sugar.With(err).Fatalln("cannot create firebase app")
 		return
