@@ -7,11 +7,12 @@ import (
 )
 
 var (
-	ErrNoRowsAffected = errors.New("no matches found")
+	ErrNotMatches = errors.New("no matches found")
 )
 
 type ProjectService interface {
-	FindProject(id uint) (*model.Project, error)
+	FindProject(id uint, preload ...string) (*model.Project, error)
+	FindProjectOwnedBy(projectID int, ownerID string) (*model.Project, error)
 	FindProjectsByOwner(userID string) ([]model.Project, error)
 	FindProjectsByUserAccess(userID string) ([]model.Project, error)
 	CreateProject(name, description, ownerID string) (*model.Project, error)
@@ -29,9 +30,27 @@ func NewProjectService(db *gorm.DB) ProjectService {
 	}
 }
 
-func (p *projectService) FindProject(id uint) (res *model.Project, err error) {
-	err = p.DB.Where("id = ?", id).First(&res).Error
+func (p *projectService) FindProject(id uint, preload ...string) (res *model.Project, err error) {
+	q := p.DB
+	for _, p := range preload {
+		q = q.Preload(p)
+	}
+	err = q.First(&res, id).Error
 	return
+}
+
+func (p *projectService) FindProjectOwnedBy(projectID int, ownerID string) (res *model.Project, err error) {
+	var projects []*model.Project
+	err = p.DB.Find(&projects, &model.Project{
+		Model: gorm.Model{
+			ID: uint(projectID),
+		},
+		OwnerID: ownerID,
+	}).Error
+	if len(projects) <= 0 {
+		return nil, ErrNotMatches
+	}
+	return projects[0], nil
 }
 
 func (p *projectService) CreateProject(name, description, ownerID string) (res *model.Project, err error) {
@@ -70,7 +89,7 @@ func (p *projectService) DeleteProject(id uint) error {
 		return res.Error
 	}
 	if res.RowsAffected <= 0 {
-		return ErrNoRowsAffected
+		return ErrNotMatches
 	}
 	return nil
 }

@@ -72,6 +72,11 @@ func main() {
 	projectHandler := handlers.NewProjectHandler(projectService, sugar, validate)
 	routes.ProjectRoutes(app.Group("/project"), projectHandler)
 
+	// /meetings
+	meetingService := services.NewMeetingService(db)
+	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, sugar, validate)
+	routes.MeetingRoutes(app.Group("/project/:project_id/meeting"), meetingHandler)
+
 	go func() {
 		if err := app.Listen(":8080"); err != nil {
 			sugar.With(err).Fatalln("cannot listen on :8080")
@@ -85,16 +90,6 @@ func main() {
 	sugar.Infoln("shutting down web-server")
 	_ = app.Shutdown()
 }
-
-// Meeting
-
-// TODO: Create new meeting
-
-// TODO: List all meetings in a project
-
-// TODO: Delete meeting
-
-// TODO: Edit meeting (name, start date)
 
 // Topics
 
