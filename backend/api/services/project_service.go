@@ -50,15 +50,18 @@ func (p *projectService) FindProjectsByOwner(userID string) (res []model.Project
 }
 
 func (p *projectService) FindProjectsByUserAccess(userID string) ([]model.Project, error) {
-	var user model.User
-	if err := p.DB.Preload("UserProjects").Where("id = ?", userID).First(&user).Error; err != nil {
+	var user []model.User
+	if err := p.DB.Preload("UserProjects").Where("id = ?", userID).Find(&user).Error; err != nil {
 		return nil, err
 	}
-	return user.UserProjects, nil
+	if len(user) <= 0 {
+		return nil, nil
+	}
+	return user[0].UserProjects, nil
 }
 
 func (p *projectService) DeleteProject(id uint) error {
-	res := p.DB.Delete(model.Project{
+	res := p.DB.Delete(&model.Project{
 		Model: gorm.Model{
 			ID: id,
 		},

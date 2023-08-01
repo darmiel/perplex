@@ -28,8 +28,8 @@ func NewProjectHandler(
 }
 
 type projectDto struct {
-	Name        string `validator:"required,alphanumspace,min=3,max=36,startsnotwith= ,endsnotwith= "`
-	Description string `validator:"alphanumspace,max=256"`
+	Name        string `validate:"required,proj-extended,min=3,max=36,startsnotwith= ,endsnotwith= "`
+	Description string `validate:"proj-extended,max=256"`
 }
 
 func (h *ProjectHandler) AddProject(ctx *fiber.Ctx) error {
@@ -107,7 +107,7 @@ func (h *ProjectHandler) pathProjectIDOwnerCheck(ctx *fiber.Ctx) (
 
 func (h *ProjectHandler) DeleteProject(ctx *fiber.Ctx) error {
 	project, err := h.pathProjectIDOwnerCheck(ctx)
-	if err != nil {
+	if project == nil || err != nil {
 		return err
 	}
 	if err = h.srv.DeleteProject(project.ID); err != nil {
@@ -121,8 +121,12 @@ func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ProjectErrorResponse(err))
 	}
+	h.logger.Infof("Validating %+v :: %v", payload, h.validator.Struct(payload))
+	if err := h.validator.Struct(payload); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ProjectErrorResponse(err))
+	}
 	project, err := h.pathProjectIDOwnerCheck(ctx)
-	if err != nil {
+	if project == nil || err != nil {
 		return err
 	}
 	if err = h.srv.EditProject(project.ID, payload.Name, payload.Description); err != nil {

@@ -23,7 +23,7 @@ func anyErr(errs ...error) error {
 func NewValidate() (*validator.Validate, error) {
 	v := validator.New()
 	if err := anyErr(
-		registerValidation(v, "alphanumspace", regexp.MustCompile("^[a-zA-Z0-9\\s]+$")),
+		registerValidation(v, "proj-extended", regexp.MustCompile("^[\\x20-\\x3B=\\x3F-\\x7E]+$")),
 	); err != nil {
 		return nil, err
 	}
