@@ -11,6 +11,7 @@ type MeetingService interface {
 	FindMeetingsForProject(projectID uint) ([]*model.Meeting, error)
 	DeleteMeeting(meetingID uint) error
 	EditMeeting(meetingID uint, newName string, newStartDate time.Time) error
+	Extend(meeting *model.Meeting, preload ...string) error
 }
 
 type meetingService struct {
@@ -58,4 +59,12 @@ func (m *meetingService) EditMeeting(meetingID uint, newName string, newStartDat
 		Name:      newName,
 		StartDate: newStartDate,
 	}).Error
+}
+
+func (m *meetingService) Extend(meeting *model.Meeting, preload ...string) error {
+	q := m.DB
+	for _, p := range preload {
+		q = q.Preload(p)
+	}
+	return q.First(meeting).Error
 }

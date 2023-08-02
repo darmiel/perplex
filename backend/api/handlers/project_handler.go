@@ -5,13 +5,13 @@ import (
 	"github.com/darmiel/dmp/api/presenter"
 	"github.com/darmiel/dmp/api/services"
 	"github.com/darmiel/dmp/pkg/model"
+	"github.com/darmiel/dmp/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
 )
 
-var ErrNotOwner = errors.New("not the owner")
 var ErrNoAccess = errors.New("no access")
 var ErrNotFound = errors.New("not found")
 
@@ -34,6 +34,31 @@ type projectDto struct {
 	Description string `validate:"proj-extended,max=256" json:"description,omitempty"`
 }
 
+// ProjectAccessMiddleware checks if the requesting user has access to the project
+// and preloads the project data to the "project" local
+func (h *ProjectHandler) ProjectAccessMiddleware(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	projectID, err := ctx.ParamsInt("project_id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+
+	// find project to check if the requester is the owner
+	project, err := h.srv.FindProject(uint(projectID), "Users")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+
+	// owner always has access
+	if project.OwnerID == u.UserID || util.HasAccess(project, u.UserID) {
+		ctx.Locals("project", *project)
+		return ctx.Next()
+	}
+
+	return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNoAccess))
+}
+
+// AddProject creates a new project
 func (h *ProjectHandler) AddProject(ctx *fiber.Ctx) error {
 	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	h.logger.Infof("user %s is requesting to create a new project", u.UserID)
@@ -55,6 +80,7 @@ func (h *ProjectHandler) AddProject(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(presenter.SuccessResponse("project created", project))
 }
 
+// GetProjects returns a list of all projects the user has access to
 func (h *ProjectHandler) GetProjects(ctx *fiber.Ctx) error {
 	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	h.logger.Infof("user %s is requesting a list of projects", u.UserID)
@@ -84,37 +110,16 @@ func (h *ProjectHandler) GetProjects(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", result))
 }
 
-func (h *ProjectHandler) pathProjectIDOwnerCheck(ctx *fiber.Ctx) (
-	project *model.Project,
-	err error,
-) {
-	u := ctx.Locals("user").(gofiberfirebaseauth.User)
-	projectID, err := ctx.ParamsInt("project_id")
-	if err != nil {
-		return nil, ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-
-	// find project to check if the requester is the owner
-	if project, err = h.srv.FindProject(uint(projectID)); err != nil {
-		return nil, ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	if project.OwnerID != u.UserID {
-		return nil, ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotOwner))
-	}
-	return
-}
-
+// DeleteProject deletes a project
 func (h *ProjectHandler) DeleteProject(ctx *fiber.Ctx) error {
-	project, err := h.pathProjectIDOwnerCheck(ctx)
-	if project == nil || err != nil {
-		return err
-	}
-	if err = h.srv.DeleteProject(project.ID); err != nil {
+	p := ctx.Locals("project").(model.Project)
+	if err := h.srv.DeleteProject(p.ID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project deleted", nil))
 }
 
+// EditProject edits the name and description of a project
 func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	var payload projectDto
 	if err := ctx.BodyParser(&payload); err != nil {
@@ -124,11 +129,8 @@ func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	if err := h.validator.Struct(payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	project, err := h.pathProjectIDOwnerCheck(ctx)
-	if project == nil || err != nil {
-		return err
-	}
-	if err = h.srv.EditProject(project.ID, payload.Name, payload.Description); err != nil {
+	p := ctx.Locals("project").(model.Project)
+	if err := h.srv.EditProject(p.ID, payload.Name, payload.Description); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project updated", nil))

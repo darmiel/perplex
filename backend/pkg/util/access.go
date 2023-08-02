@@ -14,19 +14,10 @@ func HasAccess(project *model.Project, userID string) bool {
 	return false
 }
 
-func Any[T any](list []T, check func(t T) bool) (res T) {
+func Any[T any](list []T, check func(t T) bool) (res T, ok bool) {
 	for _, l := range list {
 		if check(l) {
-			return l
-		}
-	}
-	return
-}
-
-func GetMeeting(project *model.Project, meetingID uint) (res model.Meeting, ok bool) {
-	for _, m := range project.Meetings {
-		if m.ID == meetingID {
-			return m, true
+			return l, true
 		}
 	}
 	return

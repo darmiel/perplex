@@ -18,6 +18,7 @@ type ProjectService interface {
 	CreateProject(name, description, ownerID string) (*model.Project, error)
 	DeleteProject(id uint) error
 	EditProject(id uint, name, description string) error
+	Extend(project *model.Project, preload ...string) error
 }
 
 type projectService struct {
@@ -99,4 +100,12 @@ func (p *projectService) EditProject(id uint, name, description string) error {
 		Name:        name,
 		Description: description,
 	}).Error
+}
+
+func (m *projectService) Extend(project *model.Project, preload ...string) error {
+	q := m.DB
+	for _, p := range preload {
+		q = q.Preload(p)
+	}
+	return q.First(project).Error
 }

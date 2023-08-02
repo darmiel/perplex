@@ -70,20 +70,20 @@ func main() {
 	// /project
 	projectService := services.NewProjectService(db)
 	projectHandler := handlers.NewProjectHandler(projectService, sugar, validate)
-	projectPrefix := "/project"
-	routes.ProjectRoutes(app.Group(projectPrefix), projectHandler)
+	projectGroup := app.Group("/project")
+	routes.ProjectRoutes(projectGroup, projectHandler)
 
 	// /meetings
 	meetingService := services.NewMeetingService(db)
 	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, sugar, validate)
-	meetingPrefix := projectPrefix + "/:project_id/meeting"
-	routes.MeetingRoutes(app.Group(meetingPrefix), meetingHandler)
+	meetingGroup := projectGroup.Group("/:project_id/meeting")
+	routes.MeetingRoutes(meetingGroup, meetingHandler)
 
 	// /topics
 	topicService := services.NewTopicService(db)
 	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, sugar, validate)
-	topicPrefix := meetingPrefix + "/:meeting_id/topic"
-	routes.TopicRoutes(app.Group(topicPrefix), topicHandler)
+	topicGroup := meetingGroup.Group("/:meeting_id/topic")
+	routes.TopicRoutes(topicGroup, topicHandler)
 
 	go func() {
 		if err := app.Listen(":8080"); err != nil {

@@ -6,12 +6,11 @@ import (
 )
 
 func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler) {
-	// make sure the user has access to the meeting
-	router.Use(handler.AuthorizationMiddleware)
 	router.Get("/", handler.ListTopicForMeeting)
 	router.Post("/", handler.AddTopic)
 
-	router.Use(handler.TopicAuthorizationMiddleware)
+	// make sure the requested topic belongs to the current meeting / project
+	router.Use("/:topic_id", handler.TopicAuthorizationMiddleware)
 	router.Delete("/:topic_id", handler.DeleteTopic)
 	router.Put("/:topic_id", handler.EditTopic)
 	router.Post("/:topic_id/status", handler.SetStatusChecked)
