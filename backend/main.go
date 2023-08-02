@@ -85,40 +85,21 @@ func main() {
 	topicGroup := meetingGroup.Group("/:meeting_id/topic")
 	routes.TopicRoutes(topicGroup, topicHandler)
 
+	// /comment
+	commentService := services.NewCommentService(db, topicService)
+	commentHandler := handlers.NewCommentHandler(commentService, meetingService, sugar, validate)
+	commentGroup := topicGroup.Group("/:topic_id/comment")
+	routes.CommentRoutes(commentGroup, commentHandler)
+
+	// start web server
 	go func() {
 		if err := app.Listen(":8080"); err != nil {
 			sugar.With(err).Fatalln("cannot listen on :8080")
 		}
 	}()
-
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	_ = <-c
-
 	sugar.Infoln("shutting down web-server")
 	_ = app.Shutdown()
 }
-
-// TODO: add JSON tags to fields in model
-
-// Topics
-
-// TODO: Create new topic
-
-// TODO: List all topic in meeting
-
-// TODO: Delete topic
-
-// TODO: Edit topic (name, description, type)
-
-// TODO: Submit topic (mark as done/not done); check solution
-
-// Comments
-
-// TODO: Create new comment
-
-// TODO: List all comments for topic
-
-// TODO: Edit comment
-
-// TODO: Delete comment

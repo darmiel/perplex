@@ -30,7 +30,7 @@ type Comment struct {
 	// AuthorID is the id of the author of the comment
 	AuthorID string `json:"authorID,omitempty"`
 	// Author is the author of the comment
-	Author User `json:"author"`
+	Author User `json:"author,omitempty"`
 	// Content is the comment content as markdown
 	Content string `json:"content,omitempty"`
 	// TopicID is the ID of the topic the comment belongs to
@@ -47,13 +47,13 @@ type Topic struct {
 	// ID of the creator of the topic
 	CreatorID string `json:"creatorID,omitempty"`
 	// Creator of the topic
-	Creator User `json:"creator"`
+	Creator User `json:"creator,omitempty"`
 	// Comments in the topic
 	Comments []Comment `json:"comments,omitempty"`
 	// SolutionID is the ID of the comment which represents the solution of this topic
 	SolutionID uint `json:"solutionID,omitempty"`
 	// Solution is the comment which represents the solution of this topic
-	Solution Comment `json:"solution"`
+	Solution Comment `json:"solution,omitempty"`
 	// ClosedAt represents the time when the topic was resolved (if valid)
 	ClosedAt sql.NullTime `json:"closedAt"`
 	// ForceSolution requires a solution to be able to close topic if true
@@ -87,7 +87,7 @@ type Project struct {
 	// OwnerID is the id of the creator of the project
 	OwnerID string `json:"ownerID,omitempty"`
 	// Owner is the creator of the project
-	Owner User `json:"owner"`
+	Owner User `json:"owner,omitempty"`
 	// Users contains all users which have access to the project
 	Users []User `gorm:"many2many:user_projects;" json:"users,omitempty"`
 	// Meetings contains all meetings in the project

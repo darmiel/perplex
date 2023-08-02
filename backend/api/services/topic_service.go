@@ -9,6 +9,7 @@ import (
 
 type TopicService interface {
 	AddTopic(creatorID string, meetingID uint, title, description string, forceSolution bool) (*model.Topic, error)
+	GetTopic(topicID uint) (*model.Topic, error)
 	ListTopicsForMeeting(meetingID uint) ([]*model.Topic, error)
 	DeleteTopic(topicID uint) error
 	EditTopic(topicID uint, title, description string, forceSolution bool) error
@@ -41,6 +42,15 @@ func (m *topicService) AddTopic(
 		MeetingID:     meetingID,
 	}
 	err = m.DB.Create(res).Error
+	return
+}
+
+func (m *topicService) GetTopic(topicID uint) (res *model.Topic, err error) {
+	err = m.DB.First(&res, &model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).Error
 	return
 }
 
