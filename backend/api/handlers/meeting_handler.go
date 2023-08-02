@@ -28,8 +28,8 @@ func NewMeetingHandler(
 }
 
 type meetingDto struct {
-	Name      string `validate:"required,proj-extended,max=36"`
-	StartDate string `validate:"required,datetime=2006-01-02T15:04:05Z07:00"`
+	Name      string `validate:"required,proj-extended,max=36" json:"name,omitempty"`
+	StartDate string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date,omitempty"`
 }
 
 func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {

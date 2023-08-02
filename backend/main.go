@@ -70,12 +70,20 @@ func main() {
 	// /project
 	projectService := services.NewProjectService(db)
 	projectHandler := handlers.NewProjectHandler(projectService, sugar, validate)
-	routes.ProjectRoutes(app.Group("/project"), projectHandler)
+	projectPrefix := "/project"
+	routes.ProjectRoutes(app.Group(projectPrefix), projectHandler)
 
 	// /meetings
 	meetingService := services.NewMeetingService(db)
 	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, sugar, validate)
-	routes.MeetingRoutes(app.Group("/project/:project_id/meeting"), meetingHandler)
+	meetingPrefix := projectPrefix + "/:project_id/meeting"
+	routes.MeetingRoutes(app.Group(meetingPrefix), meetingHandler)
+
+	// /topics
+	topicService := services.NewTopicService(db)
+	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, sugar, validate)
+	topicPrefix := meetingPrefix + "/:meeting_id/topic"
+	routes.TopicRoutes(app.Group(topicPrefix), topicHandler)
 
 	go func() {
 		if err := app.Listen(":8080"); err != nil {
@@ -90,6 +98,8 @@ func main() {
 	sugar.Infoln("shutting down web-server")
 	_ = app.Shutdown()
 }
+
+// TODO: add JSON tags to fields in model
 
 // Topics
 
