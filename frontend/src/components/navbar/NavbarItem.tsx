@@ -1,31 +1,24 @@
-import { usePathname } from "next/navigation"
+import Link from "next/link"
 
-interface Props {
-  title: string
+export default function NavbarItem({
+  alt,
+  href,
+}: {
+  alt: string
   href: string
-  badge?: string
-  // active?: boolean
-}
-
-export default function NavbarItem({ title, href, badge }: Props) {
-  const pathname = usePathname()
-  const active = pathname === href
-
+}) {
+  // const pathname = usePathname()
+  // TODO: maybe do something?
+  // const active = pathname === href
   return (
     <li>
-      <a
-        href={href}
-        className={`flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group ${
-          active && "bg-blue-700"
-        }`}
-      >
-        <span className="flex-1 ml-3 whitespace-nowrap">{title}</span>
-        {badge && (
-          <span className="inline-flex items-center justify-center px-2 ml-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">
-            {badge}
-          </span>
-        )}
-      </a>
+      <Link href={href}>
+        <img
+          src={`https://api.dicebear.com/6.x/shapes/svg?seed=${alt}`}
+          alt={alt}
+          className="w-10 h-10 mt-1 rounded-full inline-block"
+        />
+      </Link>
     </li>
   )
 }
