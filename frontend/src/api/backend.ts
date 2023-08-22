@@ -15,18 +15,17 @@ export interface BackendResponse {
 }
 
 export async function authFetch(
-  user: User,
+  token: string,
   url: string,
   init?: RequestInit
 ): Promise<BackendResponse> {
-  // get token
-  const token = await user.getIdToken()
+  const requestHeaders: HeadersInit = new Headers()
+  requestHeaders.set("Authorization", `Bearer ${token}`)
+  requestHeaders.set("Content-Type", "application/json")
 
   const resp = await fetch(url, {
     ...init,
-    headers: {
-      Authorization: "Bearer " + token,
-    },
+    headers: requestHeaders,
   })
   return (await resp.json()) as BackendResponse
 }

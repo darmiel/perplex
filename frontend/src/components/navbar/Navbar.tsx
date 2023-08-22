@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react"
 import NavbarItem from "./NavbarItem"
+import { useAuth } from "@/contexts/AuthContext"
+import { authFetch, buildUrl } from "@/api/backend"
 
 type Project = {
   ID: number
@@ -6,20 +9,22 @@ type Project = {
 }
 
 export default function Navbar() {
-  const projects: Project[] = [
-    {
-      ID: 1,
-      name: "Backstage",
-    },
-    {
-      ID: 2,
-      name: "Praxisphase",
-    },
-    {
-      ID: 3,
-      name: "Sonstige",
-    },
-  ]
+  const [projects, setProjects] = useState<Project[]>([])
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (!user) {
+      return
+    }
+    ;(async () => {
+      const token = await user.getIdToken()
+      const res = await authFetch(token, buildUrl(["project"]))
+      if (res.success) {
+        setProjects(res.data as Project[])
+      }
+    })()
+  }, [user])
+
   return (
     <aside
       id="separator-sidebar"

@@ -14,6 +14,7 @@ export default function Comment({
   solution?: boolean
   onSolutionClick?: () => void
 }) {
+  const d = new Date(Date.parse(time))
   return (
     <div
       className={`flex mt-8 ${
@@ -32,7 +33,7 @@ export default function Comment({
       <div className="flex flex-col ml-3">
         <div>
           <span className="font-semibold">{author}</span>
-          <span className="text-neutral-500"> - {time}</span>
+          <span className="text-neutral-500"> - {d.toLocaleTimeString()}</span>
         </div>
         <div className="mt-1 text-neutral-200">
           <ReactMarkdown

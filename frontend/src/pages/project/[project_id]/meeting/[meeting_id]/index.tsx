@@ -1,6 +1,6 @@
 import MeetingOverview from "@/components/meeting/MeetingList"
 import Navbar from "@/components/navbar/Navbar"
-import TopicList, { dummyTopics } from "@/components/topic/TopicList"
+import TopicList from "@/components/topic/TopicList"
 import { AuthProvider } from "@/contexts/AuthContext"
 import { useRouter } from "next/router"
 
@@ -25,7 +25,6 @@ export default function ProjectPage() {
             router={router}
             projectID={String(projectID)}
             meetingID={String(meetingID)}
-            topics={dummyTopics}
           />
         </div>
       </div>

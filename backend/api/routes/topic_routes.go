@@ -11,6 +11,7 @@ func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler) {
 
 	// make sure the requested topic belongs to the current meeting / project
 	router.Use("/:topic_id", handler.TopicAuthorizationMiddleware)
+	router.Get("/:topic_id", handler.GetTopic)
 	router.Delete("/:topic_id", handler.DeleteTopic)
 	router.Put("/:topic_id", handler.EditTopic)
 	router.Post("/:topic_id/status", handler.SetStatusChecked)

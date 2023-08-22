@@ -16,6 +16,7 @@ type TopicService interface {
 	SetSolution(topicID uint, commentID uint) error
 	CheckTopic(topicID uint) error
 	UncheckTopic(topicID uint) error
+	Extend(topic *model.Topic, preload ...string) error
 }
 
 type topicService struct {
@@ -87,12 +88,10 @@ func (m *topicService) EditTopic(topicID uint, title, description string, forceS
 }
 
 func (m *topicService) SetSolution(topicID uint, commentID uint) error {
-	return m.DB.Updates(&model.Topic{
-		Model: gorm.Model{
-			ID: topicID,
-		},
-		SolutionID: commentID,
-	}).Error
+	return m.DB.Model(&model.Topic{}).
+		Where("id = ?", topicID).
+		Update("solution_id", commentID).
+		Error
 }
 
 func (m *topicService) toggleTopic(topicID uint, close bool) error {
@@ -101,7 +100,7 @@ func (m *topicService) toggleTopic(topicID uint, close bool) error {
 		t.Time = time.Now()
 		t.Valid = true
 	}
-	return m.DB.Where(&model.Topic{Model: gorm.Model{ID: topicID}}).Update("closed_at", t).Error
+	return m.DB.Model(&model.Topic{}).Where("id = ?", topicID).Update("closed_at", t).Error
 }
 
 func (m *topicService) CheckTopic(topicID uint) error {
@@ -110,4 +109,12 @@ func (m *topicService) CheckTopic(topicID uint) error {
 
 func (m *topicService) UncheckTopic(topicID uint) error {
 	return m.toggleTopic(topicID, false)
+}
+
+func (m *topicService) Extend(topic *model.Topic, preload ...string) error {
+	q := m.DB
+	for _, p := range preload {
+		q = q.Preload(p)
+	}
+	return q.First(topic).Error
 }

@@ -1,34 +1,119 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Comment from "../comment/Comment"
+import { Topic } from "./TopicList"
+import { User } from "firebase/auth"
+import { useAuth } from "@/contexts/AuthContext"
+import { authFetch, buildUrl } from "@/api/backend"
 
-type CommentType = {
-  author: string
+export type CommentType = {
+  ID: number
+  author_id: string
   content: string
-  date: string
-  solution?: boolean
+  CreatedAt: string
+  UpdatedAt: string
 }
 
 export default function TopicOverview({
-  type,
-  title,
-  description,
+  projectID,
+  meetingID,
+  topicID,
 }: {
-  type: string
-  title: string
-  description: string
+  projectID: string
+  meetingID: string
+  topicID: string
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
-  const [comments, setComments] = useState<CommentType[]>([])
+  const [topic, setTopic] = useState<Topic>()
+  const { user } = useAuth()
+
+  async function write() {
+    if (!user) {
+      return
+    }
+    const token = await user.getIdToken()
+    const resp = await authFetch(
+      token,
+      buildUrl([
+        "project",
+        projectID,
+        "meeting",
+        meetingID,
+        "topic",
+        topicID,
+        "comment",
+      ]),
+      { method: "POST", body: commentBoxText }
+    )
+    if (!resp.success) {
+      alert(resp.error)
+    } else {
+      update()
+      setCommentBoxText("")
+    }
+  }
+
+  async function update() {
+    if (!user) {
+      return
+    }
+    const token = await user.getIdToken()
+    const resp = await authFetch(
+      token,
+      buildUrl(["project", projectID, "meeting", meetingID, "topic", topicID])
+    )
+    if (!resp.success) {
+      alert(resp.error)
+    } else {
+      setTopic(resp.data as Topic)
+    }
+  }
+
+  async function solution(commentID: number, value: boolean) {
+    if (!user) {
+      return
+    }
+    const token = await user.getIdToken()
+    const resp = await authFetch(
+      token,
+      buildUrl([
+        "project",
+        projectID,
+        "meeting",
+        meetingID,
+        "topic",
+        topicID,
+        "comment",
+        commentID,
+        "solution",
+      ]),
+      { method: value ? "POST" : "DELETE" }
+    )
+    if (!resp.success) {
+      alert(resp.error)
+    } else {
+      update()
+    }
+  }
+
+  useEffect(() => {
+    update()
+  }, [user, projectID, meetingID, topicID])
+
+  if (!topic) {
+    return <>Loading Topic...</>
+  }
 
   return (
     <div className="flex flex-col">
-      <span className="uppercase text-xs text-purple-500">{type}</span>
-      <h1 className="text-2xl font-bold">{title}</h1>
+      <span className="uppercase text-xs text-purple-500">
+        {topic.force_solution ? "Discuss" : "Acknowledge"}
+      </span>
+      <h1 className="text-2xl font-bold">{topic.title}</h1>
       <span className="text-neutral-500 my-3">
         <ReactMarkdown
-          children={description}
+          children={topic.description}
           remarkPlugins={[remarkGfm]}
         ></ReactMarkdown>
       </span>
@@ -44,16 +129,7 @@ export default function TopicOverview({
         <button
           className="absolute bottom-6 right-4 bg-purple-600 text-white py-2 px-4 rounded"
           onClick={() => {
-            setComments((old) => [
-              ...old,
-              {
-                author: "Daniel",
-                content: commentBoxText,
-                date: new Date().toISOString(),
-                solution: false,
-              },
-            ])
-            setCommentBoxText("")
+            write()
           }}
         >
           Comment
@@ -61,15 +137,17 @@ export default function TopicOverview({
       </div>
 
       <div>
-        {comments.map((c, index) => (
-          <Comment
-            key={index}
-            author={c.author}
-            time={c.date}
-            message={c.content}
-            solution={c.solution}
-          />
-        ))}
+        {topic.comments &&
+          topic.comments.map((c, index) => (
+            <Comment
+              key={index}
+              author={c.author_id}
+              time={c.CreatedAt}
+              message={c.content}
+              solution={c.ID === topic.solution_id}
+              onSolutionClick={() => solution(c.ID, c.ID !== topic.solution_id)}
+            />
+          ))}
       </div>
     </div>
   )

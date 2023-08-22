@@ -1,9 +1,12 @@
+import { authFetch, buildUrl } from "@/api/backend"
 import MeetingOverview from "@/components/meeting/MeetingList"
 import Navbar from "@/components/navbar/Navbar"
-import TopicList, { dummyTopics } from "@/components/topic/TopicList"
+import TopicList, { Topic } from "@/components/topic/TopicList"
 import TopicOverview from "@/components/topic/TopicOverview"
-import { AuthProvider } from "@/contexts/AuthContext"
+import { AuthProvider, useAuth } from "@/contexts/AuthContext"
+import { User } from "firebase/auth"
 import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
 
 export default function ProjectPage() {
   const router = useRouter()
@@ -12,7 +15,6 @@ export default function ProjectPage() {
     meeting_id: meetingID,
     topic_id: topicID,
   } = router.query
-  const currentTopic = dummyTopics.find((t) => String(t.ID) === topicID)
   return (
     <AuthProvider>
       <div className="flex">
@@ -32,18 +34,15 @@ export default function ProjectPage() {
             projectID={String(projectID)}
             meetingID={String(meetingID)}
             topicID={String(topicID)}
-            topics={dummyTopics}
           />
         </div>
 
         <div className="flex-auto bg-neutral-950 p-6">
-          {currentTopic && (
-            <TopicOverview
-              title={currentTopic.title}
-              type={currentTopic.force_solution ? "Discuss" : "Acknowledge"}
-              description={currentTopic.description}
-            />
-          )}
+          <TopicOverview
+            projectID={String(projectID)}
+            meetingID={String(meetingID)}
+            topicID={String(topicID)}
+          />
         </div>
       </div>
     </AuthProvider>

@@ -1,5 +1,9 @@
 import { NextRouter } from "next/router"
 import MeetingCard from "./MeetingCard"
+import { useEffect, useState } from "react"
+import { authFetch, buildUrl } from "@/api/backend"
+import { useAuth } from "@/contexts/AuthContext"
+import { User } from "firebase/auth"
 
 type Meeting = {
   ID: number
@@ -16,18 +20,53 @@ export default function MeetingOverview({
   projectID: string
   router: NextRouter
 }) {
-  const meetings: Meeting[] = [
-    {
-      ID: 1,
-      name: "My First Meeting 😊",
-      start_date: "12.08.2023 17:05 Uhr",
-    },
-    {
-      ID: 2,
-      name: "My Second Meeting 😊",
-      start_date: "12.08.2023 17:05 Uhr",
-    },
-  ]
+  const [meetings, setMeetings] = useState<Meeting[]>([])
+  const { user } = useAuth()
+
+  async function update(user: User, projectID: string) {
+    const token = await user.getIdToken()
+    const res = await authFetch(
+      token,
+      buildUrl(["project", projectID, "meeting"])
+    )
+    if (res.success) {
+      setMeetings(res.data as Meeting[])
+    }
+  }
+
+  async function create() {
+    if (!user) {
+      alert("User not logged in")
+      return
+    }
+    const title = prompt("Title")
+    const date = prompt("Start Date")
+    const token = await user.getIdToken()
+    const res = await authFetch(
+      token,
+      buildUrl(["project", projectID, "meeting"]),
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: title,
+          start_date: date,
+        }),
+      }
+    )
+    if (res.success) {
+      update(user, projectID)
+    } else {
+      alert("error: " + res.error)
+    }
+  }
+
+  useEffect(() => {
+    if (!user) {
+      return
+    }
+    update(user, projectID)
+  }, [user, projectID, meetingID])
+
   return (
     <>
       {meetings.map((meeting, key) => (
@@ -41,6 +80,12 @@ export default function MeetingOverview({
           active={meetingID !== undefined && meetingID === String(meeting.ID)}
         />
       ))}
+      <div
+        className="border border-neutral-500 px-4 py-2 text-center"
+        onClick={() => create()}
+      >
+        Create Meeting
+      </div>
     </>
   )
 }

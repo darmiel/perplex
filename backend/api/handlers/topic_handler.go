@@ -90,6 +90,14 @@ func (h *TopicHandler) ListTopicForMeeting(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", topics))
 }
 
+func (h *TopicHandler) GetTopic(ctx *fiber.Ctx) error {
+	t := ctx.Locals("topic").(model.Topic)
+	if err := h.srv.Extend(&t, "Comments"); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("topic", t))
+}
+
 // DeleteTopic deletes the topic from a meeting.
 func (h *TopicHandler) DeleteTopic(ctx *fiber.Ctx) error {
 	t := ctx.Locals("topic").(model.Topic)
