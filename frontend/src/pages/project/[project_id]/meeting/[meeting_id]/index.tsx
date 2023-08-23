@@ -17,7 +17,6 @@ export default function ProjectPage() {
 
       <div className="flex-none w-8/12 bg-neutral-950 p-6 pl-10">
         <TopicList
-          router={router}
           projectID={String(projectID)}
           meetingID={String(meetingID)}
         />

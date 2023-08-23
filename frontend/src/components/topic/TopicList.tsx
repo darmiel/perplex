@@ -17,11 +17,11 @@ export type Topic = {
 }
 
 export default function TopicList({
-  topicID,
+  selectedTopicID,
   projectID,
   meetingID,
 }: {
-  topicID?: string
+  selectedTopicID?: string
   projectID: string
   meetingID: string
 }) {
@@ -52,7 +52,7 @@ export default function TopicList({
           key={key}
           title={topic.title}
           description={topic.description}
-          active={topicID !== undefined && topicID === String(topic.ID)}
+          active={selectedTopicID === String(topic.ID)}
           link={`/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}`}
           checked={topic.closed_at.Valid}
         />

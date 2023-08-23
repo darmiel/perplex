@@ -25,7 +25,7 @@ export default function ProjectPage() {
         <TopicList
           projectID={String(projectID)}
           meetingID={String(meetingID)}
-          topicID={String(topicID)}
+          selectedTopicID={String(topicID)}
         />
       </div>
 
