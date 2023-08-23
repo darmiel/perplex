@@ -7,6 +7,7 @@ import (
 	"github.com/darmiel/dmp/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
 	"time"
 )
@@ -64,6 +65,7 @@ func (h *MeetingHandler) MeetingAccessMiddleware(ctx *fiber.Ctx) error {
 
 // AddMeeting creates a new meeting for the current project
 func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	p := ctx.Locals("project").(model.Project)
 	// parse payload and time
 	var payload meetingDto
@@ -78,7 +80,7 @@ func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 	// create meeting
-	created, err := h.srv.AddMeeting(p.ID, payload.Name, startTime)
+	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, startTime)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}

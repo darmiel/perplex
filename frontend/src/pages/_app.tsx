@@ -1,11 +1,17 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import "./globals.css"
 import type { Metadata } from "next"
 import { AppProps } from "next/app"
 import { Inter } from "next/font/google"
 import Head from "next/head"
 import { useEffect } from "react"
+import { AuthProvider } from "@/contexts/AuthContext"
+import Navbar from "@/components/navbar/Navbar"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 const inter = Inter({ subsets: ["latin"] })
+
+const queryClient = new QueryClient()
 
 export const metadata: Metadata = {
   title: "Daniels Meeting Planner",
@@ -27,7 +33,15 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
       </Head>
-      <Component {...pageProps} />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <div className="flex">
+            <Navbar />
+            <Component {...pageProps} />
+          </div>
+          <ReactQueryDevtools />
+        </AuthProvider>
+      </QueryClientProvider>
     </>
   )
 }

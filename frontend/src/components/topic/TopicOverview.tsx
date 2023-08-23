@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import Comment from "../comment/Comment"
 import { Topic } from "./TopicList"
-import { User } from "firebase/auth"
 import { useAuth } from "@/contexts/AuthContext"
-import { authFetch, buildUrl } from "@/api/backend"
+import { useQuery } from "@tanstack/react-query"
+import TopicCommentList from "../comment/TopicCommentList"
+import TopicCommentBox from "../comment/TopicCommentBox"
+import RenderMarkdown from "../text/RenderMarkdown"
 
 export type CommentType = {
   ID: number
@@ -25,84 +25,37 @@ export default function TopicOverview({
   topicID: string
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
-  const [topic, setTopic] = useState<Topic>()
-  const { user } = useAuth()
 
-  async function write() {
-    if (!user) {
-      return
-    }
-    const token = await user.getIdToken()
-    const resp = await authFetch(
-      token,
-      buildUrl([
-        "project",
-        projectID,
-        "meeting",
-        meetingID,
-        "topic",
-        topicID,
-        "comment",
-      ]),
-      { method: "POST", body: commentBoxText }
+  const { axios } = useAuth()
+
+  const topicInfoQuery = useQuery<{ data: Topic }>({
+    queryKey: ["project", projectID, "meeting", meetingID, "topic", topicID],
+    queryFn: async () =>
+      (
+        await axios!.get(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`
+        )
+      ).data,
+  })
+
+  // show loading scren if topic is not loaded or error
+  if (topicInfoQuery.isLoading) {
+    return <div>Loading...</div>
+  }
+  if (topicInfoQuery.isError) {
+    return (
+      <div>
+        Error: <pre>{JSON.stringify(topicInfoQuery.error)}</pre>
+      </div>
     )
-    if (!resp.success) {
-      alert(resp.error)
-    } else {
-      update()
-      setCommentBoxText("")
-    }
   }
 
-  async function update() {
-    if (!user) {
-      return
-    }
-    const token = await user.getIdToken()
-    const resp = await authFetch(
-      token,
-      buildUrl(["project", projectID, "meeting", meetingID, "topic", topicID])
-    )
-    if (!resp.success) {
-      alert(resp.error)
-    } else {
-      setTopic(resp.data as Topic)
-    }
-  }
+  const topic = topicInfoQuery.data.data
 
-  async function solution(commentID: number, value: boolean) {
-    if (!user) {
-      return
-    }
-    const token = await user.getIdToken()
-    const resp = await authFetch(
-      token,
-      buildUrl([
-        "project",
-        projectID,
-        "meeting",
-        meetingID,
-        "topic",
-        topicID,
-        "comment",
-        commentID,
-        "solution",
-      ]),
-      { method: value ? "POST" : "DELETE" }
-    )
-    if (!resp.success) {
-      alert(resp.error)
-    } else {
-      update()
-    }
-  }
-
-  useEffect(() => {
-    update()
-  }, [user, projectID, meetingID, topicID])
-
-  if (!topic) {
-    return <>Loading Topic...</>
+  const topicInfoProps = {
+    projectID,
+    meetingID,
+    topicID,
   }
 
   return (
@@ -112,43 +65,15 @@ export default function TopicOverview({
       </span>
       <h1 className="text-2xl font-bold">{topic.title}</h1>
       <span className="text-neutral-500 my-3">
-        <ReactMarkdown
-          children={topic.description}
-          remarkPlugins={[remarkGfm]}
-        ></ReactMarkdown>
+        <RenderMarkdown markdown={topic.description} />
       </span>
 
-      <div className="relative mt-4 border-t border-gray-700">
-        <textarea
-          className="mt-8 w-full px-3 py-2 bg-neutral-900 border border-neutral-700"
-          placeholder="Write a comment..."
-          rows={4}
-          onChange={(e) => setCommentBoxText(e.target.value)}
-          value={commentBoxText}
-        ></textarea>
-        <button
-          className="absolute bottom-6 right-4 bg-purple-600 text-white py-2 px-4 rounded"
-          onClick={() => {
-            write()
-          }}
-        >
-          Comment
-        </button>
-      </div>
+      <TopicCommentBox key={topicID} {...topicInfoProps} />
 
-      <div>
-        {topic.comments &&
-          topic.comments.map((c, index) => (
-            <Comment
-              key={index}
-              author={c.author_id}
-              time={c.CreatedAt}
-              message={c.content}
-              solution={c.ID === topic.solution_id}
-              onSolutionClick={() => solution(c.ID, c.ID !== topic.solution_id)}
-            />
-          ))}
-      </div>
+      <TopicCommentList
+        {...topicInfoProps}
+        topicSolutionCommentID={topic.solution_id}
+      />
     </div>
   )
 }

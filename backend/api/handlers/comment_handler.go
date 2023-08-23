@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/darmiel/dmp/api/presenter"
 	"github.com/darmiel/dmp/api/services"
 	"github.com/darmiel/dmp/pkg/model"
@@ -26,6 +27,13 @@ func NewCommentHandler(
 ) *CommentHandler {
 	return &CommentHandler{srv, meetSrv, logger, validator}
 }
+
+const (
+	// MaxCommentLength - 8 MiB
+	MaxCommentLength = 8 * 1024 * 1024
+)
+
+var ErrCommentTooLong = errors.New("comment too long (max. 8 MiB)")
 
 // CommentOwnershipMiddleware is a middleware function that checks for the ownership of the comment.
 // It retrieves the comment by ID from the request parameters and verifies whether
@@ -54,6 +62,9 @@ func (h *CommentHandler) AddComment(ctx *fiber.Ctx) error {
 	t := ctx.Locals("topic").(model.Topic)
 
 	content := utils.CopyString(string(ctx.Body()))
+	if len(content) > MaxCommentLength {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrCommentTooLong))
+	}
 	comment, err := h.srv.AddComment(u.UserID, t.ID, content)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))

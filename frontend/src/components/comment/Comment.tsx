@@ -1,5 +1,4 @@
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import RenderMarkdown from "../text/RenderMarkdown"
 
 export default function Comment({
   author,
@@ -35,11 +34,8 @@ export default function Comment({
           <span className="font-semibold">{author}</span>
           <span className="text-neutral-500"> - {d.toLocaleTimeString()}</span>
         </div>
-        <div className="mt-1 text-neutral-200">
-          <ReactMarkdown
-            children={message}
-            remarkPlugins={[remarkGfm]}
-          ></ReactMarkdown>
+        <div className="mt-4 text-neutral-200">
+          <RenderMarkdown markdown={message} />
         </div>
       </div>
       <div

@@ -73,6 +73,10 @@ type Meeting struct {
 	Topics []Topic `json:"topics,omitempty"`
 	// ProjectID is the project the meeting belongs to
 	ProjectID uint `json:"project_id,omitempty"`
+	// ID of the creator of the meeting
+	CreatorID string `json:"creator_id,omitempty"`
+	// Creator of the meeting
+	Creator User `json:"creator,omitempty"`
 }
 
 // Project is a custom "realm" where meetings are saved

@@ -1,9 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { auth } from "@/firebase/firebase"
 import { GithubAuthProvider, User, signInWithPopup } from "firebase/auth"
+import axiosDefault, { Axios } from "axios"
 
 interface ContextValue {
   user?: User
+  axios?: Axios
 }
 
 const AuthContext = createContext<ContextValue>({})
@@ -13,7 +15,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
-  const [currentUser, setCurrentUser] = useState<User | undefined>()
+  const [value, setValue] = useState<ContextValue>()
 
   const signin = () => {
     const provider = new GithubAuthProvider()
@@ -21,13 +23,26 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   }
 
   useEffect(() => {
-    return auth.onAuthStateChanged((user) => setCurrentUser(user || undefined))
+    return auth.onAuthStateChanged((user) => {
+      if (user) {
+        const axios = axiosDefault.create({
+          baseURL: "http://localhost:8080",
+        })
+        axios.interceptors.request.use(async (config) => {
+          config.headers.Authorization = `Bearer ${await user.getIdToken()}`
+          return config
+        })
+        setValue({
+          user,
+          axios,
+        })
+      } else {
+        setValue(undefined)
+      }
+    })
   }, [])
 
-  const value: ContextValue = {
-    user: currentUser,
-  }
-  return currentUser ? (
+  return value ? (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   ) : (
     <div className="p-4 bg-red-600 text-white">
