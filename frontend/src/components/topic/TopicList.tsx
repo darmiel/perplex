@@ -3,6 +3,8 @@ import { useAuth } from "@/contexts/AuthContext"
 import { CommentType } from "@/components/topic/TopicOverview"
 import { useQuery } from "@tanstack/react-query"
 import { create } from "domain"
+import { extractErrorMessage } from "@/api/util"
+import Button from "../controls/Button"
 
 export type Topic = {
   ID: number
@@ -40,29 +42,48 @@ export default function TopicList({
   if (topicListQuery.isError) {
     return (
       <div>
-        Error: <pre>{JSON.stringify(topicListQuery.error)}</pre>
+        Error: <pre>{extractErrorMessage(topicListQuery.error)}</pre>
       </div>
     )
   }
 
+  const checkedTopicCount = topicListQuery.data.data.filter(
+    (topic) => topic.closed_at.Valid
+  ).length
+
+  const checkedTopicRatio = checkedTopicCount / topicListQuery.data.data.length
+
   return (
     <ul className="space-y-4">
-      {topicListQuery.data.data.map((topic, key) => (
-        <TopicCard
-          key={key}
-          title={topic.title}
-          description={topic.description}
-          active={selectedTopicID === String(topic.ID)}
-          link={`/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}`}
-          checked={topic.closed_at.Valid}
-        />
-      ))}
-      <div
-        className="border border-neutral-500 px-4 py-2 text-center"
-        onClick={() => create()}
-      >
-        Create Topic
+      {/* ProgressBar */}
+      <div>
+        <div className="w-full rounded-full h-2.5 bg-gray-700">
+          <div
+            className="bg-purple-600 h-2.5 rounded-full w-[45%]"
+            style={{
+              width: `${checkedTopicRatio * 100}%`,
+            }}
+          ></div>
+        </div>
+        <div className="text-center mt-2 text-gray-500">
+          <span className="text-white">{checkedTopicCount}</span> /{" "}
+          {topicListQuery.data.data.length} topics done
+        </div>
+        <hr className="mt-4 mb-6 border-gray-700" />
       </div>
+      {/* Topic List */}
+      {topicListQuery.data.data.map((topic, key) => (
+        <div key={key}>
+          <TopicCard
+            title={topic.title}
+            description={topic.description}
+            active={selectedTopicID === String(topic.ID)}
+            link={`/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}`}
+            checked={topic.closed_at.Valid}
+          />
+        </div>
+      ))}
+      <Button>Create Topic</Button>
     </ul>
   )
 }

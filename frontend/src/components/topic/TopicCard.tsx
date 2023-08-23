@@ -1,8 +1,10 @@
 import Link from "next/link"
+import { BsCircle, BsCheckCircleFill } from "react-icons/bs"
 
 const classNames = {
-  active: "border-neutral-500 bg-neutral-800",
-  inactive: "bg-neutral-900 border-neutral-600 cursor-pointer",
+  active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",
+  inactive:
+    "border-neutral-600 cursor-pointer bg-neutral-900 hover:bg-neutral-800",
 }
 
 export default function TopicCard({
@@ -11,6 +13,7 @@ export default function TopicCard({
   active,
   checked,
   link,
+  className = "",
   onToggle,
 }: {
   title: string
@@ -18,27 +21,27 @@ export default function TopicCard({
   active?: boolean
   checked: boolean
   link: string
+  className?: string
   onToggle?: (toggled: boolean) => void
 }) {
   return (
-    <Link href={link}>
+    <Link href={link} className={className}>
       <li
         className={`${
           active ? classNames.active : classNames.inactive
-        } flex border p-4 rounded-lg items-center`}
+        } flex border py-4 px-5 rounded-lg items-center`}
       >
-        <div className="h-5">
-          <input
-            aria-describedby="helper-checkbox-text"
-            type="checkbox"
-            onChange={(e) => onToggle?.(e.target.checked)}
-            value=""
-            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-600 ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
-            checked={checked}
-          />
+        <div className="h-full">
+          {checked ? (
+            <BsCheckCircleFill color="lime" size="1.3em" />
+          ) : (
+            <BsCircle color="gray" size="1.3em" />
+          )}
         </div>
         <div className="ml-4 text-l">
-          <span className={`font-semibold text-gray-100`}>{title}</span>
+          <span className={`font-semibold text-gray-${checked ? 500 : 100}`}>
+            {title}
+          </span>
           <p
             className={`${
               active ? "text-gray-100" : "text-gray-400"

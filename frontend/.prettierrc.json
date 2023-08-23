@@ -1,3 +1,9 @@
 {
-    "semi": false
+    "semi": false,
+    "importOrder": [
+        "^@/components/(.*)$",
+        "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true
 }

@@ -24,7 +24,7 @@ export default function Navbar() {
       aria-label="Sidebar"
     >
       <div className="h-full px-3 py-4 overflow-y-auto bg-black">
-        <h1 className="text-center font-bold text-3xl mt-10 text-red-500 -rotate-90">
+        <h1 className="text-center font-bold text-3xl mt-10 text-purple-600 -rotate-90">
           DMP
         </h1>
 

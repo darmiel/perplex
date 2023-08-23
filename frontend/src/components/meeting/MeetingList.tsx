@@ -1,5 +1,6 @@
 import { NextRouter } from "next/router"
 import MeetingCard from "@/components/meeting/MeetingCard"
+import Button from "@/components/controls/Button"
 import { useAuth } from "@/contexts/AuthContext"
 import { useQuery } from "@tanstack/react-query"
 import { BarLoader } from "react-spinners"
@@ -52,9 +53,7 @@ export default function MeetingOverview({
           active={meetingID !== undefined && meetingID === String(meeting.ID)}
         />
       ))}
-      <div className="border border-neutral-500 px-4 py-2 text-center">
-        Create Meeting
-      </div>
+      <Button>Create Meeting Test</Button>
     </>
   )
 }
