@@ -24,9 +24,10 @@ export default function TopicComments({
     queryFn: async () =>
       (
         await axios!.get(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
         )
       ).data,
+    refetchInterval: 1000,
   })
   if (topicCommentQuery.isLoading) {
     return <BarLoader color="white" />

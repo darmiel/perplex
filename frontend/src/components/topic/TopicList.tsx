@@ -30,7 +30,7 @@ export default function TopicList({
   const { axios } = useAuth()
 
   const topicListQuery = useQuery<{ data: Topic[] }>({
-    queryKey: ["project", projectID, "meeting", meetingID, "topics"],
+    queryKey: [{ projectID }, { meetingID }, "topics"],
     queryFn: async () =>
       (await axios!.get(`/project/${projectID}/meeting/${meetingID}/topic`))
         .data,
@@ -48,7 +48,7 @@ export default function TopicList({
   }
 
   const checkedTopicCount = topicListQuery.data.data.filter(
-    (topic) => topic.closed_at.Valid
+    (topic) => topic.closed_at.Valid,
   ).length
 
   const checkedTopicRatio = checkedTopicCount / topicListQuery.data.data.length
@@ -77,8 +77,10 @@ export default function TopicList({
           <TopicCard
             title={topic.title}
             description={topic.description}
+            projectID={projectID}
+            meetingID={meetingID}
+            topicID={String(topic.ID)}
             active={selectedTopicID === String(topic.ID)}
-            link={`/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}`}
             checked={topic.closed_at.Valid}
           />
         </div>

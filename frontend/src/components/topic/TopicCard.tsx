@@ -1,5 +1,9 @@
 import Link from "next/link"
-import { BsCircle, BsCheckCircleFill } from "react-icons/bs"
+import { BiSolidErrorCircle } from "react-icons/bi"
+import CheckBoxCard from "../controls/card/CheckBoxCard"
+import { act } from "react-dom/test-utils"
+import { useAuth } from "@/contexts/AuthContext"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 const classNames = {
   active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",
@@ -10,49 +14,65 @@ const classNames = {
 export default function TopicCard({
   title,
   description,
+  projectID,
+  meetingID,
+  topicID,
   active,
   checked,
-  link,
   className = "",
-  onToggle,
 }: {
   title: string
   description: string
+  projectID: string
+  meetingID: string
+  topicID: string
   active?: boolean
   checked: boolean
-  link: string
   className?: string
-  onToggle?: (toggled: boolean) => void
 }) {
+  const { axios } = useAuth()
+  const queryClient = useQueryClient()
+
+  const toggleTopicMutation = useMutation({
+    mutationFn: async (check: boolean) =>
+      (
+        await axios![check ? "post" : "delete"](
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/status`,
+        )
+      ).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"], {
+        exact: true,
+      })
+      queryClient.invalidateQueries(
+        [{ projectID }, { meetingID }, { topicID }],
+        { exact: true },
+      )
+    },
+    onError: () => {},
+  })
+
   return (
-    <Link href={link} className={className}>
-      <li
-        className={`${
-          active ? classNames.active : classNames.inactive
-        } flex border py-4 px-5 rounded-lg items-center`}
-      >
-        <div className="h-full">
-          {checked ? (
-            <BsCheckCircleFill color="lime" size="1.3em" />
-          ) : (
-            <BsCircle color="gray" size="1.3em" />
-          )}
-        </div>
-        <div className="ml-4 text-l">
-          <span className={`font-semibold text-gray-${checked ? 500 : 100}`}>
-            {title}
-          </span>
-          <p
-            className={`${
-              active ? "text-gray-100" : "text-gray-400"
-            } text-xs font-normal`}
-          >
-            {description.length > 32
-              ? `${description.substring(0, 29)}...`
-              : description}
-          </p>
-        </div>
-      </li>
+    <Link
+      href={`/project/${projectID}/meeting/${meetingID}/topic/${topicID}`}
+      className={className}
+    >
+      <CheckBoxCard
+        title={title}
+        subtitle={description}
+        active={active}
+        checked={checked}
+        truncateTitle={26}
+        truncateSubTitle={36}
+        onToggle={(toggled) => toggleTopicMutation.mutate(toggled)}
+        disabled={toggleTopicMutation.isLoading}
+        loading={toggleTopicMutation.isLoading}
+        icon={
+          toggleTopicMutation.isError ? (
+            <BiSolidErrorCircle color="red" size="1.3em" />
+          ) : undefined
+        }
+      />
     </Link>
   )
 }

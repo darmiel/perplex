@@ -13,7 +13,7 @@ export default function ProjectPage() {
 
   return (
     <>
-      <div className="flex-none w-3/12 bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+      <div className="flex-initial w-2/12 bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
         <MeetingOverview
           projectID={String(projectID)}
           meetingID={String(meetingID)}
@@ -21,7 +21,7 @@ export default function ProjectPage() {
         />
       </div>
 
-      <div className="flex-none bg-neutral-950 p-6 w-3/12 border-x border-neutral-700">
+      <div className="flex-initial bg-neutral-950 p-6 w-2/12 border-r border-neutral-700">
         <TopicList
           projectID={String(projectID)}
           meetingID={String(meetingID)}
