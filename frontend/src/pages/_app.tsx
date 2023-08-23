@@ -9,6 +9,9 @@ import { AuthProvider } from "@/contexts/AuthContext"
 import Navbar from "@/components/navbar/Navbar"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+
 const inter = Inter({ subsets: ["latin"] })
 
 const queryClient = new QueryClient()
@@ -39,6 +42,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             <Navbar />
             <Component {...pageProps} />
           </div>
+          <ToastContainer position="bottom-left" />
           <ReactQueryDevtools />
         </AuthProvider>
       </QueryClientProvider>

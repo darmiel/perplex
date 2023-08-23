@@ -4,6 +4,7 @@ import CheckBoxCard from "../controls/card/CheckBoxCard"
 import { act } from "react-dom/test-utils"
 import { useAuth } from "@/contexts/AuthContext"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "react-toastify"
 
 const classNames = {
   active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",
@@ -49,7 +50,16 @@ export default function TopicCard({
         { exact: true },
       )
     },
-    onError: () => {},
+    onError: (error: unknown) => {
+      toast(
+        <>
+          <strong>Cannot Mark Topic as Done:</strong>
+          <br />
+          <pre>Solution missing.</pre>
+        </>,
+        { type: "error", position: "bottom-right" },
+      )
+    },
   })
 
   return (
