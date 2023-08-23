@@ -1,9 +1,10 @@
 import { NextRouter } from "next/router"
-import MeetingCard from "./MeetingCard"
-import { useEffect, useState } from "react"
-import { authFetch, buildUrl } from "@/api/backend"
+import MeetingCard from "@/components/meeting/MeetingCard"
 import { useAuth } from "@/contexts/AuthContext"
-import { User } from "firebase/auth"
+import { useQuery } from "@tanstack/react-query"
+import { BarLoader } from "react-spinners"
+import { extractErrorMessage } from "@/api/util"
+import { BackendResponse } from "@/api/types"
 
 type Meeting = {
   ID: number
@@ -20,56 +21,27 @@ export default function MeetingOverview({
   projectID: string
   router: NextRouter
 }) {
-  const [meetings, setMeetings] = useState<Meeting[]>([])
-  const { user } = useAuth()
+  const { axios } = useAuth()
 
-  async function update(user: User, projectID: string) {
-    const token = await user.getIdToken()
-    const res = await authFetch(
-      token,
-      buildUrl(["project", projectID, "meeting"])
-    )
-    if (res.success) {
-      setMeetings(res.data as Meeting[])
-    }
+  const listMeetingQuery = useQuery<BackendResponse<Meeting[]>>({
+    queryKey: ["project", projectID, "meeting"],
+    queryFn: async () =>
+      (await axios!.get(`/project/${projectID}/meeting`)).data,
+  })
+  if (listMeetingQuery.isLoading) {
+    return <BarLoader color="white" />
   }
-
-  async function create() {
-    if (!user) {
-      alert("User not logged in")
-      return
-    }
-    const title = prompt("Title")
-    const date = prompt("Start Date")
-    const token = await user.getIdToken()
-    const res = await authFetch(
-      token,
-      buildUrl(["project", projectID, "meeting"]),
-      {
-        method: "POST",
-        body: JSON.stringify({
-          name: title,
-          start_date: date,
-        }),
-      }
+  if (listMeetingQuery.isError) {
+    return (
+      <div>
+        Error: <pre>{extractErrorMessage(listMeetingQuery.error)}</pre>
+      </div>
     )
-    if (res.success) {
-      update(user, projectID)
-    } else {
-      alert("error: " + res.error)
-    }
   }
-
-  useEffect(() => {
-    if (!user) {
-      return
-    }
-    update(user, projectID)
-  }, [user, projectID, meetingID])
 
   return (
     <>
-      {meetings.map((meeting, key) => (
+      {listMeetingQuery.data.data.map((meeting, key) => (
         <MeetingCard
           key={key}
           title={meeting.name}
@@ -80,10 +52,7 @@ export default function MeetingOverview({
           active={meetingID !== undefined && meetingID === String(meeting.ID)}
         />
       ))}
-      <div
-        className="border border-neutral-500 px-4 py-2 text-center"
-        onClick={() => create()}
-      >
+      <div className="border border-neutral-500 px-4 py-2 text-center">
         Create Meeting
       </div>
     </>

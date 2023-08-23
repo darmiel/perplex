@@ -1,3 +1,4 @@
+import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -17,13 +18,15 @@ export default function TopicCommentBox({
   const { axios } = useAuth()
   const queryClient = useQueryClient()
 
-  const sendCommentMutation = useMutation({
+  const sendCommentMutation = useMutation<BackendResponse<never>>({
     mutationKey: [{ projectID }, { meetingID }, { topicID }, "comment-send"],
     mutationFn: async () =>
-      await axios!.post(
-        `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
-        commentBoxText
-      ),
+      (
+        await axios!.post(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
+          commentBoxText
+        )
+      ).data,
     onSuccess: () => {
       setCommentBoxText("")
 

@@ -1,4 +1,6 @@
+import Image from "next/image"
 import Link from "next/link"
+import UserAvatar from "../user/UserAvatar"
 
 export default function NavbarItem({
   alt,
@@ -7,17 +9,10 @@ export default function NavbarItem({
   alt: string
   href: string
 }) {
-  // const pathname = usePathname()
-  // TODO: maybe do something?
-  // const active = pathname === href
   return (
     <li>
       <Link href={href}>
-        <img
-          src={`https://api.dicebear.com/6.x/shapes/svg?seed=${alt}`}
-          alt={alt}
-          className="w-10 h-10 mt-1 rounded-full inline-block"
-        />
+        <UserAvatar userID={alt} />
       </Link>
     </li>
   )

@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
-import { CommentType } from "../topic/TopicOverview"
-import Comment from "./Comment"
+import { CommentType } from "@/components/topic/TopicOverview"
+import UserComment from "@/components/comment/UserComment"
 import { useAuth } from "@/contexts/AuthContext"
+import { BackendResponse } from "@/api/types"
+import { BarLoader } from "react-spinners"
+import { extractErrorMessage } from "@/api/util"
 
 export default function TopicComments({
   projectID,
@@ -16,7 +19,7 @@ export default function TopicComments({
 }) {
   const { axios } = useAuth()
 
-  const topicCommentQuery = useQuery<{ data: CommentType[] }>({
+  const topicCommentQuery = useQuery<BackendResponse<CommentType[]>>({
     queryKey: [{ projectID }, { meetingID }, { topicID }, "comment-list"],
     queryFn: async () =>
       (
@@ -25,14 +28,13 @@ export default function TopicComments({
         )
       ).data,
   })
-
   if (topicCommentQuery.isLoading) {
-    return <div>Loading Comments...</div>
+    return <BarLoader color="white" />
   }
   if (topicCommentQuery.isError) {
     return (
       <div>
-        Error: <pre>{JSON.stringify(topicCommentQuery.error)}</pre>
+        Error: <pre>{extractErrorMessage(topicCommentQuery.error)}</pre>
       </div>
     )
   }
@@ -42,7 +44,7 @@ export default function TopicComments({
   return (
     <div>
       {comments.map((c, index) => (
-        <Comment
+        <UserComment
           key={index}
           author={c.author_id}
           time={c.CreatedAt}

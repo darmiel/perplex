@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
-import NavbarItem from "./NavbarItem"
+import NavbarItem from "@/components/navbar/NavbarItem"
 import { useAuth } from "@/contexts/AuthContext"
-import { authFetch, buildUrl } from "@/api/backend"
+import { useQuery } from "@tanstack/react-query"
+import { ClipLoader, MoonLoader } from "react-spinners"
+import { extractErrorMessage } from "@/api/util"
 
 type Project = {
   ID: number
@@ -9,21 +10,12 @@ type Project = {
 }
 
 export default function Navbar() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const { user } = useAuth()
+  const { axios } = useAuth()
 
-  useEffect(() => {
-    if (!user) {
-      return
-    }
-    ;(async () => {
-      const token = await user.getIdToken()
-      const res = await authFetch(token, buildUrl(["project"]))
-      if (res.success) {
-        setProjects(res.data as Project[])
-      }
-    })()
-  }, [user])
+  const projectListQuery = useQuery<{ data: Project[] }>({
+    queryKey: ["projects"],
+    queryFn: async () => (await axios!.get("/project")).data,
+  })
 
   return (
     <aside
@@ -37,13 +29,21 @@ export default function Navbar() {
         </h1>
 
         <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">
-          {projects.map((project, key) => (
-            <NavbarItem
-              key={key}
-              alt={project.name}
-              href={`/project/${project.ID}`}
-            />
-          ))}
+          {projectListQuery.isLoading ? (
+            <ClipLoader color="white" />
+          ) : projectListQuery.isError ? (
+            <div>
+              Error: <pre>{extractErrorMessage(projectListQuery.error)}</pre>
+            </div>
+          ) : (
+            projectListQuery.data.data.map((project, key) => (
+              <NavbarItem
+                key={key}
+                alt={project.name}
+                href={`/project/${project.ID}`}
+              />
+            ))
+          )}
         </ul>
       </div>
     </aside>

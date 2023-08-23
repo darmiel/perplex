@@ -1,6 +1,7 @@
-import RenderMarkdown from "../text/RenderMarkdown"
+import RenderMarkdown from "@/components/text/RenderMarkdown"
+import UserAvatar from "@/components/user/UserAvatar"
 
-export default function Comment({
+export default function UserComment({
   author,
   time,
   message,
@@ -23,11 +24,7 @@ export default function Comment({
       }`}
     >
       <div>
-        <img
-          src={`https://api.dicebear.com/6.x/bottts-neutral/svg?seed=${author}`}
-          alt="Avatar"
-          className="w-10 h-10 mt-1 rounded-full"
-        />
+        <UserAvatar userID={author} />
       </div>
       <div className="flex flex-col ml-3">
         <div>
@@ -40,7 +37,7 @@ export default function Comment({
       </div>
       <div
         className="ml-auto mr-4 text-purple-500 underline cursor-pointer"
-        onClick={() => onSolutionClick && onSolutionClick()}
+        onClick={() => onSolutionClick?.()}
       >
         {solution ? "Remove Solution" : "Mark Solution"}
       </div>

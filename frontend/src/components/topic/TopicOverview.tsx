@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import TopicCommentList from "../comment/TopicCommentList"
 import TopicCommentBox from "../comment/TopicCommentBox"
 import RenderMarkdown from "../text/RenderMarkdown"
+import { extractErrorMessage } from "@/api/util"
 
 export type CommentType = {
   ID: number
@@ -24,10 +25,7 @@ export default function TopicOverview({
   meetingID: string
   topicID: string
 }) {
-  const [commentBoxText, setCommentBoxText] = useState("")
-
   const { axios } = useAuth()
-
   const topicInfoQuery = useQuery<{ data: Topic }>({
     queryKey: ["project", projectID, "meeting", meetingID, "topic", topicID],
     queryFn: async () =>
@@ -37,15 +35,13 @@ export default function TopicOverview({
         )
       ).data,
   })
-
-  // show loading scren if topic is not loaded or error
   if (topicInfoQuery.isLoading) {
     return <div>Loading...</div>
   }
   if (topicInfoQuery.isError) {
     return (
       <div>
-        Error: <pre>{JSON.stringify(topicInfoQuery.error)}</pre>
+        Error: <pre>{extractErrorMessage(topicInfoQuery.error)}</pre>
       </div>
     )
   }

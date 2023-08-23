@@ -22,3 +22,10 @@ export interface Meeting {
   name: string
   startDate: string
 }
+
+export interface BackendResponse<T> {
+  success: boolean
+  error: string
+  message: string
+  data: T
+}

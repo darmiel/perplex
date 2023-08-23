@@ -1,10 +1,6 @@
-import { NextRouter } from "next/router"
-import TopicCard from "./TopicCard"
-import { useEffect, useState } from "react"
-import { authFetch, buildUrl } from "@/api/backend"
+import TopicCard from "@/components/topic/TopicCard"
 import { useAuth } from "@/contexts/AuthContext"
-import { User } from "firebase/auth"
-import { CommentType } from "./TopicOverview"
+import { CommentType } from "@/components/topic/TopicOverview"
 import { useQuery } from "@tanstack/react-query"
 import { create } from "domain"
 
