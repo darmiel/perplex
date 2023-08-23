@@ -3,6 +3,7 @@ import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
+import { toast } from "react-toastify"
 
 export default function TopicCommentBox({
   projectID,
@@ -24,7 +25,7 @@ export default function TopicCommentBox({
       (
         await axios!.post(
           `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
-          commentBoxText
+          commentBoxText,
         )
       ).data,
     onSuccess: () => {
@@ -37,6 +38,8 @@ export default function TopicCommentBox({
         { topicID },
         "comment-list",
       ])
+
+      toast("Comment sent!", { type: "success" })
     },
   })
 

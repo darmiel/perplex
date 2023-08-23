@@ -53,6 +53,22 @@ export default function TopicList({
 
   const checkedTopicRatio = checkedTopicCount / topicListQuery.data.data.length
 
+  const showTopicListWithFilter = (filter: (topic: Topic) => boolean) => {
+    return topicListQuery.data.data.filter(filter).map((topic) => (
+      <div key={topic.ID}>
+        <TopicCard
+          title={topic.title}
+          description={topic.description}
+          projectID={projectID}
+          meetingID={meetingID}
+          topicID={String(topic.ID)}
+          active={selectedTopicID === String(topic.ID)}
+          checked={topic.closed_at.Valid}
+        />
+      </div>
+    ))
+  }
+
   return (
     <ul className="space-y-4">
       {/* ProgressBar */}
@@ -71,20 +87,15 @@ export default function TopicList({
         </div>
         <hr className="mt-4 mb-6 border-gray-700" />
       </div>
-      {/* Topic List */}
-      {topicListQuery.data.data.map((topic, key) => (
-        <div key={key}>
-          <TopicCard
-            title={topic.title}
-            description={topic.description}
-            projectID={projectID}
-            meetingID={meetingID}
-            topicID={String(topic.ID)}
-            active={selectedTopicID === String(topic.ID)}
-            checked={topic.closed_at.Valid}
-          />
-        </div>
-      ))}
+
+      {/* Topic List (Open Topics) */}
+      {showTopicListWithFilter((topic) => !topic.closed_at.Valid)}
+
+      <hr className="mt-4 mb-6 border-gray-700" />
+
+      {/* Topic List (Closed Topics) */}
+      {showTopicListWithFilter((topic) => topic.closed_at.Valid)}
+
       <Button>Create Topic</Button>
     </ul>
   )

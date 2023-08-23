@@ -36,7 +36,7 @@ export function CardTitle({
 }: CardTitleProps) {
   return (
     <h1
-      className={`font-semibold text-gray-${active ? 500 : 100} ${className}`}
+      className={`font-semibold text-gray-${!active ? 500 : 100} ${className}`}
     >
       {truncateChildren(truncate, children)}
     </h1>
@@ -52,7 +52,7 @@ export function CardSubTitle({
   return (
     <span
       className={`text-gray-${
-        active ? 100 : 400
+        !active ? 400 : 100
       } text-xs font-normal leading-tight ${className}`}
     >
       {truncateChildren(truncate, children)}

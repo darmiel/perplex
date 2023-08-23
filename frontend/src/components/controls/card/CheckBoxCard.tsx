@@ -60,8 +60,12 @@ export default function CheckBoxCard({
 
       {/* Display Title and Description */}
       <div className="ml-3">
-        <CardTitle truncate={truncateTitle}>{title}</CardTitle>
-        <CardSubTitle truncate={truncateSubTitle}>{subtitle}</CardSubTitle>
+        <CardTitle truncate={truncateTitle} active={!checked}>
+          {title}
+        </CardTitle>
+        <CardSubTitle truncate={truncateSubTitle} active={!checked}>
+          {subtitle}
+        </CardSubTitle>
       </div>
     </CardContainer>
   )

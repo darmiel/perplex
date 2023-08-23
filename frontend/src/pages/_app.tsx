@@ -42,7 +42,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             <Navbar />
             <Component {...pageProps} />
           </div>
-          <ToastContainer position="bottom-left" />
+          <ToastContainer position="bottom-right" />
           <ReactQueryDevtools />
         </AuthProvider>
       </QueryClientProvider>

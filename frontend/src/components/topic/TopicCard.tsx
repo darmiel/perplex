@@ -45,10 +45,6 @@ export default function TopicCard({
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"], {
         exact: true,
       })
-      queryClient.invalidateQueries(
-        [{ projectID }, { meetingID }, { topicID }],
-        { exact: true },
-      )
     },
     onError: (error: unknown) => {
       toast(
@@ -57,7 +53,7 @@ export default function TopicCard({
           <br />
           <pre>Solution missing.</pre>
         </>,
-        { type: "error", position: "bottom-right" },
+        { type: "error" },
       )
     },
   })
