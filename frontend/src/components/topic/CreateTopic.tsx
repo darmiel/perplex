@@ -82,7 +82,7 @@ export default function CreateTopic({
           },
         )
       ).data,
-    onSuccess(data) {
+    onSuccess(_, { topicID }) {
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
       queryClient.invalidateQueries([{ projectID }, { meetingID }, { topicID }])
     },
@@ -93,7 +93,8 @@ export default function CreateTopic({
     AxiosError<BackendResponse>,
     boolean
   >({
-    mutationFn: async (shouldClose: boolean) =>
+    mutationKey: [{ projectID }, { meetingID }, "topic-create"],
+    mutationFn: async () =>
       (
         await axios!.post(`/project/${projectID}/meeting/${meetingID}/topic`, {
           title: topicTitle,
