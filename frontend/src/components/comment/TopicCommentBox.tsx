@@ -1,9 +1,10 @@
-import { BackendResponse } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
-import { useAuth } from "@/contexts/AuthContext"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "react-toastify"
+
+import { BackendResponse } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicCommentBox({
   projectID,

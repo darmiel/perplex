@@ -1,7 +1,8 @@
-import { useAuth } from "@/contexts/AuthContext"
-import { auth } from "@/firebase/firebase"
 import { signOut } from "firebase/auth"
 import { useState } from "react"
+
+import { useAuth } from "@/contexts/AuthContext"
+import { auth } from "@/firebase/firebase"
 
 export default function Signin() {
   const { user } = useAuth()

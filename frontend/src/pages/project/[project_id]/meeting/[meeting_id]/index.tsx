@@ -1,6 +1,7 @@
+import { useRouter } from "next/router"
+
 import MeetingOverview from "@/components/meeting/MeetingList"
 import TopicList from "@/components/topic/TopicList"
-import { useRouter } from "next/router"
 
 export default function ProjectPage() {
   const router = useRouter()

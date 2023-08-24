@@ -1,8 +1,9 @@
+import { useQuery } from "@tanstack/react-query"
+import { ClipLoader } from "react-spinners"
+
+import { extractErrorMessage } from "@/api/util"
 import NavbarItem from "@/components/navbar/NavbarItem"
 import { useAuth } from "@/contexts/AuthContext"
-import { useQuery } from "@tanstack/react-query"
-import { ClipLoader, MoonLoader } from "react-spinners"
-import { extractErrorMessage } from "@/api/util"
 
 type Project = {
   ID: number

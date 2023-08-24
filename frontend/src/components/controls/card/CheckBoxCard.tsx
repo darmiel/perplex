@@ -1,12 +1,8 @@
-import { title } from "process"
 import { BsCheckCircleFill, BsCircle } from "react-icons/bs"
+import { ClipLoader } from "react-spinners"
+
 import CardContainer from "./CardContainer"
-import SimpleCard, {
-  CardSubTitle,
-  CardTitle,
-  SimpleCardProps,
-} from "./SimpleCard"
-import { BeatLoader, BounceLoader, ClipLoader } from "react-spinners"
+import { CardSubTitle, CardTitle, SimpleCardProps } from "./SimpleCard"
 
 export type CheckBoxCardProps = SimpleCardProps & {
   checked?: boolean

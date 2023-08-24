@@ -1,4 +1,5 @@
 import { AxiosError } from "axios"
+
 import { BackendResponse } from "./types"
 
 export function extractErrorMessage(error: unknown): string {

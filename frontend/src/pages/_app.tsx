@@ -1,15 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import "./globals.css"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata } from "next"
 import { AppProps } from "next/app"
 import { Inter } from "next/font/google"
 import Head from "next/head"
 import { useEffect } from "react"
-import { AuthProvider } from "@/contexts/AuthContext"
+
 import Navbar from "@/components/navbar/Navbar"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { AuthProvider } from "@/contexts/AuthContext"
+
+import "./globals.css"
 
 import { ToastContainer } from "react-toastify"
+
 import "react-toastify/dist/ReactToastify.css"
 
 const inter = Inter({ subsets: ["latin"] })

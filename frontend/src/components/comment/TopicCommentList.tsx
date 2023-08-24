@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
-import { CommentType } from "@/components/topic/TopicOverview"
-import UserComment from "@/components/comment/UserComment"
-import { useAuth } from "@/contexts/AuthContext"
-import { BackendResponse } from "@/api/types"
 import { BarLoader } from "react-spinners"
+
+import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import UserComment from "@/components/comment/UserComment"
+import { CommentType } from "@/components/topic/TopicOverview"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicComments({
   projectID,

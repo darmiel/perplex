@@ -1,11 +1,12 @@
-import { NextRouter } from "next/router"
-import MeetingCard from "@/components/meeting/MeetingCard"
-import Button from "@/components/controls/Button"
-import { useAuth } from "@/contexts/AuthContext"
 import { useQuery } from "@tanstack/react-query"
+import { NextRouter } from "next/router"
 import { BarLoader } from "react-spinners"
-import { extractErrorMessage } from "@/api/util"
+
 import { BackendResponse } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
+import Button from "@/components/controls/Button"
+import MeetingCard from "@/components/meeting/MeetingCard"
+import { useAuth } from "@/contexts/AuthContext"
 
 type Meeting = {
   ID: number

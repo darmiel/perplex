@@ -1,12 +1,11 @@
-import { useState } from "react"
-import ReactMarkdown from "react-markdown"
-import { Topic } from "./TopicList"
-import { useAuth } from "@/contexts/AuthContext"
 import { useQuery } from "@tanstack/react-query"
-import TopicCommentList from "../comment/TopicCommentList"
-import TopicCommentBox from "../comment/TopicCommentBox"
-import RenderMarkdown from "../text/RenderMarkdown"
+
 import { extractErrorMessage } from "@/api/util"
+import TopicCommentBox from "@/components/comment/TopicCommentBox"
+import TopicCommentList from "@/components/comment/TopicCommentList"
+import RenderMarkdown from "@/components/text/RenderMarkdown"
+import { Topic } from "@/components/topic/TopicList"
+import { useAuth } from "@/contexts/AuthContext"
 
 export type CommentType = {
   ID: number
@@ -31,7 +30,7 @@ export default function TopicOverview({
     queryFn: async () =>
       (
         await axios!.get(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
         )
       ).data,
   })

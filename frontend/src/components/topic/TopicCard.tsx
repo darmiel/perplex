@@ -1,11 +1,11 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { BiSolidErrorCircle } from "react-icons/bi"
-import CheckBoxCard from "../controls/card/CheckBoxCard"
-import { act } from "react-dom/test-utils"
-import { useAuth } from "@/contexts/AuthContext"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "react-toastify"
 import { BsCheckCircleFill } from "react-icons/bs"
+import { toast } from "react-toastify"
+
+import CheckBoxCard from "@/components/controls/card/CheckBoxCard"
+import { useAuth } from "@/contexts/AuthContext"
 
 const classNames = {
   active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",

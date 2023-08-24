@@ -1,14 +1,15 @@
-import { BackendResponse } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
-import { useAuth } from "@/contexts/AuthContext"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { AxiosError } from "axios"
+import { useState } from "react"
 import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
 import { GoDiscussionClosed } from "react-icons/go"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
-import { Topic } from "./TopicList"
-import { AxiosError } from "axios"
+
+import { BackendResponse } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
+import { Topic } from "@/components/topic/TopicList"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function TopicTypeCard({
   title,
@@ -146,10 +147,7 @@ export default function CreateTopic({
           <div>
             <BsTriangle />
           </div>
-          <div>
-            {extractErrorMessage(createTopicMutation.data) ||
-              extractErrorMessage(createTopicMutation.error)}
-          </div>
+          <div>{extractErrorMessage(createTopicMutation.error)}</div>
         </div>
       )}
       <div className="flex flex-row space-x-4 justify-end">

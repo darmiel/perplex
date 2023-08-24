@@ -1,14 +1,15 @@
-import TopicCard from "@/components/topic/TopicCard"
-import { useAuth } from "@/contexts/AuthContext"
-import { CommentType } from "@/components/topic/TopicOverview"
 import { useQuery } from "@tanstack/react-query"
-import { create } from "domain"
-import { extractErrorMessage } from "@/api/util"
-import Button from "../controls/Button"
-
-import Popup from "reactjs-popup"
-import "reactjs-popup/dist/index.css"
 import { useState } from "react"
+import Popup from "reactjs-popup"
+
+import { extractErrorMessage } from "@/api/util"
+import Button from "@/components/controls/Button"
+import TopicCard from "@/components/topic/TopicCard"
+import { CommentType } from "@/components/topic/TopicOverview"
+import { useAuth } from "@/contexts/AuthContext"
+
+import "reactjs-popup/dist/index.css"
+
 import CreateTopic from "./CreateTopic"
 
 export type Topic = {
@@ -32,7 +33,7 @@ export default function TopicList({
   selectedTopicID?: string
   projectID: string
   meetingID: string
-  setSelectedTopicID: (topicID: string) => void
+  setSelectedTopicID?: (topicID: string) => void
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
 
@@ -132,7 +133,7 @@ export default function TopicList({
           meetingID={meetingID}
           onClose={(newTopicID: number) => {
             setShowCreateTopic(false)
-            setSelectedTopicID(String(newTopicID))
+            setSelectedTopicID?.(String(newTopicID))
           }}
         />
       </Popup>

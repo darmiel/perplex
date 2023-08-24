@@ -1,11 +1,9 @@
-// markdown support
-import { ReactMarkdown } from "react-markdown/lib/react-markdown"
-import remarkGfm from "remark-gfm"
 import "github-markdown-css"
 
-// syntax highlighting
+import { ReactMarkdown } from "react-markdown/lib/react-markdown"
 import { Prism } from "react-syntax-highlighter"
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism"
+import remarkGfm from "remark-gfm"
 
 export default function RenderMarkdown({
   markdown,

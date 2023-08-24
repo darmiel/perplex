@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react"
-import { auth } from "@/firebase/firebase"
-import { GithubAuthProvider, User, signInWithPopup } from "firebase/auth"
 import axiosDefault, { Axios } from "axios"
+import { GithubAuthProvider, signInWithPopup, User } from "firebase/auth"
+import { createContext, useContext, useEffect, useState } from "react"
+
+import { auth } from "@/firebase/firebase"
 
 interface ContextValue {
   user?: User
