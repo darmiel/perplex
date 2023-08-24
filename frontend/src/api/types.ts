@@ -23,7 +23,7 @@ export interface Meeting {
   startDate: string
 }
 
-export interface BackendResponse<T> {
+export interface BackendResponse<T = never> {
   success: boolean
   error: string
   message: string

@@ -15,7 +15,9 @@ export type CheckBoxCardProps = SimpleCardProps & {
   truncateTitle?: number
   truncateSubTitle?: number
   onToggle?: (toggled: boolean) => void
-  icon?: JSX.Element
+  overwriteIcon?: JSX.Element
+  checkedIcon?: JSX.Element
+  uncheckedIcon?: JSX.Element
 }
 
 export default function CheckBoxCard({
@@ -24,7 +26,9 @@ export default function CheckBoxCard({
   checked = false,
   disabled = false,
   loading = false,
-  icon,
+  overwriteIcon,
+  checkedIcon = <BsCheckCircleFill color="lime" size="1.3em" />,
+  uncheckedIcon = <BsCircle color="gray" size="1.3em" />,
   truncateTitle = 0,
   truncateSubTitle = 0,
   active = false,
@@ -32,6 +36,15 @@ export default function CheckBoxCard({
   onClick,
   onToggle,
 }: CheckBoxCardProps) {
+  let icon: JSX.Element
+  if (loading) {
+    icon = <ClipLoader color="orange" />
+  } else if (overwriteIcon) {
+    icon = overwriteIcon
+  } else {
+    icon = checked ? checkedIcon : uncheckedIcon
+  }
+
   return (
     <CardContainer
       active={active}
@@ -47,15 +60,7 @@ export default function CheckBoxCard({
           !disabled && onToggle?.(!checked)
         }}
       >
-        {loading ? (
-          <ClipLoader color="orange" />
-        ) : icon ? (
-          icon
-        ) : checked ? (
-          <BsCheckCircleFill color="lime" size="1.3em" />
-        ) : (
-          <BsCircle color="gray" size="1.3em" />
-        )}
+        {icon}
       </div>
 
       {/* Display Title and Description */}

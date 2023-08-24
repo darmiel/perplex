@@ -33,9 +33,9 @@ func NewTopicHandler(
 var ErrNoSolution = errors.New("topic requires a solution before close")
 
 type topicDto struct {
-	Title         string `validate:"required,proj-extended,max=36" json:"title,omitempty"`
-	Description   string `validate:"required,proj-extended,max=1024" json:"description,omitempty"`
-	ForceSolution bool   `json:"force_solution,omitempty"`
+	Title         string `validate:"required,proj-extended,max=36" json:"title"`
+	Description   string `validate:"max=1024" json:"description"`
+	ForceSolution bool   `json:"force_solution"`
 }
 
 // TopicAuthorizationMiddleware is a middleware function for authorizing topic related actions.

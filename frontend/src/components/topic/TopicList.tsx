@@ -6,6 +6,11 @@ import { create } from "domain"
 import { extractErrorMessage } from "@/api/util"
 import Button from "../controls/Button"
 
+import Popup from "reactjs-popup"
+import "reactjs-popup/dist/index.css"
+import { useState } from "react"
+import CreateTopic from "./CreateTopic"
+
 export type Topic = {
   ID: number
   title: string
@@ -22,11 +27,15 @@ export default function TopicList({
   selectedTopicID,
   projectID,
   meetingID,
+  setSelectedTopicID,
 }: {
   selectedTopicID?: string
   projectID: string
   meetingID: string
+  setSelectedTopicID: (topicID: string) => void
 }) {
+  const [showCreateTopic, setShowCreateTopic] = useState(false)
+
   const { axios } = useAuth()
 
   const topicListQuery = useQuery<{ data: Topic[] }>({
@@ -64,10 +73,12 @@ export default function TopicList({
           topicID={String(topic.ID)}
           active={selectedTopicID === String(topic.ID)}
           checked={topic.closed_at.Valid}
+          hasSolution={!!topic.solution_id}
         />
       </div>
     ))
   }
+  const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
 
   return (
     <ul className="space-y-4">
@@ -85,18 +96,46 @@ export default function TopicList({
           <span className="text-white">{checkedTopicCount}</span> /{" "}
           {topicListQuery.data.data.length} topics done
         </div>
-        <hr className="mt-4 mb-6 border-gray-700" />
       </div>
 
-      {/* Topic List (Open Topics) */}
-      {showTopicListWithFilter((topic) => !topic.closed_at.Valid)}
-
       <hr className="mt-4 mb-6 border-gray-700" />
+
+      {/* Topic List (Open Topics) */}
+      {openTopics.length > 0 && (
+        <>
+          {openTopics}
+          <hr className="mt-4 mb-6 border-gray-700" />
+        </>
+      )}
 
       {/* Topic List (Closed Topics) */}
       {showTopicListWithFilter((topic) => topic.closed_at.Valid)}
 
-      <Button>Create Topic</Button>
+      <Button onClick={() => setShowCreateTopic(true)}>Create Topic</Button>
+
+      {/* Create Topic Popup */}
+      <Popup
+        modal
+        contentStyle={{
+          background: "none",
+          border: "none",
+          width: "auto",
+        }}
+        overlayStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+        }}
+        open={showCreateTopic}
+        onClose={() => setShowCreateTopic(false)}
+      >
+        <CreateTopic
+          projectID={projectID}
+          meetingID={meetingID}
+          onClose={(newTopicID: number) => {
+            setShowCreateTopic(false)
+            setSelectedTopicID(String(newTopicID))
+          }}
+        />
+      </Popup>
     </ul>
   )
 }

@@ -1,4 +1,21 @@
+import { AxiosError } from "axios"
+import { BackendResponse } from "./types"
+
 export function extractErrorMessage(error: unknown): string {
+  if (
+    error instanceof AxiosError ||
+    (typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof error.response === "object" &&
+      error.response !== null &&
+      "data" in error.response &&
+      typeof error.response.data === "object" &&
+      error.response.data !== null)
+  ) {
+    const response = error?.response as { data: BackendResponse }
+    return response?.data?.error ?? "unknown error"
+  }
   if (typeof error === "string") {
     return error
   }
