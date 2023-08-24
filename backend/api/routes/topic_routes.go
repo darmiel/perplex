@@ -16,4 +16,5 @@ func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler) {
 	router.Put("/:topic_id", handler.EditTopic)
 	router.Post("/:topic_id/status", handler.SetStatusChecked)
 	router.Delete("/:topic_id/status", handler.SetStatusUnchecked)
+	router.Post("/:topic_id/assign", handler.AssignUsers)
 }

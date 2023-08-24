@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useState } from "react"
 import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
@@ -8,8 +8,10 @@ import { toast } from "react-toastify"
 
 import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import { Topic } from "@/components/topic/TopicList"
+import { Topic, User } from "@/components/topic/TopicList"
 import { useAuth } from "@/contexts/AuthContext"
+
+import { SimpleCheckBoxCard } from "../controls/card/CheckBoxCard"
 
 export function TopicTypeCard({
   title,
@@ -60,9 +62,32 @@ export default function CreateTopic({
   const [topicTitle, setTopicTitle] = useState<string>("")
   const [topicDescription, setTopicDescription] = useState<string>("")
   const [topicType, setTopicType] = useState<TopicType>("acknowledge")
+  const [topicAssigned, setTopicAssigned] = useState<string[]>([])
 
   const { axios } = useAuth()
   const queryClient = useQueryClient()
+
+  const assignMutation = useMutation<
+    BackendResponse,
+    AxiosError,
+    { userIDs: string[]; topicID: number }
+  >({
+    mutationKey: [{ projectID }, "users-assign"],
+    mutationFn: async ({ userIDs, topicID }) =>
+      (
+        await axios!.post(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
+          {
+            assigned_users: userIDs,
+          },
+        )
+      ).data,
+    onSuccess(data) {
+      queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
+      queryClient.invalidateQueries([{ projectID }, { meetingID }, { topicID }])
+    },
+  })
+
   const createTopicMutation = useMutation<
     BackendResponse<Topic>,
     AxiosError<BackendResponse>,
@@ -77,6 +102,12 @@ export default function CreateTopic({
         })
       ).data,
     onSuccess: (data: BackendResponse<Topic>, shouldClose: boolean) => {
+      // assign users
+      assignMutation.mutate({
+        userIDs: topicAssigned,
+        topicID: data.data.ID,
+      })
+
       toast(`Topic #${data.data.ID} created`, { type: "success" })
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
 
@@ -87,6 +118,20 @@ export default function CreateTopic({
       shouldClose && onClose?.(data.data.ID)
     },
   })
+
+  // users in project
+  const projectInfoQuery = useQuery<BackendResponse<User[]>>({
+    queryKey: [{ projectID }, "users"],
+    queryFn: async () => (await axios!.get(`/project/${projectID}/users`)).data,
+  })
+
+  function addUser(userID: string) {
+    setTopicAssigned((old) => [...old, userID])
+  }
+
+  function removeUser(userID: string) {
+    setTopicAssigned((old) => old.filter((u) => u !== userID))
+  }
 
   return (
     <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-10 w-full space-y-8">
@@ -139,6 +184,32 @@ export default function CreateTopic({
             selected={topicType === "discuss"}
             onClick={() => setTopicType("discuss")}
           />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <span className="text-neutral-400">Assign</span>
+        <div className="flex flex-row space-x-4">
+          {projectInfoQuery.isLoading ? (
+            <BarLoader color="white" />
+          ) : (
+            projectInfoQuery.data?.data.map((user) => (
+              <SimpleCheckBoxCard
+                key={user.id}
+                checked={topicAssigned.includes(user.id)}
+                onToggle={(toggled) =>
+                  toggled ? addUser(user.id) : removeUser(user.id)
+                }
+                onClick={() =>
+                  topicAssigned.includes(user.id)
+                    ? removeUser(user.id)
+                    : addUser(user.id)
+                }
+              >
+                {user.name}
+              </SimpleCheckBoxCard>
+            ))
+          )}
         </div>
       </div>
       <hr className="border-neutral-600" />

@@ -16,22 +16,31 @@ export type CheckBoxCardProps = SimpleCardProps & {
   uncheckedIcon?: JSX.Element
 }
 
-export default function CheckBoxCard({
-  title,
-  subtitle,
+export function SimpleCheckBoxCard({
+  children,
+  active = false,
   checked = false,
   disabled = false,
   loading = false,
   overwriteIcon,
   checkedIcon = <BsCheckCircleFill color="lime" size="1.3em" />,
   uncheckedIcon = <BsCircle color="gray" size="1.3em" />,
-  truncateTitle = 0,
-  truncateSubTitle = 0,
-  active = false,
   className,
   onClick,
   onToggle,
-}: CheckBoxCardProps) {
+}: {
+  children: React.ReactNode
+  active?: boolean
+  checked?: boolean
+  disabled?: boolean
+  loading?: boolean
+  overwriteIcon?: JSX.Element | false
+  checkedIcon?: JSX.Element
+  uncheckedIcon?: JSX.Element
+  className?: string
+  onClick?: () => void
+  onToggle?: (toggled: boolean) => void
+}) {
   let icon: JSX.Element
   if (loading) {
     icon = <ClipLoader color="orange" />
@@ -60,14 +69,20 @@ export default function CheckBoxCard({
       </div>
 
       {/* Display Title and Description */}
-      <div className="ml-3">
-        <CardTitle truncate={truncateTitle} active={!checked}>
-          {title}
-        </CardTitle>
-        <CardSubTitle truncate={truncateSubTitle} active={!checked}>
-          {subtitle}
-        </CardSubTitle>
-      </div>
+      <div className="ml-3">{children}</div>
     </CardContainer>
+  )
+}
+
+export default function CheckBoxCard(props: CheckBoxCardProps) {
+  return (
+    <SimpleCheckBoxCard {...props}>
+      <CardTitle truncate={props.truncateTitle} active={!props.checked}>
+        {props.title}
+      </CardTitle>
+      <CardSubTitle truncate={props.truncateSubTitle} active={!props.checked}>
+        {props.subtitle}
+      </CardSubTitle>
+    </SimpleCheckBoxCard>
   )
 }

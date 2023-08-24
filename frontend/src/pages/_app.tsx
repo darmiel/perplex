@@ -43,7 +43,9 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
         <AuthProvider>
           <div className="flex">
             <Navbar />
+            {/*<Register>*/}
             <Component {...pageProps} />
+            {/*</Register>*/}
           </div>
           <ToastContainer position="bottom-right" />
           <ReactQueryDevtools />

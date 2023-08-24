@@ -135,3 +135,16 @@ func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project updated", nil))
 }
+
+func (h *ProjectHandler) ListUsersForProject(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	users := make([]model.User, len(p.Users)+1)
+	if err := h.srv.Extend(&p, "Owner"); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	users[0] = p.Owner
+	for i, u := range p.Users {
+		users[i+1] = u
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project users", users))
+}

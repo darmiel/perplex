@@ -26,7 +26,7 @@ export default function MeetingOverview({
   const { axios } = useAuth()
 
   const listMeetingQuery = useQuery<BackendResponse<Meeting[]>>({
-    queryKey: ["project", projectID, "meeting"],
+    queryKey: [{ projectID }, "meetings"],
     queryFn: async () =>
       (await axios!.get(`/project/${projectID}/meeting`)).data,
   })

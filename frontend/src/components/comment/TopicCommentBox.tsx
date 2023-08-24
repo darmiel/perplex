@@ -21,7 +21,7 @@ export default function TopicCommentBox({
   const queryClient = useQueryClient()
 
   const sendCommentMutation = useMutation<BackendResponse<never>>({
-    mutationKey: [{ projectID }, { meetingID }, { topicID }, "comment-send"],
+    mutationKey: [{ projectID }, { meetingID }, { topicID }, "comments-send"],
     mutationFn: async () =>
       (
         await axios!.post(
@@ -37,7 +37,7 @@ export default function TopicCommentBox({
         { projectID },
         { meetingID },
         { topicID },
-        "comment-list",
+        "comments",
       ])
 
       toast("Comment sent!", { type: "success" })

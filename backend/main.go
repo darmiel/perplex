@@ -91,6 +91,12 @@ func main() {
 	commentGroup := topicGroup.Group("/:topic_id/comment")
 	routes.CommentRoutes(commentGroup, commentHandler)
 
+	// /user
+	userService := services.NewUserService(db)
+	userHandler := handlers.NewUserHandler(userService, sugar, validate)
+	userGroup := app.Group("/user")
+	routes.UserRoutes(userGroup, userHandler)
+
 	// start web server
 	go func() {
 		if err := app.Listen(":8080"); err != nil {

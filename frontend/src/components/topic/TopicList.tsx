@@ -12,6 +12,11 @@ import "reactjs-popup/dist/index.css"
 
 import CreateTopic from "./CreateTopic"
 
+export type User = {
+  id: string
+  name: string
+}
+
 export type Topic = {
   ID: number
   title: string
@@ -22,6 +27,7 @@ export type Topic = {
   closed_at: {
     Valid: boolean
   }
+  assigned_users: User[]
 }
 
 export default function TopicList({
@@ -67,14 +73,10 @@ export default function TopicList({
     return topicListQuery.data.data.filter(filter).map((topic) => (
       <div key={topic.ID}>
         <TopicCard
-          title={topic.title}
-          description={topic.description}
+          topic={topic}
           projectID={projectID}
           meetingID={meetingID}
-          topicID={String(topic.ID)}
           active={selectedTopicID === String(topic.ID)}
-          checked={topic.closed_at.Valid}
-          hasSolution={!!topic.solution_id}
         />
       </div>
     ))

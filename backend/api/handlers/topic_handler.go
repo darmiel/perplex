@@ -145,3 +145,30 @@ func (h *TopicHandler) SetStatusUnchecked(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("topic opened", nil))
 }
+
+type topicAssignUserDto struct {
+	AssignedUsers []string `json:"assigned_users"`
+}
+
+func (h *TopicHandler) AssignUsers(ctx *fiber.Ctx) error {
+	var payload topicAssignUserDto
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	// check if all users in project
+	p := ctx.Locals("project").(model.Project)
+	for _, userID := range payload.AssignedUsers {
+		if _, ok := util.Any(p.Users, func(target model.User) bool {
+			return target.ID == userID
+		}); userID != p.OwnerID && !ok {
+			return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotFound))
+		}
+	}
+
+	t := ctx.Locals("topic").(model.Topic)
+	if err := h.srv.AssignUsersToTopic(t.ID, payload.AssignedUsers); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("users assigned", nil))
+}

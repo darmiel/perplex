@@ -16,6 +16,7 @@ type TopicService interface {
 	SetSolution(topicID uint, commentID uint) error
 	CheckTopic(topicID uint) error
 	UncheckTopic(topicID uint) error
+	AssignUsersToTopic(topicID uint, userIDs []string) error
 	Extend(topic *model.Topic, preload ...string) error
 }
 
@@ -47,7 +48,7 @@ func (m *topicService) AddTopic(
 }
 
 func (m *topicService) GetTopic(topicID uint) (res *model.Topic, err error) {
-	err = m.DB.First(&res, &model.Topic{
+	err = m.DB.Preload("AssignedUsers").First(&res, &model.Topic{
 		Model: gorm.Model{
 			ID: topicID,
 		},
@@ -56,10 +57,30 @@ func (m *topicService) GetTopic(topicID uint) (res *model.Topic, err error) {
 }
 
 func (m *topicService) ListTopicsForMeeting(meetingID uint) (res []*model.Topic, err error) {
-	err = m.DB.Find(&res, &model.Topic{
+	err = m.DB.Preload("AssignedUsers").Find(&res, &model.Topic{
 		MeetingID: meetingID,
 	}).Error
 	return
+}
+
+func (m *topicService) AssignUsersToTopic(topicID uint, userIDs []string) error {
+	var topic model.Topic
+	if err := m.DB.Preload("AssignedUsers").First(&topic, topicID).Error; err != nil {
+		return err
+	}
+	if err := m.DB.Model(&topic).Association("AssignedUsers").Delete(topic.AssignedUsers); err != nil {
+		return err
+	}
+	if len(userIDs) > 0 {
+		var users []model.User
+		if err := m.DB.Find(&users, userIDs).Error; err != nil {
+			return err
+		}
+		if err := m.DB.Model(&topic).Association("AssignedUsers").Append(users); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *topicService) DeleteTopic(topicID uint) error {

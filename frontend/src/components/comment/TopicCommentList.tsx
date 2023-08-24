@@ -21,14 +21,14 @@ export default function TopicComments({
   const { axios } = useAuth()
 
   const topicCommentQuery = useQuery<BackendResponse<CommentType[]>>({
-    queryKey: [{ projectID }, { meetingID }, { topicID }, "comment-list"],
+    queryKey: [{ projectID }, { meetingID }, { topicID }, "comments"],
     queryFn: async () =>
       (
         await axios!.get(
           `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
         )
       ).data,
-    refetchInterval: 1000,
+    // refetchInterval: 1000,
   })
   if (topicCommentQuery.isLoading) {
     return <BarLoader color="white" />
@@ -48,7 +48,7 @@ export default function TopicComments({
       {comments.map((c, index) => (
         <UserComment
           key={index}
-          author={c.author_id}
+          authorID={c.author_id}
           time={c.CreatedAt}
           message={c.content}
           solution={c.ID === topicSolutionCommentID}
