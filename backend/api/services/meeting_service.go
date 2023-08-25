@@ -7,7 +7,8 @@ import (
 )
 
 type MeetingService interface {
-	AddMeeting(projectID uint, creatorUserID, name string, startDate time.Time) (*model.Meeting, error)
+	AddMeeting(projectID uint, creatorUserID, name, description string, startDate time.Time) (*model.Meeting, error)
+	GetMeeting(meetingID uint) (*model.Meeting, error)
 	FindMeetingsForProject(projectID uint) ([]*model.Meeting, error)
 	DeleteMeeting(meetingID uint) error
 	EditMeeting(meetingID uint, newName string, newStartDate time.Time) error
@@ -24,14 +25,26 @@ func NewMeetingService(db *gorm.DB) MeetingService {
 	}
 }
 
-func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name string, startDate time.Time) (resp *model.Meeting, err error) {
+func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name, description string, startDate time.Time) (resp *model.Meeting, err error) {
 	resp = &model.Meeting{
-		Name:      name,
-		StartDate: startDate,
-		ProjectID: projectID,
-		CreatorID: creatorUserID,
+		Name:        name,
+		Description: description,
+		StartDate:   startDate,
+		ProjectID:   projectID,
+		CreatorID:   creatorUserID,
 	}
 	err = m.DB.Create(resp).Error
+	return
+}
+
+func (m *meetingService) GetMeeting(meetingID uint) (resp *model.Meeting, err error) {
+	err = m.DB.
+		Preload("User").
+		First(&resp, &model.Meeting{
+			Model: gorm.Model{
+				ID: meetingID,
+			},
+		}).Error
 	return
 }
 

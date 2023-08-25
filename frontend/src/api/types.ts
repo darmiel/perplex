@@ -26,7 +26,9 @@ export type CommentType = {
 export type Meeting = {
   ID: number
   name: string
+  description: string
   start_date: string
+  creator?: User
 }
 
 export type User = {

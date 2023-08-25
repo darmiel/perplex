@@ -69,8 +69,10 @@ type Topic struct {
 // Meeting represents a meeting (who would've guessed)
 type Meeting struct {
 	gorm.Model
-	// Name if the meeting
-	Name string `json:"name,omitempty"`
+	// Name of the meeting
+	Name string `json:"name"`
+	// Description of the meeting
+	Description string `json:"description"`
 	// StartDate of the meeting
 	StartDate time.Time `json:"start_date"`
 	// Topics of the meeting

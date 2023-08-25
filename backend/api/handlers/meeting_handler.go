@@ -29,8 +29,9 @@ func NewMeetingHandler(
 }
 
 type meetingDto struct {
-	Name      string `validate:"required,proj-extended,max=36" json:"name,omitempty"`
-	StartDate string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date,omitempty"`
+	Name        string `validate:"required,proj-extended,max=36" json:"name"`
+	Description string `json:"description"`
+	StartDate   string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date"`
 }
 
 // PreloadMeetingsMiddleware preloads meetings for the current project and updates the project in the locals
@@ -80,7 +81,7 @@ func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 	// create meeting
-	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, startTime)
+	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, payload.Description, startTime)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -93,10 +94,18 @@ func (h *MeetingHandler) GetMeetings(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", p.Meetings))
 }
 
+func (h *MeetingHandler) GetMeeting(ctx *fiber.Ctx) error {
+	m := ctx.Locals("meeting").(model.Meeting)
+	if err := h.srv.Extend(&m, "Creator"); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting found", m))
+}
+
 // DeleteMeeting deletes a meeting
 func (h *MeetingHandler) DeleteMeeting(ctx *fiber.Ctx) error {
-	p := ctx.Locals("project").(model.Project)
-	if err := h.srv.DeleteMeeting(p.ID); err != nil {
+	m := ctx.Locals("meeting").(model.Meeting)
+	if err := h.srv.DeleteMeeting(m.ID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting deleted", nil))

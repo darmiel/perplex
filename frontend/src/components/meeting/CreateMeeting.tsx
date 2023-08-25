@@ -22,6 +22,7 @@ export default function CreateMeeting({
   onClose: (newMeetingID: number) => void
 }) {
   const [meetingTitle, setMeetingTitle] = useState<string>("")
+  const [meetingDescription, setMeetingDescription] = useState<string>("")
   const [meetingDate, setMeetingDate] = useState<Date | null>(new Date())
 
   const { meetingCreateMutFn, meetingCreateMutKey, meetingListQueryKey } =
@@ -34,13 +35,19 @@ export default function CreateMeeting({
     boolean
   >({
     mutationKey: meetingCreateMutKey!(projectID),
-    mutationFn: meetingCreateMutFn!(projectID, meetingTitle, meetingDate!),
+    mutationFn: meetingCreateMutFn!(
+      projectID,
+      meetingTitle,
+      meetingDescription,
+      meetingDate!,
+    ),
     onSuccess(response, shouldClose: boolean) {
       toast(`Meeting #${response.data.ID} Created`, { type: `success` })
       queryClient.invalidateQueries(meetingListQueryKey!(projectID))
 
       // clear form
       setMeetingTitle("")
+      setMeetingDescription("")
       setMeetingDate(new Date())
 
       shouldClose && onClose?.(response.data.ID)
@@ -75,6 +82,20 @@ export default function CreateMeeting({
           placeholder="My awesome Meeting"
           onChange={(event) => setMeetingTitle(event.target.value)}
           value={meetingTitle}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-neutral-400" htmlFor="meetingDescription">
+          Meeting Description
+        </label>
+        <textarea
+          id="meetingDescription"
+          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          placeholder="(Markdown is supported)"
+          rows={10}
+          onChange={(event) => setMeetingDescription(event.target.value)}
+          value={meetingDescription}
         />
       </div>
 

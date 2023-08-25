@@ -8,7 +8,7 @@ import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
 import MultiUserSelect from "../user/MultiUserSelect"
-import UserAvatar from "../user/UserAvatar"
+import UserTag from "../user/UserTag"
 
 export default function TopicOverview({
   projectID,
@@ -55,25 +55,7 @@ export default function TopicOverview({
         {topic.assigned_users.length > 0 && (
           <div className="flex flex-row items-center">
             {topic.assigned_users.map((user) => (
-              <div
-                key={user.id}
-                className={`${
-                  user.id === user?.id
-                    ? "bg-primary-400 bg-opacity-20 border-primary-500 text-primary-500"
-                    : "border-neutral-500 text-neutral-500"
-                } border rounded-full px-3 py-1 flex flex-row items-center space-x-2`}
-              >
-                <div>
-                  <UserAvatar
-                    key={user.id}
-                    userID={user.id}
-                    className="h-4 w-4"
-                  />
-                </div>
-                <div>
-                  <span>{user.name}</span>
-                </div>
-              </div>
+              <UserTag key={user.id} userID={user.id} displayName={user.name} />
             ))}
           </div>
         )}

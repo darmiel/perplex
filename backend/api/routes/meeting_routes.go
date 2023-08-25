@@ -14,6 +14,7 @@ func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler) {
 
 	// check if the requested meeting belongs to the current project
 	router.Use("/:meeting_id", handler.MeetingAccessMiddleware)
+	router.Get("/:meeting_id", handler.GetMeeting)
 	router.Delete("/:meeting_id", handler.DeleteMeeting)
 	router.Put("/:meeting_id", handler.EditMeeting)
 }

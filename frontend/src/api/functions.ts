@@ -32,17 +32,31 @@ export const functions = (axios: Axios) => ({
     return [{ projectID }, "meetings"]
   },
 
-  meetingCreateMutFn(projectID: any, title: string, date: Date) {
+  meetingCreateMutFn(
+    projectID: any,
+    title: string,
+    description: string,
+    date: Date,
+  ) {
     return async () =>
       (
         await axios!.post(`/project/${projectID}/meeting`, {
           name: title,
+          description: description,
           start_date: date,
         })
       ).data
   },
   meetingCreateMutKey(projectID: string) {
     return [{ projectID }, "meeting-create-mut"]
+  },
+
+  meetingInfoQueryFn(projectID: any, meetingID: any) {
+    return async () =>
+      (await axios!.get(`/project/${projectID}/meeting/${meetingID}`)).data
+  },
+  meetingInfoQueryKey(projectID: string, meetingID: string) {
+    return [{ projectID }, { meetingID }]
   },
 
   // ======================
