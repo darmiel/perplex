@@ -33,8 +33,13 @@ export default function TopicCard({
     mutationFn: topicStatusMutFn!(projectID, meetingID, topic.ID),
     onSuccess: () => {
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
+      queryClient.invalidateQueries([
+        { projectID },
+        { meetingID },
+        { topicID: String(topic.ID) },
+      ])
     },
-    onError: (error: unknown) => {
+    onError: () => {
       toast(
         <>
           <strong>Cannot Mark Topic as Done:</strong>

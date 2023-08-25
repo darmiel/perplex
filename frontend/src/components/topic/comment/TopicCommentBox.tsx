@@ -13,10 +13,12 @@ export default function TopicCommentBox({
   projectID,
   meetingID,
   topicID,
+  className = "",
 }: {
   projectID: string
   meetingID: string
   topicID: string
+  className?: string
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
@@ -49,11 +51,11 @@ export default function TopicCommentBox({
   })
 
   return (
-    <div className="relative mt-4 border-t border-gray-700">
+    <div className={`relative ${className}`}>
       <textarea
-        className="mt-8 w-full px-3 py-2 bg-neutral-900 border border-neutral-700"
+        className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700"
         placeholder="Write a comment..."
-        rows={8}
+        rows={4}
         onChange={(e) => setCommentBoxText(e.target.value)}
         value={commentBoxText}
       ></textarea>

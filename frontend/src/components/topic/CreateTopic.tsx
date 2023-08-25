@@ -48,6 +48,42 @@ export function TopicTypeCard({
   )
 }
 
+export function AckTopicTypeCard({
+  selected,
+  onClick,
+}: {
+  selected: boolean
+  onClick?: () => void
+}) {
+  return (
+    <TopicTypeCard
+      title="Acknowledge"
+      subtitle="Just share some information."
+      icon={<BsCheck2Circle size="1.3em" />}
+      onClick={onClick}
+      selected={selected}
+    />
+  )
+}
+
+export function DiscussTopicTypeCard({
+  selected,
+  onClick,
+}: {
+  selected: boolean
+  onClick?: () => void
+}) {
+  return (
+    <TopicTypeCard
+      title="Discuss"
+      subtitle="Solution required to close topic"
+      icon={<GoDiscussionClosed size="1.3em" />}
+      onClick={onClick}
+      selected={selected}
+    />
+  )
+}
+
 export default function CreateTopic({
   projectID,
   meetingID,
@@ -169,20 +205,8 @@ export default function CreateTopic({
           Topic Type
         </label>
         <div className="flex flex-row space-x-4">
-          <TopicTypeCard
-            title="Acknowledge"
-            subtitle="Just share some information."
-            icon={<BsCheck2Circle size="1.3em" />}
-            selected={topicType === "acknowledge"}
-            onClick={() => setTopicType("acknowledge")}
-          />
-          <TopicTypeCard
-            title="Discuss"
-            subtitle="Solution required to close topic"
-            icon={<GoDiscussionClosed size="1.3em" />}
-            selected={topicType === "discuss"}
-            onClick={() => setTopicType("discuss")}
-          />
+          <AckTopicTypeCard onClick={() => setTopicType("acknowledge")} />
+          <DiscussTopicTypeCard onClick={() => setTopicType("discuss")} />
         </div>
       </div>
 

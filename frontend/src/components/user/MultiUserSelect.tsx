@@ -83,8 +83,6 @@ export default function MultiUserSelect({
     <Popup
       trigger={children}
       open={open}
-      closeOnDocumentClick={false}
-      closeOnEscape={false}
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
       contentStyle={{

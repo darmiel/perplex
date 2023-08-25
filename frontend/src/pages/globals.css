@@ -25,3 +25,7 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.markdown-body {
+  background-color: transparent !important;
+}

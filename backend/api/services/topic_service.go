@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/darmiel/dmp/pkg/model"
 	"gorm.io/gorm"
 	"time"
@@ -57,7 +58,7 @@ func (m *topicService) GetTopic(topicID uint) (res *model.Topic, err error) {
 }
 
 func (m *topicService) ListTopicsForMeeting(meetingID uint) (res []*model.Topic, err error) {
-	err = m.DB.Preload("AssignedUsers").Find(&res, &model.Topic{
+	err = m.DB.Preload("AssignedUsers").Preload("Creator").Find(&res, &model.Topic{
 		MeetingID: meetingID,
 	}).Error
 	return
@@ -99,6 +100,7 @@ func (m *topicService) DeleteTopic(topicID uint) error {
 }
 
 func (m *topicService) EditTopic(topicID uint, title, description string, forceSolution bool) error {
+	fmt.Println("updates:", topicID, title, description, forceSolution)
 	return m.DB.Updates(&model.Topic{
 		Model: gorm.Model{
 			ID: topicID,

@@ -47,4 +47,7 @@ export type Topic = {
     Valid: boolean
   }
   assigned_users: User[]
+  creator: User
+  CreatedAt: string
+  UpdatedAt: string
 }

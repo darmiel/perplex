@@ -11,11 +11,13 @@ export default function TopicComments({
   meetingID,
   topicID,
   topicSolutionCommentID,
+  className = "",
 }: {
   projectID: string
   meetingID: string
   topicID: string
   topicSolutionCommentID?: number
+  className?: string
 }) {
   const {
     commentListQueryFn: topicCommentQueryFn,
@@ -40,7 +42,7 @@ export default function TopicComments({
   const comments = topicCommentQuery.data.data
 
   return (
-    <div>
+    <div className={`space-y-4 ${className}`}>
       {comments.map((c, index) => (
         <UserComment
           key={index}
