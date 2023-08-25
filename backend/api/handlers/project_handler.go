@@ -30,7 +30,7 @@ func NewProjectHandler(
 }
 
 type projectDto struct {
-	Name        string `validate:"required,proj-extended,min=3,max=36,startsnotwith= ,endsnotwith= " json:"name,omitempty"`
+	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name,omitempty"`
 	Description string `validate:"proj-extended,max=256" json:"description,omitempty"`
 }
 

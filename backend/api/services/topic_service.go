@@ -2,7 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/darmiel/dmp/pkg/model"
 	"gorm.io/gorm"
 	"time"
@@ -100,7 +99,6 @@ func (m *topicService) DeleteTopic(topicID uint) error {
 }
 
 func (m *topicService) EditTopic(topicID uint, title, description string, forceSolution bool) error {
-	fmt.Println("updates:", topicID, title, description, forceSolution)
 	return m.DB.Updates(&model.Topic{
 		Model: gorm.Model{
 			ID: topicID,

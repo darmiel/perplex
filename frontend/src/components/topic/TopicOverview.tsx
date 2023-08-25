@@ -136,26 +136,30 @@ export default function TopicOverview({
   const [editDescription, setEditDescription] = useState("")
   const [editForceSolution, setEditForceSolution] = useState(false)
 
-  const { topicInfoQueryFn, topicInfoQueryKey, axios } = useAuth()
+  const {
+    topicInfoQueryFn,
+    topicInfoQueryKey,
+    topicUpdateMutFn,
+    topicUpdateMutKey,
+  } = useAuth()
+  const queryClient = useQueryClient()
+
   const topicInfoQuery = useQuery<BackendResponse<Topic>>({
     queryKey: topicInfoQueryKey!(projectID, meetingID, topicID),
     queryFn: topicInfoQueryFn!(projectID, meetingID, topicID),
   })
 
-  const queryClient = useQueryClient()
   const topicUpdateMutation = useMutation<BackendResponse<never>, AxiosError>({
-    mutationFn: async () =>
-      (
-        await axios!.put(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-          {
-            title: editTitle,
-            description: editDescription,
-            force_solution: editForceSolution,
-          },
-        )
-      ).data,
-    onError: (err, variables, context) => {
+    mutationFn: topicUpdateMutFn!(
+      projectID,
+      meetingID,
+      topicID,
+      editTitle,
+      editDescription,
+      editForceSolution,
+    ),
+    mutationKey: topicUpdateMutKey!(projectID, meetingID, topicID),
+    onError: (err) => {
       toast(
         <>
           <strong>Failed to update topic</strong>
@@ -164,7 +168,8 @@ export default function TopicOverview({
         { type: "error" },
       )
     },
-    onSuccess: (data, variables, context) => {
+    onSuccess: () => {
+      toast(`Topic #${topicID} updated`, { type: "success" })
       queryClient.invalidateQueries(
         topicInfoQueryKey!(projectID, meetingID, topicID),
       )
@@ -205,7 +210,7 @@ export default function TopicOverview({
   return (
     <div className="flex flex-col">
       {isEdit ? (
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mb-4">
           <AckTopicTypeCard
             selected={!editForceSolution}
             onClick={() => setEditForceSolution(false)}
@@ -216,7 +221,7 @@ export default function TopicOverview({
           />
         </div>
       ) : (
-        <span className="text-xs text-primary-500">
+        <span className="text-xs text-primary-500 uppercase">
           {topic.force_solution ? "Discuss" : "Acknowledge"}
         </span>
       )}

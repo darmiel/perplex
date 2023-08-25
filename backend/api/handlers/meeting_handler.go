@@ -29,7 +29,7 @@ func NewMeetingHandler(
 }
 
 type meetingDto struct {
-	Name        string `validate:"required,proj-extended,max=36" json:"name"`
+	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name"`
 	Description string `json:"description"`
 	StartDate   string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date"`
 }
@@ -125,7 +125,7 @@ func (h *MeetingHandler) EditMeeting(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err = h.srv.EditMeeting(m.ID, payload.Name, startTime); err != nil {
+	if err = h.srv.EditMeeting(m.ID, payload.Name, payload.Description, startTime); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting edited", nil))

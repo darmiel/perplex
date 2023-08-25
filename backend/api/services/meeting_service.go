@@ -11,7 +11,7 @@ type MeetingService interface {
 	GetMeeting(meetingID uint) (*model.Meeting, error)
 	FindMeetingsForProject(projectID uint) ([]*model.Meeting, error)
 	DeleteMeeting(meetingID uint) error
-	EditMeeting(meetingID uint, newName string, newStartDate time.Time) error
+	EditMeeting(meetingID uint, newName, newDescription string, newStartDate time.Time) error
 	Extend(meeting *model.Meeting, preload ...string) error
 }
 
@@ -68,10 +68,11 @@ func (m *meetingService) DeleteMeeting(meetingID uint) error {
 	return nil
 }
 
-func (m *meetingService) EditMeeting(meetingID uint, newName string, newStartDate time.Time) error {
+func (m *meetingService) EditMeeting(meetingID uint, newName, newDescription string, newStartDate time.Time) error {
 	return m.DB.Where("id = ?", meetingID).Updates(&model.Meeting{
-		Name:      newName,
-		StartDate: newStartDate,
+		Name:        newName,
+		Description: newDescription,
+		StartDate:   newStartDate,
 	}).Error
 }
 

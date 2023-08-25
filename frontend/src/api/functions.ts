@@ -59,6 +59,26 @@ export const functions = (axios: Axios) => ({
     return [{ projectID }, { meetingID }]
   },
 
+  meetingUpdateMutFn(
+    projectID: string,
+    meetingID: string,
+    title: string,
+    description: string,
+    date: Date,
+  ) {
+    return async () =>
+      (
+        await axios!.put(`/project/${projectID}/meeting/${meetingID}`, {
+          name: title,
+          description: description,
+          start_date: date,
+        })
+      ).data
+  },
+  meetingUpdateMutKey(projectID: string, meetingID: string) {
+    return [{ projectID }, { meetingID }, "meeting-update-mut"]
+  },
+
   // ======================
   // Topic
   // ======================
@@ -102,6 +122,30 @@ export const functions = (axios: Axios) => ({
       { topicID: String(topicID) },
       "status-assign-mut",
     ]
+  },
+
+  topicUpdateMutFn(
+    projectID: string,
+    meetingID: string,
+    topicID: string,
+    title: string,
+    description: string,
+    force_solution: boolean,
+  ) {
+    return async () =>
+      (
+        await axios!.put(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
+          {
+            title: title,
+            description: description,
+            force_solution: force_solution,
+          },
+        )
+      ).data
+  },
+  topicUpdateMutKey(projectID: string, meetingID: string, topicID: string) {
+    return [{ projectID }, { meetingID }, { topicID }, "topic-update-mut"]
   },
 
   createTopicMutFn(
