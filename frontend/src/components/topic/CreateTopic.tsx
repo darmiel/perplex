@@ -205,8 +205,14 @@ export default function CreateTopic({
           Topic Type
         </label>
         <div className="flex flex-row space-x-4">
-          <AckTopicTypeCard onClick={() => setTopicType("acknowledge")} />
-          <DiscussTopicTypeCard onClick={() => setTopicType("discuss")} />
+          <AckTopicTypeCard
+            selected={topicType === "acknowledge"}
+            onClick={() => setTopicType("acknowledge")}
+          />
+          <DiscussTopicTypeCard
+            selected={topicType === "discuss"}
+            onClick={() => setTopicType("discuss")}
+          />
         </div>
       </div>
 
