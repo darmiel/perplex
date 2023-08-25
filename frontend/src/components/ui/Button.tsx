@@ -2,9 +2,12 @@ import { PropsWithChildren } from "react"
 import { ClipLoader } from "react-spinners"
 
 const buttonStyles = {
-  primary: "bg-primary-500 hover:bg-primary-600",
-  secondary: "border border-primary-600 hover:bg-primary-800",
-  neutral: "border border-neutral-700 bg-neutral-900 hover:bg-neutral-950",
+  primary: "bg-primary-500 hover:bg-primary-600 rounded-md",
+  secondary: "border border-primary-600 hover:bg-primary-800 rounded-md",
+  neutral:
+    "border border-neutral-700 bg-neutral-900 hover:bg-neutral-950 rounded-md",
+  tab: "border-b-2 border-transparent hover:border-primary-500",
+  "tab-active": "border-b-2 border-primary-500",
 } as const
 
 const stateStyle = {
@@ -35,7 +38,7 @@ export default function Button({
   const isDisabled = disabled || isLoading
 
   // base styling
-  const classNames = ["px-4 py-2 text-center rounded-md"]
+  const classNames = ["px-4 py-2 text-center"]
   // button style
   classNames.push(buttonStyles[style])
   // enable / disabled state styling
