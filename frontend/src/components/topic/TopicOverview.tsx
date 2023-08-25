@@ -19,15 +19,10 @@ export default function TopicOverview({
   meetingID: string
   topicID: string
 }) {
-  const { axios } = useAuth()
+  const { topicInfoQueryFn, topicInfoQueryKey } = useAuth()
   const topicInfoQuery = useQuery<BackendResponse<Topic>>({
-    queryKey: [{ projectID }, { meetingID }, { topicID }],
-    queryFn: async () =>
-      (
-        await axios!.get(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-        )
-      ).data,
+    queryKey: topicInfoQueryKey!(projectID, meetingID, topicID),
+    queryFn: topicInfoQueryFn!(projectID, meetingID, topicID),
   })
   if (topicInfoQuery.isLoading) {
     return <div>Loading...</div>

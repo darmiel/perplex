@@ -29,25 +29,26 @@ export default function MultiUserSelect({
   const [assigned, setAssigned] = useState<string[]>(initialSelection)
   const [hasChanged, setHasChanged] = useState(false)
 
-  const { axios } = useAuth()
+  const {
+    projectInfoQueryFn,
+    projectInfoQueryKey,
+    assignTopicMutFn,
+    assignTopicMutKey,
+  } = useAuth()
   const queryClient = useQueryClient()
   const projectInfoQuery = useQuery<BackendResponse<User[]>>({
     enabled: open,
-    queryKey: [{ projectID }, "users"],
-    queryFn: async () => (await axios!.get(`/project/${projectID}/users`)).data,
+    queryKey: projectInfoQueryKey!(projectID),
+    queryFn: projectInfoQueryFn!(projectID),
   })
 
-  const assignMutation = useMutation<BackendResponse, AxiosError, string[]>({
-    mutationKey: [{ projectID }, "users-assign"],
-    mutationFn: async (userIDs: string[]) =>
-      (
-        await axios!.post(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
-          {
-            assigned_users: userIDs,
-          },
-        )
-      ).data,
+  const assignMutation = useMutation<
+    BackendResponse,
+    AxiosError,
+    { userIDs: string[]; topicID: any }
+  >({
+    mutationKey: assignTopicMutKey!(projectID, meetingID),
+    mutationFn: assignTopicMutFn!(projectID, meetingID),
     onSuccess(data) {
       toast(
         `${assigned.length} user${assigned.length !== 1 ? "s" : ""} assigned!`,
@@ -57,10 +58,10 @@ export default function MultiUserSelect({
       queryClient.invalidateQueries([{ projectID }, { meetingID }, { topicID }])
       setOpen(false)
     },
-    onError(error, variables) {
+    onError(error, { userIDs }) {
       toast(
         <>
-          <strong>Cannot assign {variables.length} user/s:</strong>
+          <strong>Cannot assign {userIDs.length} user/s:</strong>
           <pre>{extractErrorMessage(error)}</pre>
         </>,
         { type: "error" },
@@ -113,7 +114,9 @@ export default function MultiUserSelect({
               style="primary"
               disabled={!hasChanged}
               isLoading={assignMutation.isLoading}
-              onClick={() => assignMutation.mutate(assigned)}
+              onClick={() =>
+                assignMutation.mutate({ userIDs: assigned, topicID })
+              }
             >
               Assign
             </Button>

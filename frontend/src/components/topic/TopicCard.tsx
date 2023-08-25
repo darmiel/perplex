@@ -25,16 +25,12 @@ export default function TopicCard({
   active?: boolean
   className?: string
 }) {
-  const { axios } = useAuth()
+  const { topicStatusMutFn, topicStatusMutKey } = useAuth()
   const queryClient = useQueryClient()
 
   const toggleTopicMutation = useMutation({
-    mutationFn: async (check: boolean) =>
-      (
-        await axios![check ? "post" : "delete"](
-          `/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}/status`,
-        )
-      ).data,
+    mutationKey: topicStatusMutKey!(projectID, meetingID, topic.ID),
+    mutationFn: topicStatusMutFn!(projectID, meetingID, topic.ID),
     onSuccess: () => {
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
     },

@@ -20,12 +20,11 @@ export default function MeetingList({
   projectID: string
   onCollapse?: () => void
 }) {
-  const { axios } = useAuth()
+  const { meetingListQueryFn, meetingListQueryKey } = useAuth()
 
   const listMeetingQuery = useQuery<BackendResponse<Meeting[]>>({
-    queryKey: [{ projectID }, "meetings"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/meeting`)).data,
+    queryKey: meetingListQueryKey!(projectID),
+    queryFn: meetingListQueryFn!(projectID),
   })
   if (listMeetingQuery.isLoading) {
     return <BarLoader color="white" />

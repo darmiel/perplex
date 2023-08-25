@@ -61,7 +61,14 @@ export default function CreateTopic({
   const [topicType, setTopicType] = useState<TopicType>("acknowledge")
   const [topicAssigned, setTopicAssigned] = useState<string[]>([])
 
-  const { axios } = useAuth()
+  const {
+    createTopicMutFn,
+    createTopicMutKey,
+    assignTopicMutFn,
+    assignTopicMutKey,
+    projectInfoQueryFn,
+    projectInfoQueryKey,
+  } = useAuth()
   const queryClient = useQueryClient()
 
   const assignMutation = useMutation<
@@ -69,16 +76,8 @@ export default function CreateTopic({
     AxiosError,
     { userIDs: string[]; topicID: number }
   >({
-    mutationKey: [{ projectID }, "users-assign"],
-    mutationFn: async ({ userIDs, topicID }) =>
-      (
-        await axios!.post(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
-          {
-            assigned_users: userIDs,
-          },
-        )
-      ).data,
+    mutationKey: assignTopicMutKey!(projectID, meetingID),
+    mutationFn: assignTopicMutFn!(projectID, meetingID),
     onSuccess(_, { topicID }) {
       queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
       queryClient.invalidateQueries([{ projectID }, { meetingID }, { topicID }])
@@ -90,15 +89,14 @@ export default function CreateTopic({
     AxiosError<BackendResponse>,
     boolean
   >({
-    mutationKey: [{ projectID }, { meetingID }, "topic-create"],
-    mutationFn: async () =>
-      (
-        await axios!.post(`/project/${projectID}/meeting/${meetingID}/topic`, {
-          title: topicTitle,
-          description: topicDescription,
-          force_solution: topicType === "discuss",
-        })
-      ).data,
+    mutationKey: createTopicMutKey!(projectID, meetingID),
+    mutationFn: createTopicMutFn!(
+      projectID,
+      meetingID,
+      topicTitle,
+      topicDescription,
+      topicType === "discuss",
+    ),
     onSuccess: (data: BackendResponse<Topic>, shouldClose: boolean) => {
       // assign users
       assignMutation.mutate({
@@ -119,8 +117,8 @@ export default function CreateTopic({
 
   // users in project
   const projectInfoQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: [{ projectID }, "users"],
-    queryFn: async () => (await axios!.get(`/project/${projectID}/users`)).data,
+    queryKey: projectInfoQueryKey!(projectID),
+    queryFn: projectInfoQueryFn!(projectID),
   })
 
   function addUser(userID: string) {

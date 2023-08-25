@@ -7,11 +7,11 @@ import NavbarItem from "@/components/navbar/NavbarItem"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function Navbar() {
-  const { axios } = useAuth()
+  const { projectListQueryFn, projectListQueryKey } = useAuth()
 
   const projectListQuery = useQuery<BackendResponse<Project[]>>({
-    queryKey: ["projects"],
-    queryFn: async () => (await axios!.get("/project")).data,
+    queryKey: projectListQueryKey!(),
+    queryFn: projectListQueryFn!(),
   })
 
   return (

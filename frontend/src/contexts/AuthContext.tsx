@@ -2,12 +2,13 @@ import axiosDefault, { Axios } from "axios"
 import { GithubAuthProvider, signInWithPopup, User } from "firebase/auth"
 import { createContext, useContext, useEffect, useState } from "react"
 
+import { functions } from "@/api/functions"
 import { auth } from "@/firebase/firebase"
 
-interface ContextValue {
+type ContextValue = {
   user?: User
   axios?: Axios
-}
+} & Partial<ReturnType<typeof functions>>
 
 const AuthContext = createContext<ContextValue>({})
 
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         setValue({
           user,
           axios,
+          ...functions(axios),
         })
       } else {
         setValue(undefined)

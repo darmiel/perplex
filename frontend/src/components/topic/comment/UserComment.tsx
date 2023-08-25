@@ -20,10 +20,13 @@ export default function UserComment({
   solution?: boolean
   onSolutionClick?: () => void
 }) {
-  const { axios } = useAuth()
+  const {
+    userResolveQueryFn: resolveUserQueryFn,
+    userResolveQueryKey: resolveUserQueryKey,
+  } = useAuth()
   const userNameQuery = useQuery<BackendResponse<string>, AxiosError>({
-    queryKey: [{ userID: authorID }],
-    queryFn: async () => (await axios!.get(`/user/resolve/${authorID}`)).data,
+    queryKey: resolveUserQueryKey!(authorID),
+    queryFn: resolveUserQueryFn!(authorID),
   })
 
   const d = new Date(Date.parse(time))

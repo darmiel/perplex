@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import { useState } from "react"
 import { toast } from "react-toastify"
 
+import { sendCommentMutVars } from "@/api/functions"
 import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
@@ -18,18 +20,19 @@ export default function TopicCommentBox({
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
-  const { axios } = useAuth()
+  const {
+    commentSendMutFn: sendCommentMutFn,
+    commentSendMutKey: sendCommentMutKey,
+  } = useAuth()
   const queryClient = useQueryClient()
 
-  const sendCommentMutation = useMutation<BackendResponse<never>>({
-    mutationKey: [{ projectID }, { meetingID }, { topicID }, "comments-send"],
-    mutationFn: async () =>
-      (
-        await axios!.post(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
-          commentBoxText,
-        )
-      ).data,
+  const sendCommentMutation = useMutation<
+    BackendResponse<never>,
+    AxiosError,
+    sendCommentMutVars
+  >({
+    mutationKey: sendCommentMutKey!(projectID, meetingID, topicID),
+    mutationFn: sendCommentMutFn!(projectID, meetingID, topicID),
     onSuccess: () => {
       setCommentBoxText("")
 
@@ -73,7 +76,9 @@ export default function TopicCommentBox({
           <Button
             style="primary"
             isLoading={sendCommentMutation.isLoading}
-            onClick={() => sendCommentMutation.mutate()}
+            onClick={() =>
+              sendCommentMutation.mutate({ comment: commentBoxText })
+            }
           >
             Send
           </Button>

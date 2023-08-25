@@ -28,13 +28,11 @@ export default function TopicList({
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
 
-  const { axios } = useAuth()
+  const { topicListQueryFn, topicListQueryKey } = useAuth()
 
   const topicListQuery = useQuery<BackendResponse<Topic[]>>({
-    queryKey: [{ projectID }, { meetingID }, "topics"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/meeting/${meetingID}/topic`))
-        .data,
+    queryKey: topicListQueryKey!(projectID, meetingID),
+    queryFn: topicListQueryFn!(projectID, meetingID),
   })
 
   if (topicListQuery.isLoading) {
