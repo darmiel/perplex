@@ -16,6 +16,7 @@ export type ButtonStyle = keyof typeof buttonStyles
 
 type ButtonProps = {
   style?: ButtonStyle
+  icon?: JSX.Element
   isLoading?: boolean
   onClick?: () => void
   disabled?: boolean
@@ -24,6 +25,7 @@ type ButtonProps = {
 
 export default function Button({
   style = "neutral",
+  icon,
   isLoading = false,
   onClick,
   disabled,
@@ -41,17 +43,17 @@ export default function Button({
   // user styling
   className && classNames.push(className)
 
+  const iconContent = isLoading ? <ClipLoader color="white" size={16} /> : icon
+
   return (
     <button
       disabled={isDisabled}
       className={classNames.join(" ")}
       onClick={() => onClick?.()}
     >
-      {isLoading ? (
+      {iconContent ? (
         <div className="flex flex-row items-center justify-center space-x-2">
-          <div>
-            <ClipLoader color="white" size={16} />
-          </div>
+          <div>{iconContent}</div>
           <div>{children}</div>
         </div>
       ) : (

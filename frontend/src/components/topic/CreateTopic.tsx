@@ -6,12 +6,15 @@ import { GoDiscussionClosed } from "react-icons/go"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Topic, TopicType, User } from "@/api/types"
+import { BackendResponse, Topic, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 
-import Button from "../controls/Button"
-import { SimpleCheckBoxCard } from "../controls/card/CheckBoxCard"
+import Button from "../ui/Button"
+import CardContainer from "../ui/card/CardContainer"
+import { CheckableCardContainer } from "../ui/card/CheckableCardContainer"
+
+type TopicType = "acknowledge" | "discuss"
 
 export function TopicTypeCard({
   title,
@@ -27,13 +30,9 @@ export function TopicTypeCard({
   onClick?: () => void
 }) {
   return (
-    <div
-      className={`${
-        selected
-          ? "border border-primary-600"
-          : "bg-neutral-800 border border-neutral-600 cursor-pointer"
-      }  p-3 rounded-lg`}
+    <CardContainer
       onClick={() => onClick?.()}
+      style={selected ? "selected-border" : "neutral"}
     >
       <div className="flex flex-row items-center space-x-3">
         <div className={selected ? "text-primary-600" : "text-neutral-400"}>
@@ -44,7 +43,7 @@ export function TopicTypeCard({
           <span className="text-neutral-400 text-sm">{subtitle}</span>
         </div>
       </div>
-    </div>
+    </CardContainer>
   )
 }
 
@@ -192,21 +191,16 @@ export default function CreateTopic({
           {projectInfoQuery.isLoading ? (
             <BarLoader color="white" />
           ) : (
-            projectInfoQuery.data?.data.map((user) => (
-              <SimpleCheckBoxCard
-                key={user.id}
+            projectInfoQuery.data?.data.map((user, key) => (
+              <CheckableCardContainer
+                key={key}
                 checked={topicAssigned.includes(user.id)}
                 onToggle={(toggled) =>
                   toggled ? addUser(user.id) : removeUser(user.id)
                 }
-                onClick={() =>
-                  topicAssigned.includes(user.id)
-                    ? removeUser(user.id)
-                    : addUser(user.id)
-                }
               >
                 {user.name}
-              </SimpleCheckBoxCard>
+              </CheckableCardContainer>
             ))
           )}
         </div>

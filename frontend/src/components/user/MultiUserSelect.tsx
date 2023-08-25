@@ -9,8 +9,8 @@ import { BackendResponse, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 
-import Button from "../controls/Button"
-import { SimpleCheckBoxCard } from "../controls/card/CheckBoxCard"
+import Button from "../ui/Button"
+import { CheckableCardContainer } from "../ui/card/CheckableCardContainer"
 
 export default function MultiUserSelect({
   projectID,
@@ -98,7 +98,7 @@ export default function MultiUserSelect({
         ) : (
           <>
             {projectInfoQuery.data?.data.map((user) => (
-              <SimpleCheckBoxCard
+              <CheckableCardContainer
                 key={user.id}
                 checked={assigned.includes(user.id)}
                 onToggle={(toggled) => {
@@ -106,7 +106,7 @@ export default function MultiUserSelect({
                 }}
               >
                 {user.name}
-              </SimpleCheckBoxCard>
+              </CheckableCardContainer>
             ))}
             <Button
               className="w-full"

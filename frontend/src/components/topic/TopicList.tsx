@@ -3,11 +3,13 @@ import { useState } from "react"
 import Popup from "reactjs-popup"
 
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/controls/Button"
 import TopicCard from "@/components/topic/TopicCard"
+import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
+
+import { BsPlusCircle } from "react-icons/bs"
 
 import { BackendResponse, Topic } from "@/api/types"
 
@@ -68,6 +70,15 @@ export default function TopicList({
 
   return (
     <ul className="space-y-4">
+      <Button
+        onClick={() => setShowCreateTopic(true)}
+        style="neutral"
+        icon={<BsPlusCircle color="gray" size="1em" />}
+        className="w-full"
+      >
+        Create Topic
+      </Button>
+
       {/* ProgressBar */}
       <div>
         <div className="w-full rounded-full h-2.5 bg-gray-700">
@@ -96,8 +107,6 @@ export default function TopicList({
 
       {/* Topic List (Closed Topics) */}
       {showTopicListWithFilter((topic) => topic.closed_at.Valid)}
-
-      <Button onClick={() => setShowCreateTopic(true)}>Create Topic</Button>
 
       {/* Create Topic Popup */}
       <Popup

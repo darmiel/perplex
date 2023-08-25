@@ -1,6 +1,6 @@
 import { useRouter } from "next/router"
 
-import MeetingOverview from "@/components/meeting/MeetingList"
+import MeetingList from "@/components/meeting/MeetingList"
 import TopicList from "@/components/topic/TopicList"
 
 export default function ProjectPage() {
@@ -9,10 +9,9 @@ export default function ProjectPage() {
   return (
     <>
       <div className="flex-none w-4/12 bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
-        <MeetingOverview
+        <MeetingList
           projectID={String(projectID)}
           meetingID={String(meetingID)}
-          router={router}
         />
       </div>
 

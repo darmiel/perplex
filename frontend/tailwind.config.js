@@ -23,7 +23,7 @@ module.exports = {
   plugins: [],
   safelist: [
     {
-      pattern: /text-gray-[12345]00/,
+      pattern: /text-(neutral|primary|gray)-\d+/,
     },
   ],
 }

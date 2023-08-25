@@ -5,16 +5,12 @@ import { BsCheckCircleFill } from "react-icons/bs"
 import { toast } from "react-toastify"
 
 import { Topic } from "@/api/types"
-import { SimpleCheckBoxCard } from "@/components/controls/card/CheckBoxCard"
+import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
+import {
+  TruncateSubTitle,
+  TruncateTitle,
+} from "@/components/ui/text/TruncateText"
 import { useAuth } from "@/contexts/AuthContext"
-
-import { CardSubTitle, CardTitle } from "../controls/card/SimpleCard"
-
-const classNames = {
-  active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",
-  inactive:
-    "border-neutral-600 cursor-pointer bg-neutral-900 hover:bg-neutral-800",
-}
 
 export default function TopicCard({
   topic,
@@ -29,7 +25,7 @@ export default function TopicCard({
   active?: boolean
   className?: string
 }) {
-  const { axios, user } = useAuth()
+  const { axios } = useAuth()
   const queryClient = useQueryClient()
 
   const toggleTopicMutation = useMutation({
@@ -62,12 +58,9 @@ export default function TopicCard({
       href={`/project/${projectID}/meeting/${meetingID}/topic/${topic.ID}`}
       className={className}
     >
-      <SimpleCheckBoxCard
-        className={isAssigned ? "border-r-4 border-r-primary-500" : ""}
-        active={active}
+      <CheckableCardContainer
         checked={checked}
-        onToggle={(toggled) => toggleTopicMutation.mutate(toggled)}
-        disabled={toggleTopicMutation.isLoading}
+        style={active ? "selected-border" : "neutral"}
         loading={toggleTopicMutation.isLoading}
         overwriteIcon={
           toggleTopicMutation.isError && (
@@ -80,16 +73,18 @@ export default function TopicCard({
             size="1.3em"
           />
         }
+        onToggle={(toggled) => toggleTopicMutation.mutate(toggled)}
+        className={isAssigned ? "border-r-4 border-r-primary-500" : ""}
       >
         <div className="flex flex-col">
-          <CardTitle truncate={26} active={!checked}>
+          <TruncateTitle truncate={26} active={!checked}>
             {topic.title}
-          </CardTitle>
-          <CardSubTitle truncate={36} active={!checked}>
+          </TruncateTitle>
+          <TruncateSubTitle truncate={36} active={!checked}>
             {topic.description}
-          </CardSubTitle>
+          </TruncateSubTitle>
         </div>
-      </SimpleCheckBoxCard>
+      </CheckableCardContainer>
     </Link>
   )
 }

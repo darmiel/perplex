@@ -4,7 +4,7 @@ import { toast } from "react-toastify"
 
 import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/controls/Button"
+import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicCommentBox({

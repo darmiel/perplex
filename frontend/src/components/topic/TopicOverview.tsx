@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query"
 
 import { BackendResponse, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import RenderMarkdown from "@/components/text/RenderMarkdown"
 import TopicCommentBox from "@/components/topic/comment/TopicCommentBox"
 import TopicCommentList from "@/components/topic/comment/TopicCommentList"
+import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
 import MultiUserSelect from "../user/MultiUserSelect"

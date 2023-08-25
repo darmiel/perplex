@@ -29,8 +29,6 @@ export type Meeting = {
   start_date: string
 }
 
-export type TopicType = "acknowledge" | "discuss"
-
 export type User = {
   id: string
   name: string

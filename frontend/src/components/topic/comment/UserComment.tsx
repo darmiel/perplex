@@ -3,7 +3,7 @@ import { AxiosError } from "axios"
 import { BarLoader } from "react-spinners"
 
 import { BackendResponse } from "@/api/types"
-import RenderMarkdown from "@/components/text/RenderMarkdown"
+import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 

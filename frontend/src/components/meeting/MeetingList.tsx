@@ -1,21 +1,24 @@
 import { useQuery } from "@tanstack/react-query"
-import { NextRouter } from "next/router"
+import Link from "next/link"
+import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/controls/Button"
-import MeetingCard from "@/components/meeting/MeetingCard"
+import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function MeetingOverview({
+import CardContainer from "../ui/card/CardContainer"
+import { TruncateSubTitle, TruncateTitle } from "../ui/text/TruncateText"
+
+export default function MeetingList({
   meetingID,
   projectID,
-  router,
+  onCollapse,
 }: {
   meetingID?: string
   projectID: string
-  router: NextRouter
+  onCollapse?: () => void
 }) {
   const { axios } = useAuth()
 
@@ -37,18 +40,38 @@ export default function MeetingOverview({
 
   return (
     <>
+      <div className="flex flex-row space-x-2">
+        <Button
+          // onClick={() => (true)}
+          style="neutral"
+          icon={<BsPlusCircle color="gray" size="1em" />}
+          className="w-full"
+        >
+          Create Meeting
+        </Button>
+        <Button onClick={onCollapse} style="neutral">
+          <BsArrowLeft color="gray" size="1em" />
+        </Button>
+      </div>
+
+      <hr className="mt-4 mb-6 border-gray-700" />
+
       {listMeetingQuery.data.data.map((meeting, key) => (
-        <MeetingCard
-          key={key}
-          title={meeting.name}
-          date={meeting.start_date}
-          onClick={() =>
-            router.push(`/project/${projectID}/meeting/${meeting.ID}`)
-          }
-          active={meetingID !== undefined && meetingID === String(meeting.ID)}
-        />
+        <div key={key}>
+          <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
+            <CardContainer
+              style={
+                meetingID === String(meeting.ID) ? "selected-border" : "neutral"
+              }
+            >
+              <TruncateTitle truncate={26}>{meeting.name}</TruncateTitle>
+              <TruncateSubTitle truncate={36}>
+                {meeting.start_date}
+              </TruncateSubTitle>
+            </CardContainer>
+          </Link>
+        </div>
       ))}
-      <Button isLoading={true}>Create Meeting Test</Button>
     </>
   )
 }

@@ -1,15 +1,6 @@
 import { PropsWithChildren, ReactNode } from "react"
 
-import CardContainer, {
-  CardContainerProps,
-} from "@/components/controls/card/CardContainer"
-
-export type SimpleCardProps = {
-  title: ReactNode | string
-  subtitle?: ReactNode | string
-} & CardContainerProps
-
-export type CardTitleProps = PropsWithChildren<{
+type TruncateTitleProps = PropsWithChildren<{
   active?: boolean
   className?: string
   truncate?: number
@@ -29,12 +20,12 @@ export function truncateChildren(
   return children
 }
 
-export function CardTitle({
+export function TruncateTitle({
   children,
-  active = false,
+  active = true,
   className = "",
   truncate = 0,
-}: CardTitleProps) {
+}: TruncateTitleProps) {
   return (
     <h1
       className={`font-semibold text-gray-${!active ? 500 : 100} ${className}`}
@@ -44,38 +35,19 @@ export function CardTitle({
   )
 }
 
-export function CardSubTitle({
+export function TruncateSubTitle({
   children,
   active = false,
   className = "",
   truncate = 0,
-}: CardTitleProps) {
+}: TruncateTitleProps) {
   return (
     <span
       className={`text-gray-${
-        !active ? 400 : 100
+        !active ? 500 : 400
       } text-xs font-normal leading-tight ${className}`}
     >
       {truncateChildren(truncate, children)}
     </span>
-  )
-}
-
-export default function SimpleCard({
-  title,
-  subtitle,
-  truncateTitle = 0,
-  truncateSubtitle = 0,
-  active = false,
-  onClick,
-}: SimpleCardProps & {
-  truncateTitle?: number
-  truncateSubtitle?: number
-}) {
-  return (
-    <CardContainer active={active} onClick={onClick}>
-      <CardTitle truncate={truncateTitle}>{title}</CardTitle>
-      <CardSubTitle truncate={truncateSubtitle}>{subtitle}</CardSubTitle>
-    </CardContainer>
   )
 }
