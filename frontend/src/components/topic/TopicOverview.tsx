@@ -1,22 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 
+import { BackendResponse, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import TopicCommentBox from "@/components/comment/TopicCommentBox"
-import TopicCommentList from "@/components/comment/TopicCommentList"
 import RenderMarkdown from "@/components/text/RenderMarkdown"
-import { Topic } from "@/components/topic/TopicList"
+import TopicCommentBox from "@/components/topic/comment/TopicCommentBox"
+import TopicCommentList from "@/components/topic/comment/TopicCommentList"
 import { useAuth } from "@/contexts/AuthContext"
 
 import MultiUserSelect from "../user/MultiUserSelect"
 import UserAvatar from "../user/UserAvatar"
-
-export type CommentType = {
-  ID: number
-  author_id: string
-  content: string
-  CreatedAt: string
-  UpdatedAt: string
-}
 
 export default function TopicOverview({
   projectID,
@@ -27,8 +19,8 @@ export default function TopicOverview({
   meetingID: string
   topicID: string
 }) {
-  const { user, axios } = useAuth()
-  const topicInfoQuery = useQuery<{ data: Topic }>({
+  const { axios } = useAuth()
+  const topicInfoQuery = useQuery<BackendResponse<Topic>>({
     queryKey: [{ projectID }, { meetingID }, { topicID }],
     queryFn: async () =>
       (
@@ -58,7 +50,7 @@ export default function TopicOverview({
 
   return (
     <div className="flex flex-col">
-      <span className="uppercase text-xs text-purple-500">
+      <span className="uppercase text-xs text-primary-500">
         {topic.force_solution ? "Discuss" : "Acknowledge"}
       </span>
       <h1 className="text-2xl font-bold">{topic.title}</h1>
@@ -72,7 +64,7 @@ export default function TopicOverview({
                 key={user.id}
                 className={`${
                   user.id === user?.id
-                    ? "bg-orange-400 bg-opacity-20 border-orange-500 text-orange-500"
+                    ? "bg-primary-400 bg-opacity-20 border-primary-500 text-primary-500"
                     : "border-neutral-500 text-neutral-500"
                 } border rounded-full px-3 py-1 flex flex-row items-center space-x-2`}
               >

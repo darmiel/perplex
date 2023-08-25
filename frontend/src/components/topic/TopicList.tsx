@@ -5,30 +5,13 @@ import Popup from "reactjs-popup"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/controls/Button"
 import TopicCard from "@/components/topic/TopicCard"
-import { CommentType } from "@/components/topic/TopicOverview"
 import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
 
+import { BackendResponse, Topic } from "@/api/types"
+
 import CreateTopic from "./CreateTopic"
-
-export type User = {
-  id: string
-  name: string
-}
-
-export type Topic = {
-  ID: number
-  title: string
-  description: string
-  force_solution?: boolean
-  comments: CommentType[]
-  solution_id?: number
-  closed_at: {
-    Valid: boolean
-  }
-  assigned_users: User[]
-}
 
 export default function TopicList({
   selectedTopicID,
@@ -45,7 +28,7 @@ export default function TopicList({
 
   const { axios } = useAuth()
 
-  const topicListQuery = useQuery<{ data: Topic[] }>({
+  const topicListQuery = useQuery<BackendResponse<Topic[]>>({
     queryKey: [{ projectID }, { meetingID }, "topics"],
     queryFn: async () =>
       (await axios!.get(`/project/${projectID}/meeting/${meetingID}/topic`))
@@ -89,7 +72,7 @@ export default function TopicList({
       <div>
         <div className="w-full rounded-full h-2.5 bg-gray-700">
           <div
-            className="bg-purple-600 h-2.5 rounded-full w-[45%]"
+            className="bg-primary-600 h-2.5 rounded-full"
             style={{
               width: `${checkedTopicRatio * 100}%`,
             }}

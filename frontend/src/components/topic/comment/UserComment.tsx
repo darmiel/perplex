@@ -31,7 +31,7 @@ export default function UserComment({
     <div
       className={`flex mt-8 ${
         solution
-          ? "border-l-4 border-purple-600 bg-purple-500 bg-opacity-20 pl-3 py-3"
+          ? "border-l-4 border-primary-600 bg-primary-500 bg-opacity-20 pl-3 py-3"
           : ""
       }`}
     >
@@ -54,7 +54,7 @@ export default function UserComment({
         </div>
       </div>
       <div
-        className="ml-auto mr-4 text-purple-500 underline cursor-pointer"
+        className="ml-auto mr-4 text-primary-500 underline cursor-pointer"
         onClick={() => onSolutionClick?.()}
       >
         {solution ? "Remove Solution" : "Mark Solution"}

@@ -4,11 +4,11 @@ import { BiSolidErrorCircle } from "react-icons/bi"
 import { BsCheckCircleFill } from "react-icons/bs"
 import { toast } from "react-toastify"
 
+import { Topic } from "@/api/types"
 import { SimpleCheckBoxCard } from "@/components/controls/card/CheckBoxCard"
 import { useAuth } from "@/contexts/AuthContext"
 
 import { CardSubTitle, CardTitle } from "../controls/card/SimpleCard"
-import { Topic } from "./TopicList"
 
 const classNames = {
   active: "border-neutral-500 bg-neutral-800 hover:bg-neutral-700",
@@ -63,7 +63,7 @@ export default function TopicCard({
       className={className}
     >
       <SimpleCheckBoxCard
-        className={isAssigned ? "border-r-4 border-r-orange-500" : ""}
+        className={isAssigned ? "border-r-4 border-r-primary-500" : ""}
         active={active}
         checked={checked}
         onToggle={(toggled) => toggleTopicMutation.mutate(toggled)}

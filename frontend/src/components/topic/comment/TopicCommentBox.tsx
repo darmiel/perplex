@@ -4,6 +4,7 @@ import { toast } from "react-toastify"
 
 import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import Button from "@/components/controls/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicCommentBox({
@@ -69,13 +70,13 @@ export default function TopicCommentBox({
           <div className="text-gray-500 mr-4">Sending comment...</div>
         )}
         <div>
-          <button
-            disabled={sendCommentMutation.isLoading}
-            className="bg-purple-600 disabled:bg-gray-700 text-white py-2 px-4 rounded"
+          <Button
+            style="primary"
+            isLoading={sendCommentMutation.isLoading}
             onClick={() => sendCommentMutation.mutate()}
           >
-            {sendCommentMutation.isLoading ? "Sending..." : "Send"}
-          </button>
+            Send
+          </Button>
         </div>
       </div>
     </div>

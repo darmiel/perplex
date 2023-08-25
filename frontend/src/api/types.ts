@@ -8,24 +8,43 @@ export interface Project {
   ownerID: string
 }
 
-/*
-	// Name if the meeting
-	Name string `json:"name,omitempty"`
-	// StartDate of the meeting
-	StartDate time.Time `json:"startDate"`
-	// Topics of the meeting
-	Topics []Topic `json:"topics,omitempty"`
-	// ProjectID is the project the meeting belongs to
-	ProjectID uint `json:"projectID,omitempty"`
-  */
-export interface Meeting {
-  name: string
-  startDate: string
-}
-
 export interface BackendResponse<T = never> {
   success: boolean
   error: string
   message: string
   data: T
+}
+
+export type CommentType = {
+  ID: number
+  author_id: string
+  content: string
+  CreatedAt: string
+  UpdatedAt: string
+}
+
+export type Meeting = {
+  ID: number
+  name: string
+  start_date: string
+}
+
+export type TopicType = "acknowledge" | "discuss"
+
+export type User = {
+  id: string
+  name: string
+}
+
+export type Topic = {
+  ID: number
+  title: string
+  description: string
+  force_solution?: boolean
+  comments: CommentType[]
+  solution_id?: number
+  closed_at: {
+    Valid: boolean
+  }
+  assigned_users: User[]
 }

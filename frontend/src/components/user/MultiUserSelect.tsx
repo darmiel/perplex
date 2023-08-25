@@ -5,12 +5,12 @@ import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 import Popup from "reactjs-popup"
 
-import { BackendResponse } from "@/api/types"
+import { BackendResponse, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 
+import Button from "../controls/Button"
 import { SimpleCheckBoxCard } from "../controls/card/CheckBoxCard"
-import { User } from "../topic/TopicList"
 
 export default function MultiUserSelect({
   projectID,
@@ -108,14 +108,15 @@ export default function MultiUserSelect({
                 {user.name}
               </SimpleCheckBoxCard>
             ))}
-            <button
-              className={`${
-                hasChanged ? "bg-purple-500" : "bg-neutral-700"
-              } py-1 w-full rounded-md`}
+            <Button
+              className="w-full"
+              style="primary"
+              disabled={!hasChanged}
+              isLoading={assignMutation.isLoading}
               onClick={() => assignMutation.mutate(assigned)}
             >
-              {assignMutation.isLoading ? "Assigning..." : "Save"}
-            </button>
+              Assign
+            </Button>
           </>
         )}
       </div>

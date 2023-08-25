@@ -1,19 +1,15 @@
 import { useQuery } from "@tanstack/react-query"
 import { ClipLoader } from "react-spinners"
 
+import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import NavbarItem from "@/components/navbar/NavbarItem"
 import { useAuth } from "@/contexts/AuthContext"
 
-type Project = {
-  ID: number
-  name: string
-}
-
 export default function Navbar() {
   const { axios } = useAuth()
 
-  const projectListQuery = useQuery<{ data: Project[] }>({
+  const projectListQuery = useQuery<BackendResponse<Project[]>>({
     queryKey: ["projects"],
     queryFn: async () => (await axios!.get("/project")).data,
   })
@@ -25,7 +21,7 @@ export default function Navbar() {
       aria-label="Sidebar"
     >
       <div className="h-full px-3 py-4 overflow-y-auto bg-black">
-        <h1 className="text-center font-bold text-3xl mt-10 text-purple-600 -rotate-90">
+        <h1 className="text-center font-bold text-3xl mt-10 text-primary-600 -rotate-90">
           DMP
         </h1>
 

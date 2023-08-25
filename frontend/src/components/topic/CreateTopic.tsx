@@ -6,11 +6,11 @@ import { GoDiscussionClosed } from "react-icons/go"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse } from "@/api/types"
+import { BackendResponse, Topic, TopicType, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import { Topic, User } from "@/components/topic/TopicList"
 import { useAuth } from "@/contexts/AuthContext"
 
+import Button from "../controls/Button"
 import { SimpleCheckBoxCard } from "../controls/card/CheckBoxCard"
 
 export function TopicTypeCard({
@@ -30,13 +30,13 @@ export function TopicTypeCard({
     <div
       className={`${
         selected
-          ? "border border-purple-600"
+          ? "border border-primary-600"
           : "bg-neutral-800 border border-neutral-600 cursor-pointer"
       }  p-3 rounded-lg`}
       onClick={() => onClick?.()}
     >
       <div className="flex flex-row items-center space-x-3">
-        <div className={selected ? "text-purple-600" : "text-neutral-400"}>
+        <div className={selected ? "text-primary-600" : "text-neutral-400"}>
           {icon}
         </div>
         <div>
@@ -47,8 +47,6 @@ export function TopicTypeCard({
     </div>
   )
 }
-
-type TopicType = "acknowledge" | "discuss"
 
 export default function CreateTopic({
   projectID,
@@ -223,24 +221,21 @@ export default function CreateTopic({
         </div>
       )}
       <div className="flex flex-row space-x-4 justify-end">
-        <button
+        <Button
+          style="secondary"
+          isLoading={createTopicMutation.isLoading}
           onClick={() => createTopicMutation.mutate(true)}
-          disabled={createTopicMutation.isLoading}
-          className="px-4 py-2 border border-purple-600 rounded-md cursor-pointer hover:bg-purple-800"
         >
-          {createTopicMutation.isLoading ? <BarLoader /> : "Save and Close"}
-        </button>
-        <button
+          Save and Close
+        </Button>
+
+        <Button
+          style="primary"
+          isLoading={createTopicMutation.isLoading}
           onClick={() => createTopicMutation.mutate(false)}
-          disabled={createTopicMutation.isLoading}
-          className="px-4 py-2 bg-purple-600 rounded-md cursor-pointer hover:bg-purple-800"
         >
-          {createTopicMutation.isLoading ? (
-            <BarLoader />
-          ) : (
-            "Save and Create New"
-          )}
-        </button>
+          Save and Create New
+        </Button>
       </div>
     </div>
   )

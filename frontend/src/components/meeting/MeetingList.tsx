@@ -2,17 +2,11 @@ import { useQuery } from "@tanstack/react-query"
 import { NextRouter } from "next/router"
 import { BarLoader } from "react-spinners"
 
-import { BackendResponse } from "@/api/types"
+import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/controls/Button"
 import MeetingCard from "@/components/meeting/MeetingCard"
 import { useAuth } from "@/contexts/AuthContext"
-
-type Meeting = {
-  ID: number
-  name: string
-  start_date: string
-}
 
 export default function MeetingOverview({
   meetingID,
@@ -54,7 +48,7 @@ export default function MeetingOverview({
           active={meetingID !== undefined && meetingID === String(meeting.ID)}
         />
       ))}
-      <Button>Create Meeting Test</Button>
+      <Button isLoading={true}>Create Meeting Test</Button>
     </>
   )
 }
