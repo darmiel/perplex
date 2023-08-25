@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import Button from "../ui/Button"
 import CardContainer from "../ui/card/CardContainer"
 import { CheckableCardContainer } from "../ui/card/CheckableCardContainer"
+import ModalContainer from "../ui/modal/ModalContainer"
 
 type TopicType = "acknowledge" | "discuss"
 
@@ -68,6 +69,8 @@ export default function CreateTopic({
     assignTopicMutKey,
     projectInfoQueryFn,
     projectInfoQueryKey,
+    topicListQueryKey,
+    topicInfoQueryKey,
   } = useAuth()
   const queryClient = useQueryClient()
 
@@ -79,8 +82,10 @@ export default function CreateTopic({
     mutationKey: assignTopicMutKey!(projectID, meetingID),
     mutationFn: assignTopicMutFn!(projectID, meetingID),
     onSuccess(_, { topicID }) {
-      queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
-      queryClient.invalidateQueries([{ projectID }, { meetingID }, { topicID }])
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
+      queryClient.invalidateQueries(
+        topicInfoQueryKey!(projectID, meetingID, topicID),
+      )
     },
   })
 
@@ -104,8 +109,8 @@ export default function CreateTopic({
         topicID: data.data.ID,
       })
 
-      toast(`Topic #${data.data.ID} created`, { type: "success" })
-      queryClient.invalidateQueries([{ projectID }, { meetingID }, "topics"])
+      toast(`Topic #${data.data.ID} Created`, { type: "success" })
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
 
       // clear form
       setTopicTitle("")
@@ -130,9 +135,7 @@ export default function CreateTopic({
   }
 
   return (
-    <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-10 w-full space-y-8">
-      <h1 className="text-2xl font-bold">Create Topic</h1>
-
+    <ModalContainer title="Create Topic">
       <div className="space-y-2">
         <label className="text-neutral-400" htmlFor="topicName">
           Topic Name
@@ -229,6 +232,6 @@ export default function CreateTopic({
           Save and Create New
         </Button>
       </div>
-    </div>
+    </ModalContainer>
   )
 }

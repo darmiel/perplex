@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
 
+import { useRouter } from "next/router"
 import { BsPlusCircle } from "react-icons/bs"
 
 import { BackendResponse, Topic } from "@/api/types"
@@ -19,15 +20,14 @@ export default function TopicList({
   selectedTopicID,
   projectID,
   meetingID,
-  setSelectedTopicID,
 }: {
   selectedTopicID?: string
   projectID: string
   meetingID: string
-  setSelectedTopicID?: (topicID: string) => void
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
 
+  const router = useRouter()
   const { topicListQueryFn, topicListQueryKey } = useAuth()
 
   const topicListQuery = useQuery<BackendResponse<Topic[]>>({
@@ -125,7 +125,9 @@ export default function TopicList({
           meetingID={meetingID}
           onClose={(newTopicID: number) => {
             setShowCreateTopic(false)
-            setSelectedTopicID?.(String(newTopicID))
+            router.push(
+              `/project/${projectID}/meeting/${meetingID}/topic/${newTopicID}`,
+            )
           }}
         />
       </Popup>

@@ -22,6 +22,7 @@ export default function ProjectPage() {
     },
   ] as const
   type tabName = (typeof tabPanes)[number]["name"]
+
   const [tab, setTab] = useState<tabName>("Topics")
 
   const router = useRouter()
@@ -29,7 +30,17 @@ export default function ProjectPage() {
     project_id: projectID,
     meeting_id: meetingID,
     topic_id: topicID,
+    tab: tabFromURL,
   } = router.query
+
+  // check if tabFromURL is a valid tab name
+  if (
+    tabFromURL &&
+    tabFromURL !== tab &&
+    tabPanes.some((pane) => pane.name === tabFromURL)
+  ) {
+    setTab(tabFromURL as tabName)
+  }
 
   if (
     !projectID ||
@@ -48,7 +59,7 @@ export default function ProjectPage() {
         <div className="flex-initial w-[21rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
           <MeetingList
             projectID={String(projectID)}
-            meetingID={String(meetingID)}
+            selectedMeetingID={String(meetingID)}
             onCollapse={() => setShowMeetingList(false)}
           />
         </div>
@@ -68,7 +79,21 @@ export default function ProjectPage() {
 
       <TabContainer
         tab={tab}
-        setTab={(newTab) => setTab(newTab as tabName)}
+        setTab={(newTab) => {
+          setTab(newTab as tabName)
+
+          // update URL
+          router.push(
+            {
+              query: {
+                ...router.query,
+                tab: newTab,
+              },
+            },
+            undefined,
+            { shallow: true },
+          )
+        }}
         panes={tabPanes}
       >
         {tab === "Topics" ? (

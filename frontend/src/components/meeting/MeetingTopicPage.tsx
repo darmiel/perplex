@@ -21,11 +21,6 @@ export default function MeetingTopicPage({
           projectID={String(projectID)}
           meetingID={String(meetingID)}
           selectedTopicID={String(topicID)}
-          setSelectedTopicID={(topicID) => {
-            router.push(
-              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-            )
-          }}
         />
       </div>
 

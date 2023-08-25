@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useRouter } from "next/router"
+import { useState } from "react"
 import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
+import Popup from "reactjs-popup"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -10,17 +13,21 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import CardContainer from "../ui/card/CardContainer"
 import { TruncateSubTitle, TruncateTitle } from "../ui/text/TruncateText"
+import CreateMeeting from "./CreateMeeting"
 
 export default function MeetingList({
-  meetingID,
   projectID,
+  selectedMeetingID,
   onCollapse,
 }: {
-  meetingID?: string
   projectID: string
+  selectedMeetingID?: string
   onCollapse?: () => void
 }) {
+  const [showCreateMeeting, setShowCreateMeeting] = useState(false)
   const { meetingListQueryFn, meetingListQueryKey } = useAuth()
+
+  const router = useRouter()
 
   const listMeetingQuery = useQuery<BackendResponse<Meeting[]>>({
     queryKey: meetingListQueryKey!(projectID),
@@ -41,7 +48,7 @@ export default function MeetingList({
     <>
       <div className="flex flex-row space-x-2">
         <Button
-          // onClick={() => (true)}
+          onClick={() => setShowCreateMeeting(true)}
           style="neutral"
           icon={<BsPlusCircle color="gray" size="1em" />}
           className="w-full"
@@ -60,7 +67,9 @@ export default function MeetingList({
           <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
             <CardContainer
               style={
-                meetingID === String(meeting.ID) ? "selected-border" : "neutral"
+                selectedMeetingID === String(meeting.ID)
+                  ? "selected-border"
+                  : "neutral"
               }
             >
               <TruncateTitle truncate={26}>{meeting.name}</TruncateTitle>
@@ -71,6 +80,29 @@ export default function MeetingList({
           </Link>
         </div>
       ))}
+
+      {/* Create Meeting Popup */}
+      <Popup
+        modal
+        contentStyle={{
+          background: "none",
+          border: "none",
+          width: "auto",
+        }}
+        overlayStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+        }}
+        open={showCreateMeeting}
+        onClose={() => setShowCreateMeeting(false)}
+      >
+        <CreateMeeting
+          projectID={projectID}
+          onClose={(newMeetingID: number) => {
+            setShowCreateMeeting(false)
+            router.push(`/project/${projectID}/meeting/${newMeetingID}`)
+          }}
+        />
+      </Popup>
     </>
   )
 }

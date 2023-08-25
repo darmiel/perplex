@@ -11,7 +11,7 @@ export default function ProjectPage() {
       <div className="flex-none w-4/12 bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
         <MeetingList
           projectID={String(projectID)}
-          meetingID={String(meetingID)}
+          selectedMeetingID={String(meetingID)}
         />
       </div>
 
