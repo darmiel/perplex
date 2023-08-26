@@ -29,3 +29,10 @@ body {
 .markdown-body {
   background-color: transparent !important;
 }
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 0.2rem !important;
+  background: rgb(40, 44, 52) !important;
+  /* background-color: transparent !important; */
+}

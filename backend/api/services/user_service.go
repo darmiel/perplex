@@ -25,15 +25,15 @@ func (u userService) ChangeName(userID, newName string) error {
 	return u.DB.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).Create(&model.User{
-		ID:   userID,
-		Name: newName,
+		ID:       userID,
+		UserName: newName,
 	}).Error
 }
 
 func (u userService) GetName(userID string) (res string, err error) {
 	var user model.User
 	if err = u.DB.First(&user, &model.User{ID: userID}).Error; err == nil {
-		res = user.Name
+		res = user.UserName
 	}
 	return
 }

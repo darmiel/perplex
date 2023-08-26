@@ -17,6 +17,7 @@ import OverviewContainer from "../ui/overview/OverviewContainer"
 import OverviewContent from "../ui/overview/OverviewContent"
 import OverviewSection from "../ui/overview/OverviewSection"
 import OverviewSide from "../ui/overview/OverviewSide"
+import OverviewTitle from "../ui/overview/OverviewTitle"
 import Tag from "../ui/Tag"
 import FetchUserTag from "../user/FetchUserTag"
 import MultiUserSelect from "../user/MultiUserSelect"
@@ -226,40 +227,20 @@ export default function TopicOverview({
         </span>
       )}
 
-      <h1 className="text-2xl mt-1 space-x-2">
-        {isEdit ? (
-          <input
-            className="w-full bg-transparent border-b border-gray-700 focus:outline-none"
-            defaultValue={topic.title}
-            onChange={(e) => setEditTitle(e.target.value)}
-          />
-        ) : (
-          <span className="font-bold">{topic.title}</span>
-        )}
-        <span className="text-neutral-400">#{topic.ID}</span>
-      </h1>
-
-      <div className="flex flex-row items-center text-neutral-500 space-x-1 mt-2">
-        <Tag className={tag.className}>
-          <div>{tag.icon}</div>
-          <div>{tag.text}</div>
-        </Tag>
-        {topic.creator?.name && (
-          <>
-            <span className="font-semibold">{topic.creator.name}</span>
-            <span>created on</span>
-          </>
-        )}
-        <span className="font-semibold">
-          {dateCreated.toLocaleDateString()}
-        </span>
-        <span>at</span>
-        <span className="font-semibold">
-          {dateCreated.toLocaleTimeString()}
-        </span>
-      </div>
-
-      <hr className="my-4 border-gray-700" />
+      <OverviewTitle
+        creatorID={topic.creator_id}
+        title={topic.title}
+        titleID={topic.ID}
+        tag={
+          <Tag className={tag.className}>
+            <div>{tag.icon}</div>
+            <div>{tag.text}</div>
+          </Tag>
+        }
+        createdAt={dateCreated}
+        setEditTitle={setEditTitle}
+        isEdit={isEdit}
+      />
 
       <OverviewContainer>
         <OverviewContent>

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
-import { BsPen } from "react-icons/bs"
+import { BsForward, BsPen, BsPlay, BsRewind } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
@@ -17,7 +17,27 @@ import OverviewContainer from "../ui/overview/OverviewContainer"
 import OverviewContent from "../ui/overview/OverviewContent"
 import OverviewSection from "../ui/overview/OverviewSection"
 import OverviewSide from "../ui/overview/OverviewSide"
+import OverviewTitle from "../ui/overview/OverviewTitle"
+import Tag from "../ui/Tag"
 import FetchUserTag from "../user/FetchUserTag"
+
+const tags = {
+  past: {
+    icon: <BsRewind />,
+    text: "Past",
+    className: "bg-neutral-700 text-white",
+  },
+  future: {
+    icon: <BsForward />,
+    text: "Future",
+    className: "bg-blue-600 text-white",
+  },
+  ongoing: {
+    icon: <BsPlay />,
+    text: "Ongoing",
+    className: "bg-green-600 text-white",
+  },
+}
 
 export default function MeetingOverview({
   projectID,
@@ -89,6 +109,19 @@ export default function MeetingOverview({
   const meeting = meetingInfoQuery.data.data
   const date = new Date(meeting.start_date)
 
+  // past: before now - 2 hours
+  // future: after now + 2 hours
+  // ongoing: in between
+  let tag
+  const now = new Date()
+  if (date.getTime() < now.getTime() - 2 * 3600 * 1000) {
+    tag = tags.past
+  } else if (date.getTime() > now.getTime() + 2 * 3600 * 1000) {
+    tag = tags.future
+  } else {
+    tag = tags.ongoing
+  }
+
   function enterEdit() {
     setEditTitle(meeting.name)
     setEditDescription(meeting.description)
@@ -114,18 +147,22 @@ export default function MeetingOverview({
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-2xl">
-        {isEdit ? (
-          <input
-            className="w-full bg-transparent"
-            defaultValue={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-          />
-        ) : (
-          <span className="font-bold">{meeting.name}</span>
-        )}
-      </h1>
-      <span className="text-neutral-500 mt-3">
+      <OverviewTitle
+        creatorID={meeting.creator_id}
+        title={meeting.name}
+        titleID={meeting.ID}
+        tag={
+          <Tag className={tag.className}>
+            <div>{tag.icon}</div>
+            <div>{tag.text}</div>
+          </Tag>
+        }
+        createdAt={new Date(meeting.CreatedAt)}
+        setEditTitle={setEditTitle}
+        isEdit={isEdit}
+      />
+
+      <span className="text-neutral-500 mb-3">
         {isEdit ? (
           <div className="mb-3">
             <ReactDatePicker

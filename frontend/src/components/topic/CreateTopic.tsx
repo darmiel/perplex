@@ -103,8 +103,8 @@ export default function CreateTopic({
     createTopicMutKey,
     assignTopicMutFn,
     assignTopicMutKey,
-    projectInfoQueryFn,
-    projectInfoQueryKey,
+    projectUsersQueryFn: projectInfoQueryFn,
+    projectUsersQueryKey: projectInfoQueryKey,
     topicListQueryKey,
     topicInfoQueryKey,
   } = useAuth()

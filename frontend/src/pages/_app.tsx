@@ -48,7 +48,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             {/*</Register>*/}
           </div>
           <ToastContainer position="bottom-right" />
-          <ReactQueryDevtools />
+          <ReactQueryDevtools position="top-left" />
         </AuthProvider>
       </QueryClientProvider>
     </>

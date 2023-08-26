@@ -1,3 +1,5 @@
+import { ReactNode } from "react"
+
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -6,7 +8,7 @@ export default function UserTag({
   displayName,
 }: {
   userID: string
-  displayName: string
+  displayName: string | ReactNode
 }) {
   const { user } = useAuth()
   return (

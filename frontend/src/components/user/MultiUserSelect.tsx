@@ -30,8 +30,8 @@ export default function MultiUserSelect({
   const [hasChanged, setHasChanged] = useState(false)
 
   const {
-    projectInfoQueryFn,
-    projectInfoQueryKey,
+    projectUsersQueryFn: projectInfoQueryFn,
+    projectUsersQueryKey: projectInfoQueryKey,
     assignTopicMutFn,
     assignTopicMutKey,
   } = useAuth()

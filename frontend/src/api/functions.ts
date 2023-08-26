@@ -15,10 +15,17 @@ export const functions = (axios: Axios) => ({
     return ["projects"]
   },
 
-  projectInfoQueryFn(projectID: any) {
+  projectGetQueryFn(projectID: any) {
+    return async () => (await axios!.get(`/project/${projectID}`)).data
+  },
+  projectGetQueryKey(projectID: string) {
+    return [{ projectID }]
+  },
+
+  projectUsersQueryFn(projectID: any) {
     return async () => (await axios!.get(`/project/${projectID}/users`)).data
   },
-  projectInfoQueryKey(projectID: string) {
+  projectUsersQueryKey(projectID: string) {
     return [{ projectID }, "users"]
   },
 

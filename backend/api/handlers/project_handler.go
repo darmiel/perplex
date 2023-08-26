@@ -148,3 +148,8 @@ func (h *ProjectHandler) ListUsersForProject(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project users", users))
 }
+
+func (h *ProjectHandler) GetProject(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project", p))
+}

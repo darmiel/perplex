@@ -60,6 +60,7 @@ export default function ProjectPage() {
           <MeetingList
             projectID={String(projectID)}
             selectedMeetingID={String(meetingID)}
+            displayCollapse={true}
             onCollapse={() => setShowMeetingList(false)}
           />
         </div>

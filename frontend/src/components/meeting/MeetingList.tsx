@@ -18,10 +18,12 @@ import CreateMeeting from "./CreateMeeting"
 export default function MeetingList({
   projectID,
   selectedMeetingID,
+  displayCollapse = false,
   onCollapse,
 }: {
   projectID: string
   selectedMeetingID?: string
+  displayCollapse?: boolean
   onCollapse?: () => void
 }) {
   const [showCreateMeeting, setShowCreateMeeting] = useState(false)
@@ -55,9 +57,11 @@ export default function MeetingList({
         >
           Create Meeting
         </Button>
-        <Button onClick={onCollapse} style="neutral">
-          <BsArrowLeft color="gray" size="1em" />
-        </Button>
+        {displayCollapse && (
+          <Button onClick={onCollapse} style="neutral">
+            <BsArrowLeft color="gray" size="1em" />
+          </Button>
+        )}
       </div>
 
       <hr className="mt-4 mb-6 border-gray-700" />

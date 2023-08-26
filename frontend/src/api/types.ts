@@ -5,7 +5,7 @@ export interface Project {
   UpdatedAt: string
   name: string
   description: string
-  ownerID: string
+  owner_id: string
 }
 
 export interface BackendResponse<T = never> {
@@ -25,10 +25,12 @@ export type CommentType = {
 
 export type Meeting = {
   ID: number
+  CreatedAt: string
   name: string
   description: string
   start_date: string
   creator?: User
+  creator_id: string
 }
 
 export type User = {
@@ -48,6 +50,7 @@ export type Topic = {
   }
   assigned_users: User[]
   creator: User
+  creator_id: string
   CreatedAt: string
   UpdatedAt: string
 }
