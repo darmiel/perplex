@@ -37,6 +37,7 @@ export default function ProjectPage() {
     projectUsersQueryFn,
     projectUsersQueryKey,
     axios,
+    user,
   } = useAuth()
   const queryClient = useQueryClient()
 
@@ -90,6 +91,8 @@ export default function ProjectPage() {
     )
   }
 
+  const isOwner = projectInfoQuery.data.data.owner_id === user?.uid
+
   const project = projectInfoQuery.data.data
   const dateCreated = project.CreatedAt
     ? new Date(project.CreatedAt)
@@ -130,6 +133,7 @@ export default function ProjectPage() {
                   className="w-full text-sm"
                   icon={<BsPen />}
                   onClick={() => enterEdit()}
+                  disabled={!isOwner}
                 >
                   Edit Project
                 </Button>
@@ -172,6 +176,7 @@ export default function ProjectPage() {
                 className="w-full mt-4"
                 onClick={() => setShowUserControl(true)}
                 icon={<BsPerson />}
+                disabled={!isOwner}
               >
                 Manage Users
               </Button>

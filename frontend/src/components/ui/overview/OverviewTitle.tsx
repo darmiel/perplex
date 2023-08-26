@@ -14,6 +14,7 @@ export default function OverviewTitle({
   setEditTitle,
 
   isEdit,
+  injectHeader,
   className = "",
 }: {
   creatorID: string
@@ -25,22 +26,26 @@ export default function OverviewTitle({
   setEditTitle: (title: string) => void
 
   isEdit: boolean
+  injectHeader?: ReactNode
   className?: string
 }) {
   return (
     <div className={`w-full ${className}`}>
-      <h1 className="text-2xl mt-1 space-x-2">
-        {isEdit ? (
-          <input
-            className="w-full font-bold bg-transparent border-b border-gray-700 focus:outline-none"
-            defaultValue={title}
-            onChange={(e) => setEditTitle(e.target.value)}
-          />
-        ) : (
-          <span className="font-bold">{title}</span>
-        )}
-        {titleID && <span className="text-neutral-400">#{titleID}</span>}
-      </h1>
+      <div className="flex flex-row items-center">
+        <h1 className="text-2xl mt-1 space-x-2">
+          {isEdit ? (
+            <input
+              className="w-full font-bold bg-transparent border-b border-gray-700 focus:outline-none"
+              defaultValue={title}
+              onChange={(e) => setEditTitle(e.target.value)}
+            />
+          ) : (
+            <span className="font-bold">{title}</span>
+          )}
+          {titleID && <span className="text-neutral-400">#{titleID}</span>}
+        </h1>
+        {injectHeader}
+      </div>
 
       <div className="flex flex-row items-center text-neutral-500 space-x-2 mt-2">
         <div>{tag}</div>

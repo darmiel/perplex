@@ -26,7 +26,7 @@ func NewUserHandler(
 }
 
 type changeNameDto struct {
-	NewName string `json:"new_name" validate:"min=3,max=32,required,alphanum"`
+	NewName string `json:"new_name" validate:"min=3,max=32,required,username"`
 }
 
 func (h UserHandler) UpdateName(ctx *fiber.Ctx) error {

@@ -35,12 +35,7 @@ const (
 
 var ErrCommentTooLong = errors.New("comment too long (max. 8 MiB)")
 
-// CommentOwnershipMiddleware is a middleware function that checks for the ownership of the comment.
-// It retrieves the comment by ID from the request parameters and verifies whether
-// the authenticated user is the author of this comment. If it's not the same, it returns a status of unauthorized.
-// If the comment is found and the user is the author, it stores the comment in local context and continues to the next handler.
-func (h *CommentHandler) CommentOwnershipMiddleware(ctx *fiber.Ctx) error {
-	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+func (h *CommentHandler) CommentLocalsMiddleware(ctx *fiber.Ctx) error {
 	commentID, err := ctx.ParamsInt("comment_id")
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
@@ -49,11 +44,21 @@ func (h *CommentHandler) CommentOwnershipMiddleware(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(err))
 	}
-	if u.UserID == comment.AuthorID {
-		ctx.Locals("comment", *comment)
-		return ctx.Next()
+	ctx.Locals("comment", *comment)
+	return ctx.Next()
+}
+
+// CommentOwnershipMiddleware is a middleware function that checks for the ownership of the comment.
+// It retrieves the comment by ID from the request parameters and verifies whether
+// the authenticated user is the author of this comment. If it's not the same, it returns a status of unauthorized.
+// If the comment is found and the user is the author, it stores the comment in local context and continues to the next handler.
+func (h *CommentHandler) CommentOwnershipMiddleware(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	c := ctx.Locals("comment").(model.Comment)
+	if u.UserID != c.AuthorID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNoAccess))
 	}
-	return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNoAccess))
+	return ctx.Next()
 }
 
 // AddComment is an endpoint function to create a new comment for a specific topic.

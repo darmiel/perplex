@@ -17,6 +17,7 @@ import (
 	"gorm.io/gorm"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -62,37 +63,53 @@ func main() {
 		TokenExtractor: gofiberfirebaseauth.NewHeaderExtractor("Bearer "),
 	}))
 
+	projectService := services.NewProjectService(db)
+	meetingService := services.NewMeetingService(db)
+	topicService := services.NewTopicService(db)
+	commentService := services.NewCommentService(db, topicService)
+	userService := services.NewUserService(db)
+
+	app.Use(func(ctx *fiber.Ctx) error {
+		u := ctx.Locals("user").(gofiberfirebaseauth.User)
+		// check if user is already registered
+		if _, err := userService.GetName(u.UserID); err != nil {
+			// extract username from email
+			username := u.Email[:strings.Index(u.Email, "@")]
+			sugar.Infof("user %s is not registered yet, creating user with name %s", u.UserID, username)
+			// create user
+			if err = userService.ChangeName(u.UserID, username); err != nil {
+				sugar.Warnf("cannot create user %s: %v", u.UserID, err)
+			}
+		}
+		return ctx.Next()
+	})
+
 	validate, err := util.NewValidate()
 	if err != nil {
 		sugar.With(err).Fatalln("cannot create validator")
 	}
 
 	// /project
-	projectService := services.NewProjectService(db)
 	projectHandler := handlers.NewProjectHandler(projectService, sugar, validate)
 	projectGroup := app.Group("/project")
 	routes.ProjectRoutes(projectGroup, projectHandler)
 
 	// /meetings
-	meetingService := services.NewMeetingService(db)
 	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, sugar, validate)
 	meetingGroup := projectGroup.Group("/:project_id/meeting")
 	routes.MeetingRoutes(meetingGroup, meetingHandler)
 
 	// /topics
-	topicService := services.NewTopicService(db)
 	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, sugar, validate)
 	topicGroup := meetingGroup.Group("/:meeting_id/topic")
 	routes.TopicRoutes(topicGroup, topicHandler)
 
 	// /comment
-	commentService := services.NewCommentService(db, topicService)
 	commentHandler := handlers.NewCommentHandler(commentService, meetingService, sugar, validate)
 	commentGroup := topicGroup.Group("/:topic_id/comment")
 	routes.CommentRoutes(commentGroup, commentHandler)
 
 	// /user
-	userService := services.NewUserService(db)
 	userHandler := handlers.NewUserHandler(userService, sugar, validate)
 	userGroup := app.Group("/user")
 	routes.UserRoutes(userGroup, userHandler)

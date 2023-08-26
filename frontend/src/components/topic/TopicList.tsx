@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import "reactjs-popup/dist/index.css"
 
 import { useRouter } from "next/router"
-import { BsPlusCircle } from "react-icons/bs"
+import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 
 import { BackendResponse, Topic } from "@/api/types"
 import CreateTopic from "@/components/modals/TopicCreateModal"
@@ -19,10 +19,12 @@ export default function TopicList({
   selectedTopicID,
   projectID,
   meetingID,
+  onCollapse,
 }: {
   selectedTopicID?: string
   projectID: string
   meetingID: string
+  onCollapse?: () => void
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
 
@@ -67,14 +69,21 @@ export default function TopicList({
 
   return (
     <ul className="space-y-4">
-      <Button
-        onClick={() => setShowCreateTopic(true)}
-        style="neutral"
-        icon={<BsPlusCircle color="gray" size="1em" />}
-        className="w-full"
-      >
-        Create Topic
-      </Button>
+      <div className="flex space-x-2">
+        <Button
+          onClick={() => setShowCreateTopic(true)}
+          style="neutral"
+          icon={<BsPlusCircle color="gray" size="1em" />}
+          className="w-full"
+        >
+          Create Topic
+        </Button>
+        {onCollapse && (
+          <Button onClick={onCollapse} style="neutral">
+            <BsArrowLeft color="gray" size="1em" />
+          </Button>
+        )}
+      </div>
 
       {/* ProgressBar */}
       <div>

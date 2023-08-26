@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import { useState } from "react"
 import {
+  BsArrowLeft,
+  BsArrowRight,
   BsBookmarkStar,
   BsBookmarkStarFill,
   BsCheckSquareFill,
@@ -143,7 +146,9 @@ export default function TopicOverview({
     topicUpdateMutFn,
     topicUpdateMutKey,
     topicListQueryKey,
+    topicListQueryFn,
   } = useAuth()
+  const router = useRouter()
   const queryClient = useQueryClient()
 
   const topicInfoQuery = useQuery<BackendResponse<Topic>>({
@@ -180,6 +185,11 @@ export default function TopicOverview({
     },
   })
 
+  const topicListQuery = useQuery<BackendResponse<Topic[]>>({
+    queryKey: topicListQueryKey!(projectID, meetingID),
+    queryFn: topicListQueryFn!(projectID, meetingID),
+  })
+
   if (topicInfoQuery.isLoading) {
     return <div>Loading...</div>
   }
@@ -210,6 +220,26 @@ export default function TopicOverview({
     setIsEdit(true)
   }
 
+  let nextTopicURL: string | undefined
+  let prevTopicURL: string | undefined
+
+  if (topicListQuery.isSuccess) {
+    const topicList = topicListQuery.data.data
+    const topicIndex = topicList.findIndex((t) => t.ID === topic.ID)
+    if (topicIndex !== -1) {
+      if (topicIndex < topicList.length - 1) {
+        nextTopicURL = `/project/${projectID}/meeting/${meetingID}/topic/${
+          topicList[topicIndex + 1].ID
+        }`
+      }
+      if (topicIndex > 0) {
+        prevTopicURL = `/project/${projectID}/meeting/${meetingID}/topic/${
+          topicList[topicIndex - 1].ID
+        }`
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col">
       {isEdit ? (
@@ -238,6 +268,20 @@ export default function TopicOverview({
             <div>{tag.icon}</div>
             <div>{tag.text}</div>
           </Tag>
+        }
+        injectHeader={
+          <div className="ml-2 flex items-center space-x-2">
+            <Link href={prevTopicURL ?? "#"}>
+              <Button disabled={!prevTopicURL} raw>
+                <BsArrowLeft />
+              </Button>
+            </Link>
+            <Link href={nextTopicURL ?? "#"}>
+              <Button disabled={!nextTopicURL} raw>
+                <BsArrowRight />
+              </Button>
+            </Link>
+          </div>
         }
         createdAt={dateCreated}
         setEditTitle={setEditTitle}
