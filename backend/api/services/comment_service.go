@@ -1,9 +1,12 @@
 package services
 
 import (
+	"errors"
 	"github.com/darmiel/dmp/pkg/model"
 	"gorm.io/gorm"
 )
+
+var ErrCommentIsSolution = errors.New("cannot delete solution")
 
 type CommentService interface {
 	AddComment(authorID string, topicID uint, content string) (*model.Comment, error)
@@ -63,6 +66,24 @@ func (c *commentService) EditComment(commentID uint, newContent string) error {
 }
 
 func (c *commentService) DeleteComment(commentID uint) error {
+	// check if comment is solution
+	var comment model.Comment
+	if err := c.DB.First(&comment, &model.Comment{
+		Model: gorm.Model{
+			ID: commentID,
+		},
+	}).Error; err != nil {
+		return err
+	}
+	// get topic of comment
+	topic, err := c.topicService.GetTopic(comment.TopicID)
+	if err != nil {
+		return err
+	}
+	// check if comment is solution
+	if topic.SolutionID == commentID {
+		return ErrCommentIsSolution
+	}
 	return c.DB.Delete(&model.Comment{
 		Model: gorm.Model{
 			ID: commentID,

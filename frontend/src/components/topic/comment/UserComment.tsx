@@ -13,6 +13,7 @@ import { ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
 import { BackendResponse, CommentType } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
 import { RelativeDate } from "@/components/ui/DateString"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import ResolveUserName from "@/components/user/ResolveUserName"
@@ -73,6 +74,15 @@ export default function UserComment({
       toast(`Comment #${comment.ID} deleted!`, { type: "success" })
       queryClient.invalidateQueries(
         commentListQueryKey!(projectID, meetingID, topicID),
+      )
+    },
+    onError(err) {
+      toast(
+        <>
+          <strong>Failed to delete comment</strong>
+          <pre>{extractErrorMessage(err)}</pre>
+        </>,
+        { type: "error" },
       )
     },
   })
