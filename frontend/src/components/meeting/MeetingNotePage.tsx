@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import RenderMarkdown from "../ui/text/RenderMarkdown"
+import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 
 /**
  * This page is a work in progress.

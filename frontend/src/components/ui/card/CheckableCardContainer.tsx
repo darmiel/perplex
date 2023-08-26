@@ -1,7 +1,9 @@
 import { BsCheckCircleFill, BsCircle } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 
-import CardContainer, { CardContainerProps } from "./CardContainer"
+import CardContainer, {
+  CardContainerProps,
+} from "@/components/ui/card/CardContainer"
 
 export type CheckableCardContainerProps = CardContainerProps & {
   // if checked is true, checkedIcon will be displayed

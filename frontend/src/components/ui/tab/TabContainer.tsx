@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 
-import Button from "../Button"
+import Button from "@/components/ui/Button"
 
 type ExtendedTabItem = {
   name: string

@@ -7,10 +7,9 @@ import Popup from "reactjs-popup"
 
 import { BackendResponse, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import Button from "@/components/ui/Button"
+import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
 import { useAuth } from "@/contexts/AuthContext"
-
-import Button from "../ui/Button"
-import { CheckableCardContainer } from "../ui/card/CheckableCardContainer"
 
 export default function MultiUserSelect({
   projectID,

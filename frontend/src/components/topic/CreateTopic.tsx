@@ -8,12 +8,11 @@ import { toast } from "react-toastify"
 
 import { BackendResponse, Topic, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import Button from "@/components/ui/Button"
+import CardContainer from "@/components/ui/card/CardContainer"
+import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
+import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
-
-import Button from "../ui/Button"
-import CardContainer from "../ui/card/CardContainer"
-import { CheckableCardContainer } from "../ui/card/CheckableCardContainer"
-import ModalContainer from "../ui/modal/ModalContainer"
 
 type TopicType = "acknowledge" | "discuss"
 

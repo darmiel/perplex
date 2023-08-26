@@ -1,7 +1,7 @@
 import { NextRouter } from "next/router"
 
-import TopicList from "../topic/TopicList"
-import TopicOverview from "../topic/TopicOverview"
+import TopicList from "@/components/topic/TopicList"
+import TopicOverview from "@/components/topic/TopicOverview"
 
 export default function MeetingTopicPage({
   projectID,

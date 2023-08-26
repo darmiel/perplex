@@ -6,9 +6,8 @@ import { ClipLoader } from "react-spinners"
 
 import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
-
-import UserAvatar from "../user/UserAvatar"
 
 export default function Navbar() {
   const { user, projectListQueryFn, projectListQueryKey } = useAuth()

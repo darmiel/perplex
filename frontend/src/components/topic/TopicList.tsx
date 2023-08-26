@@ -13,8 +13,7 @@ import { useRouter } from "next/router"
 import { BsPlusCircle } from "react-icons/bs"
 
 import { BackendResponse, Topic } from "@/api/types"
-
-import CreateTopic from "./CreateTopic"
+import CreateTopic from "@/components/topic/CreateTopic"
 
 export default function TopicList({
   selectedTopicID,

@@ -9,20 +9,22 @@ import { BackendResponse, CommentType, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import TopicCommentBox from "@/components/topic/comment/TopicCommentBox"
 import TopicCommentList from "@/components/topic/comment/TopicCommentList"
+import {
+  AckTopicTypeCard,
+  DiscussTopicTypeCard,
+} from "@/components/topic/CreateTopic"
+import Button from "@/components/ui/Button"
+import OverviewContainer from "@/components/ui/overview/OverviewContainer"
+import OverviewContent from "@/components/ui/overview/OverviewContent"
+import OverviewSection from "@/components/ui/overview/OverviewSection"
+import OverviewSide from "@/components/ui/overview/OverviewSide"
+import OverviewTitle from "@/components/ui/overview/OverviewTitle"
+import Tag from "@/components/ui/Tag"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import FetchUserTag from "@/components/user/FetchUserTag"
+import MultiUserSelect from "@/components/user/MultiUserSelect"
+import UserTag from "@/components/user/UserTag"
 import { useAuth } from "@/contexts/AuthContext"
-
-import Button from "../ui/Button"
-import OverviewContainer from "../ui/overview/OverviewContainer"
-import OverviewContent from "../ui/overview/OverviewContent"
-import OverviewSection from "../ui/overview/OverviewSection"
-import OverviewSide from "../ui/overview/OverviewSide"
-import OverviewTitle from "../ui/overview/OverviewTitle"
-import Tag from "../ui/Tag"
-import FetchUserTag from "../user/FetchUserTag"
-import MultiUserSelect from "../user/MultiUserSelect"
-import UserTag from "../user/UserTag"
-import { AckTopicTypeCard, DiscussTopicTypeCard } from "./CreateTopic"
 
 const tags = {
   open: {

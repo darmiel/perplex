@@ -1,6 +1,6 @@
 import { AxiosError } from "axios"
 
-import { BackendResponse } from "./types"
+import { BackendResponse } from "@/api/types"
 
 export function extractErrorMessage(error: unknown): string {
   if (

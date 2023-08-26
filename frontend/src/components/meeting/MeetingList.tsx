@@ -8,12 +8,16 @@ import Popup from "reactjs-popup"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import CreateMeeting from "@/components/meeting/CreateMeeting"
+import MeetingTag from "@/components/meeting/MeetingTag"
 import Button from "@/components/ui/Button"
+import CardContainer from "@/components/ui/card/CardContainer"
+import Hr from "@/components/ui/Hr"
+import {
+  TruncateSubTitle,
+  TruncateTitle,
+} from "@/components/ui/text/TruncateText"
 import { useAuth } from "@/contexts/AuthContext"
-
-import CardContainer from "../ui/card/CardContainer"
-import { TruncateSubTitle, TruncateTitle } from "../ui/text/TruncateText"
-import CreateMeeting from "./CreateMeeting"
 
 export default function MeetingList({
   projectID,
@@ -64,7 +68,7 @@ export default function MeetingList({
         )}
       </div>
 
-      <hr className="mt-4 mb-6 border-gray-700" />
+      <Hr className="mt-4 mb-6 border-gray-700" />
 
       {listMeetingQuery.data.data.map((meeting, key) => (
         <div key={key}>
@@ -76,7 +80,12 @@ export default function MeetingList({
                   : "neutral"
               }
             >
-              <TruncateTitle truncate={26}>{meeting.name}</TruncateTitle>
+              <div className="flex items-center space-x-2">
+                <MeetingTag icon date={new Date(meeting.start_date)} />
+                <div>
+                  <TruncateTitle truncate={22}>{meeting.name}</TruncateTitle>
+                </div>
+              </div>
               <TruncateSubTitle truncate={36}>
                 {meeting.start_date}
               </TruncateSubTitle>

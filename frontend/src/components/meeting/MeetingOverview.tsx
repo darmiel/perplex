@@ -2,42 +2,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
-import { BsForward, BsPen, BsPlay, BsRewind } from "react-icons/bs"
+import { BsPen } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import MeetingTag from "@/components/meeting/MeetingTag"
+import TopicList from "@/components/topic/TopicList"
+import Button from "@/components/ui/Button"
+import OverviewContainer from "@/components/ui/overview/OverviewContainer"
+import OverviewContent from "@/components/ui/overview/OverviewContent"
+import OverviewSection from "@/components/ui/overview/OverviewSection"
+import OverviewSide from "@/components/ui/overview/OverviewSide"
+import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
-
-import TopicList from "../topic/TopicList"
-import Button from "../ui/Button"
-import OverviewContainer from "../ui/overview/OverviewContainer"
-import OverviewContent from "../ui/overview/OverviewContent"
-import OverviewSection from "../ui/overview/OverviewSection"
-import OverviewSide from "../ui/overview/OverviewSide"
-import OverviewTitle from "../ui/overview/OverviewTitle"
-import Tag from "../ui/Tag"
-import FetchUserTag from "../user/FetchUserTag"
-
-const tags = {
-  past: {
-    icon: <BsRewind />,
-    text: "Past",
-    className: "bg-neutral-700 text-white",
-  },
-  future: {
-    icon: <BsForward />,
-    text: "Future",
-    className: "bg-blue-600 text-white",
-  },
-  ongoing: {
-    icon: <BsPlay />,
-    text: "Ongoing",
-    className: "bg-green-600 text-white",
-  },
-}
 
 export default function MeetingOverview({
   projectID,
@@ -112,16 +93,6 @@ export default function MeetingOverview({
   // past: before now - 2 hours
   // future: after now + 2 hours
   // ongoing: in between
-  let tag
-  const now = new Date()
-  if (date.getTime() < now.getTime() - 2 * 3600 * 1000) {
-    tag = tags.past
-  } else if (date.getTime() > now.getTime() + 2 * 3600 * 1000) {
-    tag = tags.future
-  } else {
-    tag = tags.ongoing
-  }
-
   function enterEdit() {
     setEditTitle(meeting.name)
     setEditDescription(meeting.description)
@@ -151,12 +122,7 @@ export default function MeetingOverview({
         creatorID={meeting.creator_id}
         title={meeting.name}
         titleID={meeting.ID}
-        tag={
-          <Tag className={tag.className}>
-            <div>{tag.icon}</div>
-            <div>{tag.text}</div>
-          </Tag>
-        }
+        tag={<MeetingTag date={date} />}
         createdAt={new Date(meeting.CreatedAt)}
         setEditTitle={setEditTitle}
         isEdit={isEdit}

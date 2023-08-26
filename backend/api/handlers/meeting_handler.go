@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
+	"sort"
 	"time"
 )
 
@@ -91,6 +92,10 @@ func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
 // GetMeetings returns a list of meetings from the current project
 func (h *MeetingHandler) GetMeetings(ctx *fiber.Ctx) error {
 	p := ctx.Locals("project").(model.Project)
+	// sort meetings by start date
+	sort.Slice(p.Meetings, func(i, j int) bool {
+		return p.Meetings[i].StartDate.After(p.Meetings[j].StartDate)
+	})
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", p.Meetings))
 }
 

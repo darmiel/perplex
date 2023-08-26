@@ -1,9 +1,8 @@
 import { ReactNode } from "react"
 
+import DateString from "@/components/ui/DateString"
+import Hr from "@/components/ui/Hr"
 import ResolveUserName from "@/components/user/ResolveUserName"
-
-import DateString from "../DateString"
-import Hr from "../Hr"
 
 export default function OverviewTitle({
   creatorID,
@@ -33,7 +32,7 @@ export default function OverviewTitle({
       <h1 className="text-2xl mt-1 space-x-2">
         {isEdit ? (
           <input
-            className="w-full bg-transparent border-b border-gray-700 focus:outline-none"
+            className="w-full font-bold bg-transparent border-b border-gray-700 focus:outline-none"
             defaultValue={title}
             onChange={(e) => setEditTitle(e.target.value)}
           />
@@ -44,7 +43,7 @@ export default function OverviewTitle({
       </h1>
 
       <div className="flex flex-row items-center text-neutral-500 space-x-2 mt-2">
-        {tag && <div>{tag}</div>}
+        <div>{tag}</div>
         <div>
           <ResolveUserName userID={creatorID} />
           <> created on </>

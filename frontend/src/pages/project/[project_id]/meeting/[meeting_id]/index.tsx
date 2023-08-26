@@ -18,7 +18,7 @@ export default function ProjectPage() {
 
   return (
     <>
-      <div className="flex-initial w-[21rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+      <div className="flex-initial w-[25rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
         <MeetingList projectID={projectID} selectedMeetingID={meetingID} />
       </div>
 
