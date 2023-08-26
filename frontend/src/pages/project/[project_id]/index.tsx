@@ -36,7 +36,8 @@ export default function ProjectPage() {
     projectGetQueryKey,
     projectUsersQueryFn,
     projectUsersQueryKey,
-    axios,
+    projectUpdateMutFn,
+    projectUpdateMutKey,
     user,
   } = useAuth()
   const queryClient = useQueryClient()
@@ -52,14 +53,8 @@ export default function ProjectPage() {
   })
 
   const updateProjectMut = useMutation<BackendResponse<never>>({
-    mutationKey: [{ projectID }, "update-mut"],
-    mutationFn: async () =>
-      (
-        await axios!.put(`/project/${projectID}`, {
-          name: editName,
-          description: editDescription,
-        })
-      ).data,
+    mutationKey: projectUpdateMutKey!(String(projectID)),
+    mutationFn: projectUpdateMutFn!(projectID, editName, editDescription),
     onError: (err) => {
       toast(
         <>

@@ -270,18 +270,20 @@ export default function TopicOverview({
           </Tag>
         }
         injectHeader={
-          <div className="ml-2 flex items-center space-x-2">
-            <Link href={prevTopicURL ?? "#"}>
-              <Button disabled={!prevTopicURL} raw>
-                <BsArrowLeft />
-              </Button>
-            </Link>
-            <Link href={nextTopicURL ?? "#"}>
-              <Button disabled={!nextTopicURL} raw>
-                <BsArrowRight />
-              </Button>
-            </Link>
-          </div>
+          !isEdit && (
+            <div className="ml-2 flex items-center space-x-2">
+              <Link href={prevTopicURL ?? "#"}>
+                <Button disabled={!prevTopicURL} raw>
+                  <BsArrowLeft />
+                </Button>
+              </Link>
+              <Link href={nextTopicURL ?? "#"}>
+                <Button disabled={!nextTopicURL} raw>
+                  <BsArrowRight />
+                </Button>
+              </Link>
+            </div>
+          )
         }
         createdAt={dateCreated}
         setEditTitle={setEditTitle}

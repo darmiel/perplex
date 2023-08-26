@@ -29,6 +29,19 @@ export const functions = (axios: Axios) => ({
     return [{ projectID }, "users"]
   },
 
+  projectUpdateMutFn(projectID: any, name: string, description: string) {
+    return async () =>
+      (
+        await axios!.put(`/project/${projectID}`, {
+          name,
+          description,
+        })
+      ).data
+  },
+  projectUpdateMutKey(projectID: string) {
+    return [{ projectID }, "project-update-mut"]
+  },
+
   // ======================
   // Meeting
   // ======================
@@ -218,6 +231,58 @@ export const functions = (axios: Axios) => ({
     return [{ projectID }, { meetingID }, { topicID }, "comment-send-mut"]
   },
 
+  commentDeleteMutFn(
+    projectID: string,
+    meetingID: string,
+    topicID: string,
+    commentID: number,
+  ) {
+    return async () =>
+      (
+        await axios!.delete(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}`,
+        )
+      ).data
+  },
+  commentDeleteMutKey(commentID: number) {
+    return [{ commentID }, "comment-delete-mut"]
+  },
+
+  commentEditMutFn(
+    projectID: string,
+    meetingID: string,
+    topicID: string,
+    commentID: number,
+  ) {
+    return async (content: string) =>
+      (
+        await axios!.put(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}`,
+          content,
+        )
+      ).data
+  },
+  commentEditMutKey(commentID: number) {
+    return [{ commentID }, "comment-edit-mut"]
+  },
+
+  commentMarkSolutionMutFn(
+    projectID: string,
+    meetingID: string,
+    topicID: string,
+    commentID: number,
+  ) {
+    return async (solution: boolean) =>
+      (
+        await axios![solution ? "post" : "delete"](
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}/solution`,
+        )
+      ).data
+  },
+  commentMarkSolutionMutKey(topicID: string) {
+    return [{ topicID }, "solution-mut"]
+  },
+
   // ======================
   // User
   // ======================
@@ -226,5 +291,25 @@ export const functions = (axios: Axios) => ({
   },
   userResolveQueryKey(userID: string) {
     return [{ userID }]
+  },
+
+  userChangeNameMutFn() {
+    return async (newName: string) =>
+      (await axios!.put(`/user/me`, { new_name: newName })).data
+  },
+  userChangeNameMutKey() {
+    return ["user-change-name-mut"]
+  },
+
+  userListQueryFn(query: string, page: number) {
+    return async () =>
+      (
+        await axios!.get(
+          `/user?query=${encodeURIComponent(query)}&page=${page}`,
+        )
+      ).data
+  },
+  userListQueryKey(query: string, page: number) {
+    return ["users", page, { query }]
   },
 })

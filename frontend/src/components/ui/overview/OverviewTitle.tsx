@@ -26,13 +26,13 @@ export default function OverviewTitle({
   setEditTitle: (title: string) => void
 
   isEdit: boolean
-  injectHeader?: ReactNode
+  injectHeader?: ReactNode | false
   className?: string
 }) {
   return (
     <div className={`w-full ${className}`}>
       <div className="flex flex-row items-center">
-        <h1 className="text-2xl mt-1 space-x-2">
+        <h1 className="text-2xl mt-1 space-x-2 w-full">
           {isEdit ? (
             <input
               className="w-full font-bold bg-transparent border-b border-gray-700 focus:outline-none"

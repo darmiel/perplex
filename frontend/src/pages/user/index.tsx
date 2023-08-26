@@ -10,7 +10,13 @@ import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function User() {
-  const { user, axios, userResolveQueryFn, userResolveQueryKey } = useAuth()
+  const {
+    user,
+    userResolveQueryFn,
+    userResolveQueryKey,
+    userChangeNameMutFn,
+    userChangeNameMutKey,
+  } = useAuth()
 
   const [userName, setUserName] = useState<string>("")
 
@@ -35,14 +41,14 @@ export default function User() {
     AxiosError,
     string
   >({
-    mutationFn: (newName: string) =>
-      axios!.put(`/user/me`, { new_name: newName }),
+    mutationKey: userChangeNameMutKey!(),
+    mutationFn: userChangeNameMutFn!(),
     onSuccess: (data) => {
       queryClient.invalidateQueries(userResolveQueryKey!(user!.uid))
     },
   })
 
-  if (!user || !axios) {
+  if (!user) {
     return (
       <span className="text-red-500">
         User or Axios not found. (This is bad btw.)

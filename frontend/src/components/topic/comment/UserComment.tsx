@@ -57,10 +57,15 @@ export default function UserComment({
 }) {
   const {
     user,
-    axios,
     commentListQueryKey,
     topicInfoQueryKey,
     topicListQueryKey,
+    commentDeleteMutFn,
+    commentDeleteMutKey,
+    commentEditMutFn,
+    commentEditMutKey,
+    commentMarkSolutionMutFn,
+    commentMarkSolutionMutKey,
   } = useAuth()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -69,13 +74,8 @@ export default function UserComment({
 
   const queryClient = useQueryClient()
   const deleteCommentMutation = useMutation<BackendResponse, AxiosError>({
-    mutationKey: [{ commentID: comment.ID }, "delete-mut"],
-    mutationFn: async () =>
-      (
-        await axios!.delete(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${comment.ID}`,
-        )
-      ).data,
+    mutationKey: commentDeleteMutKey!(comment.ID),
+    mutationFn: commentDeleteMutFn!(projectID, meetingID, topicID, comment.ID),
     onSuccess() {
       toast(`Comment #${comment.ID} deleted!`, { type: "success" })
       queryClient.invalidateQueries(
@@ -94,14 +94,8 @@ export default function UserComment({
   })
 
   const editCommentMutation = useMutation<BackendResponse, AxiosError, string>({
-    mutationKey: [{ commentID: comment.ID }, "edit-mut"],
-    mutationFn: async (content: string) =>
-      (
-        await axios!.put(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${comment.ID}`,
-          content,
-        )
-      ).data,
+    mutationKey: commentEditMutKey!(comment.ID),
+    mutationFn: commentEditMutFn!(projectID, meetingID, topicID, comment.ID),
     onSuccess() {
       toast(`Comment #${comment.ID} edited!`, { type: "success" })
       queryClient.invalidateQueries(
@@ -116,13 +110,13 @@ export default function UserComment({
     AxiosError,
     boolean
   >({
-    mutationKey: [{ topicID }, "solution-mut"],
-    mutationFn: async (solution: boolean) =>
-      (
-        await axios![solution ? "post" : "delete"](
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${comment.ID}/solution`,
-        )
-      ).data,
+    mutationKey: commentMarkSolutionMutKey!(topicID),
+    mutationFn: commentMarkSolutionMutFn!(
+      projectID,
+      meetingID,
+      topicID,
+      comment.ID,
+    ),
     onSuccess() {
       toast(`Comment #${comment.ID} marked as solution!`, { type: "success" })
       queryClient.invalidateQueries(

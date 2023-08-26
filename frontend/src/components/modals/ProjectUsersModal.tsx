@@ -26,21 +26,17 @@ export default function InviteUserToProjectModalContent({
 
   const {
     user: loggedUser,
-    axios,
     projectUsersQueryFn,
     projectUsersQueryKey,
+    userListQueryFn,
+    userListQueryKey,
   } = useAuth()
   const debounce = useDebounce(userNameSearch, 100)
   const queryClient = useQueryClient()
 
   const listUsersQuery = useQuery<BackendResponse<User[]>, AxiosError>({
-    queryKey: ["users", page, { query }],
-    queryFn: async () =>
-      (
-        await axios!.get(
-          `/user?query=${encodeURIComponent(query)}&page=${page}`,
-        )
-      ).data,
+    queryKey: userListQueryKey!(query, page),
+    queryFn: userListQueryFn!(query, page),
     keepPreviousData: true,
   })
 
