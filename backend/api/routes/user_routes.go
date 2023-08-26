@@ -6,6 +6,8 @@ import (
 )
 
 func UserRoutes(router fiber.Router, handler *handlers.UserHandler) {
+	// list users
+	router.Get("/", handler.List)
 	// change username
 	router.Put("/me", handler.UpdateName)
 	// get username

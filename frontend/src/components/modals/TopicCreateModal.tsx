@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
+import TagList from "@/components/ui/tag/TagList"
 import { useAuth } from "@/contexts/AuthContext"
 
 type TopicType = "acknowledge" | "discuss"
@@ -215,23 +216,26 @@ export default function CreateTopic({
         </div>
       </div>
 
+      {/* Assign Users */}
       <div className="space-y-2">
         <span className="text-neutral-400">Assign</span>
-        <div className="flex flex-row space-x-4">
+        <div className="flex flex-row space-x-4 max-w-xl">
           {projectInfoQuery.isLoading ? (
             <BarLoader color="white" />
           ) : (
-            projectInfoQuery.data?.data.map((user, key) => (
-              <CheckableCardContainer
-                key={key}
-                checked={topicAssigned.includes(user.id)}
-                onToggle={(toggled) =>
-                  toggled ? addUser(user.id) : removeUser(user.id)
-                }
-              >
-                {user.name}
-              </CheckableCardContainer>
-            ))
+            <TagList>
+              {projectInfoQuery.data?.data.map((user, key) => (
+                <CheckableCardContainer
+                  key={key}
+                  checked={topicAssigned.includes(user.id)}
+                  onToggle={(toggled) =>
+                    toggled ? addUser(user.id) : removeUser(user.id)
+                  }
+                >
+                  {user.name}
+                </CheckableCardContainer>
+              ))}
+            </TagList>
           )}
         </div>
       </div>

@@ -4,15 +4,15 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
-import Popup from "reactjs-popup"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import CreateMeeting from "@/components/meeting/CreateMeeting"
 import MeetingTag from "@/components/meeting/MeetingTag"
+import CreateMeeting from "@/components/modals/MeetingCreateModal"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
 import Hr from "@/components/ui/Hr"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import {
   TruncateSubTitle,
   TruncateTitle,
@@ -70,44 +70,34 @@ export default function MeetingList({
 
       <Hr className="mt-4 mb-6 border-gray-700" />
 
-      {listMeetingQuery.data.data.map((meeting, key) => (
-        <div key={key}>
-          <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
-            <CardContainer
-              style={
-                selectedMeetingID === String(meeting.ID)
-                  ? "selected-border"
-                  : "neutral"
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <MeetingTag icon date={new Date(meeting.start_date)} />
-                <div>
-                  <TruncateTitle truncate={22}>{meeting.name}</TruncateTitle>
+      <div className="space-y-4">
+        {listMeetingQuery.data.data.map((meeting, key) => (
+          <div key={key}>
+            <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
+              <CardContainer
+                style={
+                  selectedMeetingID === String(meeting.ID)
+                    ? "selected-border"
+                    : "neutral"
+                }
+              >
+                <div className="flex items-center space-x-2">
+                  <MeetingTag icon date={new Date(meeting.start_date)} />
+                  <div>
+                    <TruncateTitle truncate={22}>{meeting.name}</TruncateTitle>
+                  </div>
                 </div>
-              </div>
-              <TruncateSubTitle truncate={36}>
-                {meeting.start_date}
-              </TruncateSubTitle>
-            </CardContainer>
-          </Link>
-        </div>
-      ))}
+                <TruncateSubTitle truncate={36}>
+                  {meeting.start_date}
+                </TruncateSubTitle>
+              </CardContainer>
+            </Link>
+          </div>
+        ))}
+      </div>
 
       {/* Create Meeting Popup */}
-      <Popup
-        modal
-        contentStyle={{
-          background: "none",
-          border: "none",
-          width: "auto",
-        }}
-        overlayStyle={{
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-        }}
-        open={showCreateMeeting}
-        onClose={() => setShowCreateMeeting(false)}
-      >
+      <ModalPopup open={showCreateMeeting} setOpen={setShowCreateMeeting}>
         <CreateMeeting
           projectID={projectID}
           onClose={(newMeetingID: number) => {
@@ -115,7 +105,7 @@ export default function MeetingList({
             router.push(`/project/${projectID}/meeting/${newMeetingID}`)
           }}
         />
-      </Popup>
+      </ModalPopup>
     </>
   )
 }

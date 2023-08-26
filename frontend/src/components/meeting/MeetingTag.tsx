@@ -1,6 +1,6 @@
 import { BsForward, BsPlay, BsRewind } from "react-icons/bs"
 
-import Tag from "@/components/ui/Tag"
+import Tag from "@/components/ui/tag/Tag"
 
 const tags = {
   past: {

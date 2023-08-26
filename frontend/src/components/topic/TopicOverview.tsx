@@ -7,17 +7,18 @@ import {
   BsBookmarkStarFill,
   BsCheckSquareFill,
   BsPen,
+  BsPeople,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
 import { BackendResponse, CommentType, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import TopicCommentList from "@/components/topic/comment/TopicCommentList"
 import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
-} from "@/components/topic/CreateTopic"
+} from "@/components/modals/TopicCreateModal"
+import TopicCommentList from "@/components/topic/comment/TopicCommentList"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
@@ -25,9 +26,9 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import Tag from "@/components/ui/Tag"
+import Tag from "@/components/ui/tag/Tag"
+import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
-import FetchUserTag from "@/components/user/FetchUserTag"
 import MultiUserSelect from "@/components/user/MultiUserSelect"
 import UserTag from "@/components/user/UserTag"
 import { useAuth } from "@/contexts/AuthContext"
@@ -69,17 +70,11 @@ function SectionParticipants({
       </div>
     )
   }
-  const userIDs = new Set<string>()
+  const userIDs: { [key: string]: any } = {}
   for (const comment of commentListQuery.data.data) {
-    userIDs.add(comment.author_id)
+    userIDs[comment.author_id] = true
   }
-  return (
-    <div className="flex flex-row space-x-2">
-      {Array.from(userIDs).map((userID) => (
-        <FetchUserTag key={userID} userID={userID} />
-      ))}
-    </div>
-  )
+  return <UserTagList users={Object.keys(userIDs)} />
 }
 
 function SectionAuthor({ topic }: { topic: Topic }) {
@@ -105,14 +100,8 @@ function SectionAssigned({
   topicID: string
 }) {
   return (
-    <div className="flex flex-row space-x-2">
-      {topic.assigned_users.length > 0 && (
-        <div className="flex flex-row items-center">
-          {topic.assigned_users.map((user) => (
-            <UserTag key={user.id} userID={user.id} displayName={user.name} />
-          ))}
-        </div>
-      )}
+    <div className="flex flex-col space-y-4">
+      <UserTagList users={topic.assigned_users} />
       <div>
         <MultiUserSelect
           key={topic.ID}
@@ -121,8 +110,11 @@ function SectionAssigned({
           topicID={topicID}
           initialSelection={topic.assigned_users.map((user) => user.id) ?? []}
         >
-          <button className="border-neutral-500 text-neutral-500 border rounded-full px-3 py-1 flex flex-row items-center space-x-2">
-            Assign
+          <button className="w-full px-4 py-2 text-center border border-neutral-700 bg-neutral-900 hover:bg-neutral-950 rounded-md cursor-pointer">
+            <div className="flex flex-row items-center justify-center space-x-2">
+              <BsPeople />
+              <div>Assign Users</div>
+            </div>
           </button>
         </MultiUserSelect>
       </div>
@@ -150,6 +142,7 @@ export default function TopicOverview({
     topicInfoQueryKey,
     topicUpdateMutFn,
     topicUpdateMutKey,
+    topicListQueryKey,
   } = useAuth()
   const queryClient = useQueryClient()
 
@@ -182,6 +175,7 @@ export default function TopicOverview({
       queryClient.invalidateQueries(
         topicInfoQueryKey!(projectID, meetingID, topicID),
       )
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
       setIsEdit(false)
     },
   })

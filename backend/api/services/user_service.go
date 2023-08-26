@@ -4,11 +4,13 @@ import (
 	"github.com/darmiel/dmp/pkg/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"regexp"
 )
 
 type UserService interface {
 	ChangeName(userID, newName string) error
 	GetName(userID string) (string, error)
+	ListUsers(query string, page int) (res []*model.User, err error)
 }
 
 type userService struct {
@@ -35,5 +37,16 @@ func (u userService) GetName(userID string) (res string, err error) {
 	if err = u.DB.First(&user, &model.User{ID: userID}).Error; err == nil {
 		res = user.UserName
 	}
+	return
+}
+
+var UserNameDisallowed = regexp.MustCompile(`[^a-zA-Z0-9_]`)
+
+func (u userService) ListUsers(query string, page int) (res []*model.User, err error) {
+	pageSize := 5
+	err = u.DB.Where("user_name LIKE ?", "%"+UserNameDisallowed.ReplaceAllString(query, "")+"%").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&res).Error
 	return
 }

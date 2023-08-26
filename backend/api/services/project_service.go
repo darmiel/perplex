@@ -17,6 +17,8 @@ type ProjectService interface {
 	FindProjectsByUserAccess(userID string) ([]model.Project, error)
 	CreateProject(name, description, ownerID string) (*model.Project, error)
 	DeleteProject(id uint) error
+	AddUser(projectID uint, userID string) error
+	RemoveUser(projectID uint, userID string) error
 	EditProject(id uint, name, description string) error
 	Extend(project *model.Project, preload ...string) error
 }
@@ -102,10 +104,38 @@ func (p *projectService) EditProject(id uint, name, description string) error {
 	}).Error
 }
 
-func (m *projectService) Extend(project *model.Project, preload ...string) error {
-	q := m.DB
+func (p *projectService) Extend(project *model.Project, preload ...string) error {
+	q := p.DB
 	for _, p := range preload {
 		q = q.Preload(p)
 	}
 	return q.First(project).Error
+}
+
+func (p *projectService) AddUser(projectID uint, userID string) error {
+	var project model.Project
+	if err := p.DB.Preload("Users").First(&project, projectID).Error; err != nil {
+		return err
+	}
+	var user model.User
+	if err := p.DB.First(&user, &model.User{
+		ID: userID,
+	}).Error; err != nil {
+		return err
+	}
+	return p.DB.Model(&project).Association("Users").Append(&user)
+}
+
+func (p *projectService) RemoveUser(projectID uint, userID string) error {
+	var project model.Project
+	if err := p.DB.Preload("Users").First(&project, projectID).Error; err != nil {
+		return err
+	}
+	var user model.User
+	if err := p.DB.First(&user, &model.User{
+		ID: userID,
+	}).Error; err != nil {
+		return err
+	}
+	return p.DB.Model(&project).Association("Users").Delete(&user)
 }

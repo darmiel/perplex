@@ -55,3 +55,13 @@ func (h UserHandler) Resolve(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user found", name))
 }
+
+func (h UserHandler) List(ctx *fiber.Ctx) error {
+	query := ctx.Query("query", "")
+	page := ctx.QueryInt("page", 1)
+	users, err := h.srv.ListUsers(query, page)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("users found", users))
+}

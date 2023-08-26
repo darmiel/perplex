@@ -14,6 +14,9 @@ import (
 
 var ErrNoAccess = errors.New("no access")
 var ErrNotFound = errors.New("not found")
+var ErrAlreadyInProject = errors.New("user already in project")
+var ErrNotInProject = errors.New("user not in project")
+var ErrOnlyOwner = errors.New("only owner can perform this action")
 
 type ProjectHandler struct {
 	srv       services.ProjectService
@@ -112,7 +115,11 @@ func (h *ProjectHandler) GetProjects(ctx *fiber.Ctx) error {
 
 // DeleteProject deletes a project
 func (h *ProjectHandler) DeleteProject(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	p := ctx.Locals("project").(model.Project)
+	if u.UserID != p.OwnerID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyOwner))
+	}
 	if err := h.srv.DeleteProject(p.ID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -121,6 +128,11 @@ func (h *ProjectHandler) DeleteProject(ctx *fiber.Ctx) error {
 
 // EditProject edits the name and description of a project
 func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	p := ctx.Locals("project").(model.Project)
+	if u.UserID != p.OwnerID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyOwner))
+	}
 	var payload projectDto
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
@@ -129,7 +141,6 @@ func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	if err := h.validator.Struct(payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	p := ctx.Locals("project").(model.Project)
 	if err := h.srv.EditProject(p.ID, payload.Name, payload.Description); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -152,4 +163,42 @@ func (h *ProjectHandler) ListUsersForProject(ctx *fiber.Ctx) error {
 func (h *ProjectHandler) GetProject(ctx *fiber.Ctx) error {
 	p := ctx.Locals("project").(model.Project)
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project", p))
+}
+
+func (h *ProjectHandler) AddUser(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	p := ctx.Locals("project").(model.Project)
+	if u.UserID != p.OwnerID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyOwner))
+	}
+	userID := ctx.Params("user_id")
+	// check if user already in project
+	if _, ok := util.Any(p.Users, func(u model.User) bool {
+		return u.ID == userID
+	}); ok {
+		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrAlreadyInProject))
+	}
+	if err := h.srv.AddUser(p.ID, userID); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user added", nil))
+}
+
+func (h *ProjectHandler) RemoveUser(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	p := ctx.Locals("project").(model.Project)
+	if u.UserID != p.OwnerID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyOwner))
+	}
+	userID := ctx.Params("user_id")
+	// check if user is in project
+	if _, ok := util.Any(p.Users, func(u model.User) bool {
+		return u.ID == userID
+	}); !ok {
+		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotInProject))
+	}
+	if err := h.srv.RemoveUser(p.ID, userID); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user added", nil))
 }

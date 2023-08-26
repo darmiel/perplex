@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
-import Popup from "reactjs-popup"
 
 import { extractErrorMessage } from "@/api/util"
 import TopicCard from "@/components/topic/TopicCard"
@@ -13,7 +12,8 @@ import { useRouter } from "next/router"
 import { BsPlusCircle } from "react-icons/bs"
 
 import { BackendResponse, Topic } from "@/api/types"
-import CreateTopic from "@/components/topic/CreateTopic"
+import CreateTopic from "@/components/modals/TopicCreateModal"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 export default function TopicList({
   selectedTopicID,
@@ -106,19 +106,7 @@ export default function TopicList({
       {showTopicListWithFilter((topic) => topic.closed_at.Valid)}
 
       {/* Create Topic Popup */}
-      <Popup
-        modal
-        contentStyle={{
-          background: "none",
-          border: "none",
-          width: "auto",
-        }}
-        overlayStyle={{
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-        }}
-        open={showCreateTopic}
-        onClose={() => setShowCreateTopic(false)}
-      >
+      <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
         <CreateTopic
           projectID={projectID}
           meetingID={meetingID}
@@ -129,7 +117,7 @@ export default function TopicList({
             )
           }}
         />
-      </Popup>
+      </ModalPopup>
     </ul>
   )
 }

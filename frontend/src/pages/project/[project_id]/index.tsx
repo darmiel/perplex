@@ -1,19 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsPen } from "react-icons/bs"
+import { BsPen, BsPerson } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Project } from "@/api/types"
+import { BackendResponse, Project, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import MeetingList from "@/components/meeting/MeetingList"
+import InviteUserToProjectModalContent from "@/components/modals/ProjectUsersModal"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
+import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
@@ -23,15 +26,28 @@ export default function ProjectPage() {
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
 
+  const [showUserControl, setShowUserControl] = useState(false)
+
   const router = useRouter()
   const { project_id: projectID } = router.query
 
-  const { projectGetQueryFn, projectGetQueryKey, axios } = useAuth()
+  const {
+    projectGetQueryFn,
+    projectGetQueryKey,
+    projectUsersQueryFn,
+    projectUsersQueryKey,
+    axios,
+  } = useAuth()
   const queryClient = useQueryClient()
 
   const projectInfoQuery = useQuery<BackendResponse<Project>>({
     queryKey: projectGetQueryKey!(String(projectID)),
     queryFn: projectGetQueryFn!(String(projectID)),
+  })
+
+  const projectUsersQuery = useQuery<BackendResponse<User[]>>({
+    queryKey: projectUsersQueryKey!(String(projectID)),
+    queryFn: projectUsersQueryFn!(projectID),
   })
 
   const updateProjectMut = useMutation<BackendResponse<never>>({
@@ -141,6 +157,24 @@ export default function ProjectPage() {
               <div className="w-fit">
                 <FetchUserTag userID={project.owner_id} />
               </div>
+            </OverviewSection>
+            <OverviewSection name="Members">
+              <ModalPopup open={showUserControl} setOpen={setShowUserControl}>
+                <InviteUserToProjectModalContent
+                  projectID={project.ID}
+                  onClose={() => setShowUserControl(false)}
+                />
+              </ModalPopup>
+
+              <UserTagList users={projectUsersQuery.data?.data} />
+
+              <Button
+                className="w-full mt-4"
+                onClick={() => setShowUserControl(true)}
+                icon={<BsPerson />}
+              >
+                Manage Users
+              </Button>
             </OverviewSection>
           </OverviewSide>
         </OverviewContainer>

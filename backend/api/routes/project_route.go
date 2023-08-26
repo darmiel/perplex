@@ -14,4 +14,7 @@ func ProjectRoutes(router fiber.Router, handler *handlers.ProjectHandler) {
 	router.Get("/:project_id/users", handler.ListUsersForProject)
 	router.Delete("/:project_id", handler.DeleteProject)
 	router.Put("/:project_id", handler.EditProject)
+
+	router.Post("/:project_id/user/:user_id", handler.AddUser)
+	router.Delete("/:project_id/user/:user_id", handler.RemoveUser)
 }
