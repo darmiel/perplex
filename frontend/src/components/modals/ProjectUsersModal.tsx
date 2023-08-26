@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
 import { toast } from "react-toastify"
 
+import { projectUserAddVars } from "@/api/functions"
 import { BackendResponse, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import useDebounce from "@/components/Debounce"
@@ -30,6 +31,8 @@ export default function InviteUserToProjectModalContent({
     projectUsersQueryKey,
     userListQueryFn,
     userListQueryKey,
+    projectUserAddMutFn,
+    projectUserAddMutKey,
   } = useAuth()
   const debounce = useDebounce(userNameSearch, 100)
   const queryClient = useQueryClient()
@@ -49,14 +52,10 @@ export default function InviteUserToProjectModalContent({
   const addRemoveUserMutation = useMutation<
     BackendResponse<User>,
     AxiosError,
-    { userID: string; add: boolean }
+    projectUserAddVars
   >({
-    mutationFn: async ({ userID, add }) =>
-      (
-        await axios![add ? "post" : "delete"](
-          `/project/${projectID}/user/${userID}`,
-        )
-      ).data,
+    mutationKey: projectUserAddMutKey!(String(projectID)),
+    mutationFn: projectUserAddMutFn!(projectID),
     onSuccess() {
       queryClient.invalidateQueries(projectUsersQueryKey!(String(projectID)))
     },

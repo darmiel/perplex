@@ -4,6 +4,11 @@ export type sendCommentMutVars = {
   comment: string
 }
 
+export type projectUserAddVars = {
+  userID: string
+  add: boolean
+}
+
 export const functions = (axios: Axios) => ({
   // ======================
   // Project
@@ -27,6 +32,18 @@ export const functions = (axios: Axios) => ({
   },
   projectUsersQueryKey(projectID: string) {
     return [{ projectID }, "users"]
+  },
+
+  projectUserAddMutFn(projectID: any) {
+    return async ({ userID, add }: projectUserAddVars) =>
+      (
+        await axios![add ? "post" : "delete"](
+          `/project/${projectID}/user/${userID}`,
+        )
+      ).data
+  },
+  projectUserAddMutKey(projectID: string) {
+    return [{ projectID }, "user-add-mut"]
   },
 
   projectUpdateMutFn(projectID: any, name: string, description: string) {
