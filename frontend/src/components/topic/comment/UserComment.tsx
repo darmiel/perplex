@@ -55,7 +55,13 @@ export default function UserComment({
   comment: CommentType
   solution?: boolean
 }) {
-  const { user, axios, commentListQueryKey, topicInfoQueryKey } = useAuth()
+  const {
+    user,
+    axios,
+    commentListQueryKey,
+    topicInfoQueryKey,
+    topicListQueryKey,
+  } = useAuth()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -125,6 +131,7 @@ export default function UserComment({
       queryClient.invalidateQueries(
         topicInfoQueryKey!(projectID, meetingID, topicID),
       )
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
     },
   })
 

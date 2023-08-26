@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { BiSolidErrorCircle } from "react-icons/bi"
-import { BsCheckCircleFill } from "react-icons/bs"
+import { BsCheckCircleFill, BsCheckSquareFill } from "react-icons/bs"
 import { toast } from "react-toastify"
 
 import { Topic } from "@/api/types"
@@ -78,9 +78,21 @@ export default function TopicCard({
         className={isAssigned ? "border-r-4 border-r-primary-500" : ""}
       >
         <div className="flex flex-col">
-          <TruncateTitle truncate={26} active={!checked}>
-            {topic.title}
-          </TruncateTitle>
+          <div className="flex flex-row items-center space-x-2">
+            {!!topic.solution_id && (
+              <div className="text-primary-500">
+                <BsCheckSquareFill />
+              </div>
+            )}
+            <div>
+              <TruncateTitle
+                truncate={!!topic.solution_id ? 20 : 26}
+                active={!checked}
+              >
+                {topic.title}
+              </TruncateTitle>
+            </div>
+          </div>
           <TruncateSubTitle truncate={36} active={!checked}>
             {topic.description}
           </TruncateSubTitle>
