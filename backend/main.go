@@ -45,6 +45,9 @@ func main() {
 		new(model.Topic),
 		new(model.Meeting),
 		new(model.Project),
+		new(model.Priority),
+		new(model.Action),
+		new(model.Tag),
 	); err != nil {
 		sugar.With(err).Fatalln("cannot migrate user")
 		return
@@ -68,6 +71,7 @@ func main() {
 	topicService := services.NewTopicService(db)
 	commentService := services.NewCommentService(db, topicService)
 	userService := services.NewUserService(db)
+	actionService := services.NewActionService(db)
 
 	app.Use(func(ctx *fiber.Ctx) error {
 		u := ctx.Locals("user").(gofiberfirebaseauth.User)
@@ -113,6 +117,21 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService, sugar, validate)
 	userGroup := app.Group("/user")
 	routes.UserRoutes(userGroup, userHandler)
+
+	// /action
+	actionHandler := handlers.NewActionHandler(actionService, sugar, validate)
+	actionGroup := projectGroup.Group("/action")
+	routes.ActionRoutes(actionGroup, actionHandler)
+
+	// /tag
+	tagHandler := handlers.NewTagHandler(actionService, sugar, validate)
+	tagGroup := projectGroup.Group("/tag")
+	routes.TagRoutes(tagGroup, tagHandler)
+
+	// /priority
+	priorityHandler := handlers.NewPriorityHandler(actionService, sugar, validate)
+	priorityGroup := projectGroup.Group("/priority")
+	routes.PriorityRoutes(priorityGroup, priorityHandler)
 
 	// start web server
 	go func() {
