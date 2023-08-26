@@ -3,10 +3,12 @@ import { BarLoader } from "react-spinners"
 
 import { BackendResponse, CommentType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import TopicCommentBox from "@/components/topic/comment/TopicCommentBox"
 import UserComment from "@/components/topic/comment/UserComment"
+import Hr from "@/components/ui/Hr"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function TopicComments({
+export default function TopicCommentList({
   projectID,
   meetingID,
   topicID,
@@ -19,14 +21,11 @@ export default function TopicComments({
   topicSolutionCommentID?: number
   className?: string
 }) {
-  const {
-    commentListQueryFn: topicCommentQueryFn,
-    commentListQueryKey: topicCommentQueryKey,
-  } = useAuth()
+  const { commentListQueryFn, commentListQueryKey } = useAuth()
 
   const topicCommentQuery = useQuery<BackendResponse<CommentType[]>>({
-    queryKey: topicCommentQueryKey!(projectID, meetingID, topicID),
-    queryFn: topicCommentQueryFn!(projectID, meetingID, topicID),
+    queryKey: commentListQueryKey!(projectID, meetingID, topicID),
+    queryFn: commentListQueryFn!(projectID, meetingID, topicID),
   })
   if (topicCommentQuery.isLoading) {
     return <BarLoader color="white" />
@@ -42,16 +41,33 @@ export default function TopicComments({
   const comments = topicCommentQuery.data.data
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {comments.map((c, index) => (
-        <UserComment
-          key={index}
-          authorID={c.author_id}
-          time={c.CreatedAt}
-          message={c.content}
-          solution={c.ID === topicSolutionCommentID}
-        />
-      ))}
-    </div>
+    <>
+      <h1 className="font-semibold text-xl flex items-center space-x-2">
+        <span>Conversation</span>
+        <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+          {comments.length}
+        </div>
+      </h1>
+      <div className={`space-y-4 ${className}`}>
+        {comments.map((c, index) => (
+          <div key={index}>
+            {!!index && <Hr />}
+            <UserComment
+              projectID={projectID}
+              meetingID={meetingID}
+              topicID={topicID}
+              comment={c}
+              solution={c.ID === topicSolutionCommentID}
+            />
+          </div>
+        ))}
+      </div>
+      <TopicCommentBox
+        className="mt-4"
+        projectID={projectID}
+        meetingID={meetingID}
+        topicID={topicID}
+      />
+    </>
   )
 }

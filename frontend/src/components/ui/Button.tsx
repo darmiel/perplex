@@ -24,6 +24,7 @@ type ButtonProps = {
   onClick?: () => void
   disabled?: boolean
   className?: string
+  raw?: boolean
 } & PropsWithChildren
 
 export default function Button({
@@ -33,6 +34,7 @@ export default function Button({
   onClick,
   disabled,
   className = "",
+  raw = false,
   children,
 }: ButtonProps) {
   const isDisabled = disabled || isLoading
@@ -47,21 +49,26 @@ export default function Button({
   className && classNames.push(className)
 
   const iconContent = isLoading ? <ClipLoader color="white" size={16} /> : icon
+  const buttonContent = iconContent ? (
+    <div className="flex flex-row items-center justify-center space-x-2">
+      <div>{iconContent}</div>
+      <div>{children}</div>
+    </div>
+  ) : (
+    children
+  )
 
-  return (
+  return raw ? (
+    <div className={classNames.join(" ")} onClick={() => onClick?.()}>
+      {buttonContent}
+    </div>
+  ) : (
     <button
       disabled={isDisabled}
       className={classNames.join(" ")}
       onClick={() => onClick?.()}
     >
-      {iconContent ? (
-        <div className="flex flex-row items-center justify-center space-x-2">
-          <div>{iconContent}</div>
-          <div>{children}</div>
-        </div>
-      ) : (
-        children
-      )}
+      {buttonContent}
     </button>
   )
 }

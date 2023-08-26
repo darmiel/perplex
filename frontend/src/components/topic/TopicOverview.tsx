@@ -1,19 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import Link from "next/link"
 import { useState } from "react"
-import { BsBookmarkStar, BsBookmarkStarFill, BsPen } from "react-icons/bs"
+import {
+  BsBookmarkStar,
+  BsBookmarkStarFill,
+  BsCheckSquareFill,
+  BsPen,
+} from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
 import { BackendResponse, CommentType, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import TopicCommentBox from "@/components/topic/comment/TopicCommentBox"
 import TopicCommentList from "@/components/topic/comment/TopicCommentList"
 import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/topic/CreateTopic"
 import Button from "@/components/ui/Button"
+import Hr from "@/components/ui/Hr"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -254,11 +260,33 @@ export default function TopicOverview({
                 onChange={(e) => setEditDescription(e.target.value)}
               />
             ) : (
-              <RenderMarkdown markdown={topic.description} />
+              <RenderMarkdown
+                markdown={topic.description || "*(no description)*"}
+              />
             )}
           </div>
 
-          <TopicCommentBox className="mt-4" key={topicID} {...topicInfoProps} />
+          {topic.solution_id && (
+            <>
+              <Hr className="my-4" />
+              <div className="w-full border border-primary-500 rounded-md p-4 space-y-2">
+                <div className="flex flex-row items-center space-x-2 text-primary-500">
+                  <BsCheckSquareFill />
+                  <strong>Good News!</strong>
+                </div>
+                <div className="text-neutral-400">
+                  This topic already has a solution!
+                </div>
+                <div className="w-fit">
+                  <Link href={`#comment-${topic.solution_id}`}>
+                    <Button raw>Go to solution</Button>
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+
+          <Hr className="my-4" />
 
           <TopicCommentList
             className="mt-4"
