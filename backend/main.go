@@ -73,19 +73,40 @@ func main() {
 	userService := services.NewUserService(db)
 	actionService := services.NewActionService(db)
 
+	// user middleware
+	// check if user is already registered in database
+	// if not, create user with username from email address
+	// and set username/email in ctx.Locals("user_id") for logging
 	app.Use(func(ctx *fiber.Ctx) error {
 		u := ctx.Locals("user").(gofiberfirebaseauth.User)
 		// check if user is already registered
-		if _, err := userService.GetName(u.UserID); err != nil {
+		if name, err := userService.GetName(u.UserID); err != nil {
 			// extract username from email
 			username := u.Email[:strings.Index(u.Email, "@")]
 			sugar.Infof("user %s is not registered yet, creating user with name %s", u.UserID, username)
 			// create user
 			if err = userService.ChangeName(u.UserID, username); err != nil {
+				ctx.Locals("friendly_user", u.Email)
 				sugar.Warnf("cannot create user %s: %v", u.UserID, err)
 			}
+			ctx.Locals("friendly_user", username)
+		} else {
+			ctx.Locals("friendly_user", name)
 		}
 		return ctx.Next()
+	})
+
+	// fiber logging middleware
+	app.Use(func(ctx *fiber.Ctx) error {
+		friendlyUser := ctx.Locals("friendly_user").(string)
+		sugar.Debugf("[%s] %s %s -> (pending)", friendlyUser, ctx.Method(), ctx.Path())
+		err := ctx.Next()
+		if err != nil {
+			sugar.Warnf("[%s] %s %s -> %v", friendlyUser, ctx.Method(), ctx.Path(), err)
+		} else {
+			sugar.Infof("[%s] %s %s -> %d", friendlyUser, ctx.Method(), ctx.Path(), ctx.Response().StatusCode())
+		}
+		return err
 	})
 
 	validate, err := util.NewValidate()
@@ -119,7 +140,7 @@ func main() {
 	routes.UserRoutes(userGroup, userHandler)
 
 	// /action
-	actionHandler := handlers.NewActionHandler(actionService, sugar, validate)
+	actionHandler := handlers.NewActionHandler(actionService, topicService, meetingService, userService, sugar, validate)
 	actionGroup := projectGroup.Group("/action")
 	routes.ActionRoutes(actionGroup, actionHandler)
 

@@ -8,6 +8,7 @@ import (
 )
 
 type UserService interface {
+	FindUser(userID string) (*model.User, error)
 	ChangeName(userID, newName string) error
 	GetName(userID string) (string, error)
 	ListUsers(query string, page int) (res []*model.User, err error)
@@ -21,6 +22,11 @@ func NewUserService(db *gorm.DB) UserService {
 	return &userService{
 		DB: db,
 	}
+}
+
+func (u userService) FindUser(userID string) (res *model.User, err error) {
+	err = u.DB.First(&res, &model.User{ID: userID}).Error
+	return
 }
 
 func (u userService) ChangeName(userID, newName string) error {
