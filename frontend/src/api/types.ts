@@ -1,3 +1,8 @@
+export interface NullTime {
+  Valid: boolean
+  Time: string
+}
+
 export interface Project {
   ID: number
   CreatedAt: string
@@ -45,12 +50,40 @@ export type Topic = {
   force_solution?: boolean
   comments: CommentType[]
   solution_id?: number
-  closed_at: {
-    Valid: boolean
-  }
+  closed_at: NullTime
   assigned_users: User[]
   creator: User
   creator_id: string
   CreatedAt: string
   UpdatedAt: string
+}
+
+export type Priority = {
+  id: number
+  title: string
+  weight: number
+  color: string
+  project_id: number
+  project?: Project
+}
+
+export type Action = {
+  id: number
+  title: string
+  description: string
+  due_date: NullTime
+  project_id: number
+  topics: Topic[]
+  assigned_users: User[]
+  priority_id: number
+  priority?: Priority
+  tags: Tag[]
+  closed_at: NullTime
+}
+
+export type Tag = {
+  ID: number
+  title: string
+  color: string
+  project_id: number
 }

@@ -14,7 +14,7 @@ import ModalContainer from "@/components/ui/modal/ModalContainer"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function InviteUserToProjectModalContent({
+export default function ProjectModalManageUsers({
   projectID,
   onClose,
 }: {

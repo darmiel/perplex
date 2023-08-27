@@ -98,14 +98,23 @@ func main() {
 
 	// fiber logging middleware
 	app.Use(func(ctx *fiber.Ctx) error {
-		friendlyUser := ctx.Locals("friendly_user").(string)
-		sugar.Debugf("[%s] %s %s -> (pending)", friendlyUser, ctx.Method(), ctx.Path())
+		friendlyUser, ok := ctx.Locals("friendly_user").(string)
+		if !ok {
+			friendlyUser = "unknown"
+		}
 		err := ctx.Next()
+
+		sugar.Info(" ")
+		sugar.Debugf("[%s] %s %s -> (pending)", friendlyUser, ctx.Method(), ctx.Path())
 		if err != nil {
-			sugar.Warnf("[%s] %s %s -> %v", friendlyUser, ctx.Method(), ctx.Path(), err)
+			sugar.Infof("error: %v", err)
+			sugar.Infof("method: %s", ctx.Method())
+			sugar.Infof("path: %s", ctx.Path())
+			sugar.Infof("status: %d", ctx.Response().StatusCode())
 		} else {
 			sugar.Infof("[%s] %s %s -> %d", friendlyUser, ctx.Method(), ctx.Path(), ctx.Response().StatusCode())
 		}
+		sugar.Info(" ")
 		return err
 	})
 
@@ -141,17 +150,17 @@ func main() {
 
 	// /action
 	actionHandler := handlers.NewActionHandler(actionService, topicService, meetingService, userService, sugar, validate)
-	actionGroup := projectGroup.Group("/action")
+	actionGroup := projectGroup.Group("/:project_id/action")
 	routes.ActionRoutes(actionGroup, actionHandler)
 
 	// /tag
 	tagHandler := handlers.NewTagHandler(actionService, sugar, validate)
-	tagGroup := projectGroup.Group("/tag")
+	tagGroup := projectGroup.Group("/:project_id/tag")
 	routes.TagRoutes(tagGroup, tagHandler)
 
 	// /priority
 	priorityHandler := handlers.NewPriorityHandler(actionService, sugar, validate)
-	priorityGroup := projectGroup.Group("/priority")
+	priorityGroup := projectGroup.Group("/:project_id/priority")
 	routes.PriorityRoutes(priorityGroup, priorityHandler)
 
 	// start web server

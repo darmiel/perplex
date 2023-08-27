@@ -78,8 +78,8 @@ func (a *actionService) FindActionsByProject(projectID uint) ([]model.Action, er
 func (a *actionService) FindActionsByTag(tagID uint) ([]model.Action, error) {
 	var actions []model.Action
 	if err := a.preload().
-		Joins("Tags").
-		Where("tag_id = ?", tagID).
+		Joins("JOIN action_tag_assignments ON action_tag_assignments.action_id = actions.id").
+		Where("action_tag_assignments.tag_id = ?", tagID).
 		Find(&actions).Error; err != nil {
 		return nil, err
 	}

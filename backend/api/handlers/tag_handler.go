@@ -34,8 +34,8 @@ func (a TagHandler) ListTagsForProject(ctx *fiber.Ctx) error {
 }
 
 type tagDto struct {
-	Name  string `json:"name" validate:"required,min=1,max=64"`
-	Color string `json:"color" validate:"required,min=1max=64"`
+	Title string `json:"title" validate:"required,min=1,max=64"`
+	Color string `json:"color" validate:"required,min=1,max=32"`
 }
 
 func (a TagHandler) CreateTag(ctx *fiber.Ctx) error {
@@ -51,7 +51,7 @@ func (a TagHandler) CreateTag(ctx *fiber.Ctx) error {
 	if err := a.validator.Struct(dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	tag, err := a.srv.CreateTag(dto.Name, dto.Color, p.ID)
+	tag, err := a.srv.CreateTag(dto.Title, dto.Color, p.ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -92,7 +92,7 @@ func (a TagHandler) EditTag(ctx *fiber.Ctx) error {
 	if err := a.validator.Struct(dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := a.srv.EditTag(t.ID, dto.Name, dto.Color); err != nil {
+	if err := a.srv.EditTag(t.ID, dto.Title, dto.Color); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("updated tag", nil))
