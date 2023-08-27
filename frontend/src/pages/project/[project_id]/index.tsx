@@ -122,7 +122,7 @@ export default function ProjectPage() {
                 <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
                   Actions
                 </h1>
-                <ActionList projectID={String(projectID)} />
+                <ActionList projectID={Number(projectID)} />
               </div>
             </div>
           </OverviewContent>
