@@ -8,7 +8,7 @@ import {
   BsArrowRight,
   BsBookmarkStar,
   BsBookmarkStarFill,
-  BsCheckSquareFill,
+  BsCheck,
   BsPen,
   BsPeople,
 } from "react-icons/bs"
@@ -111,7 +111,7 @@ function SectionAssigned({
           projectID={projectID}
           meetingID={meetingID}
           topicID={topicID}
-          initialSelection={topic.assigned_users.map((user) => user.id) ?? []}
+          initialSelection={topic.assigned_users?.map((user) => user.id) ?? []}
         >
           <button className="w-full px-4 py-2 text-center border border-neutral-700 bg-neutral-900 hover:bg-neutral-950 rounded-md cursor-pointer">
             <div className="flex flex-row items-center justify-center space-x-2">
@@ -292,7 +292,27 @@ export default function TopicOverview({
 
       <OverviewContainer>
         <OverviewContent>
-          <div className="text-neutral-500 p-2 bg-neutral-900">
+          {!!topic.solution_id && (
+            <>
+              <div className="w-full border border-primary-500 rounded-md p-4 space-y-2">
+                <div className="flex flex-row items-center space-x-2 text-primary-500">
+                  <BsCheck />
+                  <strong>Good News!</strong>
+                </div>
+                <div className="text-neutral-400">
+                  This topic already has a solution!
+                </div>
+                <div className="w-fit">
+                  <Link href={`#comment-${topic.solution_id}`}>
+                    <Button raw>Go to solution</Button>
+                  </Link>
+                </div>
+              </div>
+              <Hr className="my-4" />
+            </>
+          )}
+
+          <div className="text-neutral-500 p-4 bg-neutral-900">
             {isEdit ? (
               <textarea
                 className="w-full bg-transparent focus:outline-none"
@@ -305,26 +325,6 @@ export default function TopicOverview({
               />
             )}
           </div>
-
-          {topic.solution_id && (
-            <>
-              <Hr className="my-4" />
-              <div className="w-full border border-primary-500 rounded-md p-4 space-y-2">
-                <div className="flex flex-row items-center space-x-2 text-primary-500">
-                  <BsCheckSquareFill />
-                  <strong>Good News!</strong>
-                </div>
-                <div className="text-neutral-400">
-                  This topic already has a solution!
-                </div>
-                <div className="w-fit">
-                  <Link href={`#comment-${topic.solution_id}`}>
-                    <Button raw>Go to solution</Button>
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
 
           <Hr className="my-4" />
 

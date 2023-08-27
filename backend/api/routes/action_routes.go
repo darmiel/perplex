@@ -11,6 +11,7 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler) {
 	router.Get("/my", handler.ListActionsForUser)
 	router.Get("/topic/:topic_id", handler.ListActionsForTopic)
 
+	router.Use("/:action_id", handler.ActionLocalsMiddleware)
 	router.Get("/:action_id", handler.FindAction)
 	router.Put("/:action_id", handler.EditAction)
 	router.Delete("/:action_id", handler.DeleteAction)

@@ -17,12 +17,14 @@ export default function TopicCard({
   projectID,
   meetingID,
   active,
+  disabled,
   className = "",
 }: {
   topic: Topic
   projectID: string
   meetingID: string
   active?: boolean
+  disabled?: boolean
   className?: string
 }) {
   const { topicStatusMutFn, topicStatusMutKey } = useAuth()
@@ -52,7 +54,9 @@ export default function TopicCard({
   })
 
   const checked = topic.closed_at.Valid
-  const isAssigned = topic.assigned_users.some((user) => user.id === user?.id)
+
+  const isAssigned =
+    topic.assigned_users?.some((user) => user.id === user?.id) ?? false
 
   return (
     <Link
@@ -60,6 +64,7 @@ export default function TopicCard({
       className={className}
     >
       <CheckableCardContainer
+        disabled={disabled}
         checked={checked}
         style={active ? "selected-border" : "neutral"}
         loading={toggleTopicMutation.isLoading}
@@ -94,7 +99,7 @@ export default function TopicCard({
             </div>
           </div>
           <TruncateSubTitle truncate={36} active={!checked}>
-            {topic.description}
+            {topic.description || <em>No description</em>}
           </TruncateSubTitle>
         </div>
       </CheckableCardContainer>

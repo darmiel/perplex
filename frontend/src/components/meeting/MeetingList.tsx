@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
+import { BsArrowLeft, BsCalendar } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { BackendResponse, Meeting } from "@/api/types"
@@ -28,11 +28,13 @@ export default function MeetingList({
   selectedMeetingID,
   displayCollapse = false,
   onCollapse,
+  className = "",
 }: {
   projectID: string
   selectedMeetingID?: string
   displayCollapse?: boolean
   onCollapse?: () => void
+  className?: string
 }) {
   const [showCreateMeeting, setShowCreateMeeting] = useState(false)
   const { meetingListQueryFn, meetingListQueryKey } = useAuth()
@@ -111,11 +113,11 @@ export default function MeetingList({
 
   return (
     <>
-      <div className="flex flex-row space-x-2">
+      <div className={`flex flex-row space-x-2 ${className}`}>
         <Button
           onClick={() => setShowCreateMeeting(true)}
           style="neutral"
-          icon={<BsPlusCircle color="gray" size="1em" />}
+          icon={<BsCalendar color="gray" size="1em" />}
           className="w-full"
         >
           Create Meeting

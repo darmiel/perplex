@@ -39,9 +39,15 @@ export function PriorityTag({ priority }: { priority: Priority }) {
   )
 }
 
-export function TagFromType({ tag }: { tag: TagType }) {
+export function TagFromType({
+  tag,
+  className = "",
+}: {
+  tag: TagType
+  className?: string
+}) {
   return (
-    <TagContainer style="color" color={tag.color}>
+    <TagContainer style="color" color={tag.color} className={className}>
       {tag.title}
     </TagContainer>
   )

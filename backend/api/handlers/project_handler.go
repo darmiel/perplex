@@ -173,9 +173,7 @@ func (h *ProjectHandler) AddUser(ctx *fiber.Ctx) error {
 	}
 	userID := ctx.Params("user_id")
 	// check if user already in project
-	if _, ok := util.Any(p.Users, func(u model.User) bool {
-		return u.ID == userID
-	}); ok {
+	if util.HasAccess(&p, userID) {
 		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrAlreadyInProject))
 	}
 	if err := h.srv.AddUser(p.ID, userID); err != nil {
@@ -192,9 +190,7 @@ func (h *ProjectHandler) RemoveUser(ctx *fiber.Ctx) error {
 	}
 	userID := ctx.Params("user_id")
 	// check if user is in project
-	if _, ok := util.Any(p.Users, func(u model.User) bool {
-		return u.ID == userID
-	}); !ok {
+	if !util.HasAccess(&p, userID) {
 		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotInProject))
 	}
 	if err := h.srv.RemoveUser(p.ID, userID); err != nil {

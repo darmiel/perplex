@@ -46,10 +46,10 @@ func (a ActionHandler) ListActionsForProject(ctx *fiber.Ctx) error {
 }
 
 type actionDto struct {
-	Name        string `json:"name" validate:"required,min=1,max=64"`
+	Title       string `json:"title" validate:"required,min=1,max=64"`
 	Description string `json:"description" validate:"required,min=1,max=1024"`
-	DueDate     string `json:"due_date" validate:"datetime=2006-01-02T15:04:05Z07:00"`
-	PriorityID  uint   `json:"priority_id" validate:"required"`
+	DueDate     string `json:"due_date" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00"`
+	PriorityID  uint   `json:"priority_id"`
 }
 
 func fiberResponseNoVal(ctx *fiber.Ctx, message string, err error) error {
@@ -65,6 +65,7 @@ func fiberResponse[T any](ctx *fiber.Ctx, message string, value T, err error) er
 
 func (a ActionHandler) CreateAction(ctx *fiber.Ctx) error {
 	p := ctx.Locals("project").(model.Project)
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	var dto actionDto
 	if err := ctx.BodyParser(&dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
@@ -82,7 +83,7 @@ func (a ActionHandler) CreateAction(ctx *fiber.Ctx) error {
 		}
 	}
 	// create action
-	action, err := a.srv.CreateAction(dto.Name, dto.Description, dueDate, dto.PriorityID, p.ID)
+	action, err := a.srv.CreateAction(dto.Title, dto.Description, dueDate, dto.PriorityID, p.ID, u.UserID)
 	return fiberResponse(ctx, "created action", action, err)
 }
 
@@ -136,7 +137,7 @@ func (a ActionHandler) EditAction(ctx *fiber.Ctx) error {
 	}
 	// edit action
 	return fiberResponseNoVal(ctx, "created action",
-		a.srv.EditAction(action.ID, dto.Name, dto.Description, dueDate, dto.PriorityID))
+		a.srv.EditAction(action.ID, dto.Title, dto.Description, dueDate, dto.PriorityID))
 }
 
 func (a ActionHandler) DeleteAction(ctx *fiber.Ctx) error {
@@ -200,9 +201,7 @@ func (a ActionHandler) UserLocalsMiddleware(ctx *fiber.Ctx) error {
 
 	// check if user is in project
 	p := ctx.Locals("project").(model.Project)
-	if _, ok := util.Any(p.Users, func(u model.User) bool {
-		return u.ID == userID
-	}); !ok {
+	if !util.HasAccess(&p, userID) {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
 	}
 

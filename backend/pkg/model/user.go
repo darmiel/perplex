@@ -26,6 +26,8 @@ type User struct {
 	AssignedTopics []Topic `gorm:"many2many:user_topic_assignments" json:"assigned_users"`
 	// AssignedActions contains all actions the user was assigned to
 	AssignedActions []Action `gorm:"many2many:action_user_assignments" json:"assigned_actions"`
+	// Actions contains all actions the user created
+	CreatedActions []Action `gorm:"foreignKey:CreatorID" json:"actions"`
 }
 
 // Comment represents a comment in a topic
@@ -152,6 +154,8 @@ type Action struct {
 	Tags []Tag `gorm:"many2many:action_tag_assignments" json:"tags"`
 	// ClosedAt represents the time when the action was resolved (if valid)
 	ClosedAt sql.NullTime `json:"closed_at"`
+	// CreatorID is the ID of the creator of the action
+	CreatorID string `json:"creator_id"`
 }
 
 type Tag struct {

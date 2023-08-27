@@ -6,6 +6,7 @@ import { toast } from "react-toastify"
 
 import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import ActionList from "@/components/action/ActionList"
 import MeetingList from "@/components/meeting/MeetingList"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
@@ -110,7 +111,20 @@ export default function ProjectPage() {
 
             <Hr className="mt-4 mb-6" />
 
-            <MeetingList projectID={String(projectID)} />
+            <div className="flex flex-row space-x-4">
+              <div className="w-1/2">
+                <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
+                  Meetings
+                </h1>
+                <MeetingList projectID={String(projectID)} />
+              </div>
+              <div className="w-1/2">
+                <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
+                  Actions
+                </h1>
+                <ActionList projectID={String(projectID)} />
+              </div>
+            </div>
           </OverviewContent>
           <OverviewSide>
             <OverviewSection name="Actions">

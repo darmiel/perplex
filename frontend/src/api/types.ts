@@ -45,21 +45,26 @@ export type User = {
 
 export type Topic = {
   ID: number
+  CreatedAt: string
+  DeletedAt: string
+  UpdatedAt: string
   title: string
   description: string
   force_solution?: boolean
-  comments: CommentType[]
+  comments?: CommentType[]
   solution_id?: number
   closed_at: NullTime
-  assigned_users: User[]
+  assigned_users?: User[]
   creator: User
   creator_id: string
-  CreatedAt: string
-  UpdatedAt: string
+  meeting_id: number
 }
 
 export type Priority = {
   ID: number
+  CreatedAt: string
+  DeletedAt: string
+  UpdatedAt: string
   title: string
   weight: number
   color: string
@@ -69,6 +74,9 @@ export type Priority = {
 
 export type Action = {
   ID: number
+  CreatedAt: string
+  DeletedAt: string
+  UpdatedAt: string
   title: string
   description: string
   due_date: NullTime
@@ -79,10 +87,14 @@ export type Action = {
   priority?: Priority
   tags: Tag[]
   closed_at: NullTime
+  creator_id: string
 }
 
 export type Tag = {
   ID: number
+  CreatedAt: string
+  DeletedAt: string
+  UpdatedAt: string
   title: string
   color: string
   project_id: number

@@ -1,4 +1,6 @@
 import { ReactNode } from "react"
+import { BsX } from "react-icons/bs"
+import { ClipLoader } from "react-spinners"
 
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
@@ -6,9 +8,13 @@ import { useAuth } from "@/contexts/AuthContext"
 export default function UserTag({
   userID,
   displayName,
+  onRemove,
+  onRemoveLoading,
 }: {
   userID: string
   displayName: string | ReactNode
+  onRemove?: () => void
+  onRemoveLoading?: boolean
 }) {
   const { user } = useAuth()
   return (
@@ -25,6 +31,16 @@ export default function UserTag({
       <div>
         <span>{displayName}</span>
       </div>
+      {onRemove &&
+        (onRemoveLoading ? (
+          <div className="cursor-pointer" onClick={() => onRemove()}>
+            <ClipLoader size={10} color="orange" />
+          </div>
+        ) : (
+          <div className="cursor-pointer" onClick={() => onRemove()}>
+            <BsX />
+          </div>
+        ))}
     </div>
   )
 }

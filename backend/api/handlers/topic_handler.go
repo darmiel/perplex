@@ -158,9 +158,7 @@ func (h *TopicHandler) AssignUsers(ctx *fiber.Ctx) error {
 	// check if all users in project
 	p := ctx.Locals("project").(model.Project)
 	for _, userID := range payload.AssignedUsers {
-		if _, ok := util.Any(p.Users, func(target model.User) bool {
-			return target.ID == userID
-		}); userID != p.OwnerID && !ok {
+		if !util.HasAccess(&p, userID) {
 			return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotFound))
 		}
 	}

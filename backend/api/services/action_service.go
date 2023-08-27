@@ -14,7 +14,7 @@ type ActionService interface {
 	FindActionsByTag(tagID uint) ([]model.Action, error)
 	FindActionsByPriority(priorityID uint) ([]model.Action, error)
 	FindActionsByUser(userID string) ([]model.Action, error)
-	CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint) (*model.Action, error)
+	CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint, creatorID string) (*model.Action, error)
 	DeleteAction(actionID uint) error
 	EditAction(actionID uint, title, description string, dueDate sql.NullTime, priorityID uint) error
 	LinkTopic(actionID, topicID uint) error
@@ -120,13 +120,14 @@ func (a *actionService) FindActionsByUser(userID string) ([]model.Action, error)
 	return actions, nil
 }
 
-func (a *actionService) CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint) (*model.Action, error) {
+func (a *actionService) CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint, creatorID string) (*model.Action, error) {
 	action := model.Action{
 		Title:       title,
 		Description: description,
 		DueDate:     dueDate,
 		PriorityID:  priorityID,
 		ProjectID:   projectID,
+		CreatorID:   creatorID,
 	}
 	if err := a.DB.Create(&action).Error; err != nil {
 		return nil, err
@@ -143,15 +144,28 @@ func (a *actionService) DeleteAction(id uint) error {
 }
 
 func (a *actionService) EditAction(id uint, title, description string, dueDate sql.NullTime, priorityID uint) error {
+	// check if priority exists
+	var priorityIDUpdate interface{} = nil
+	if priorityID != 0 {
+		if _, err := a.FindPriority(priorityID); err != nil {
+			return err
+		}
+		priorityIDUpdate = priorityID
+	}
+	var dueDateUpdate interface{} = nil
+	if dueDate.Valid {
+		dueDateUpdate = dueDate
+	}
 	return a.DB.Updates(&model.Action{
 		Model: gorm.Model{
 			ID: id,
 		},
 		Title:       title,
 		Description: description,
-		DueDate:     dueDate,
-		PriorityID:  priorityID,
-	}).Error
+	}).
+		Update("PriorityID", priorityIDUpdate).
+		Update("DueDate", dueDateUpdate).
+		Error
 }
 
 func (a *actionService) LinkTopic(actionID, topicID uint) error {

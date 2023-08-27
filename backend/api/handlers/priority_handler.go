@@ -36,6 +36,7 @@ func (a PriorityHandler) PriorityLocalsMiddleware(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
+	a.logger.Infof("PriorityLocalsMiddleware: %v", priorityID)
 	priority, err := a.srv.FindPriority(uint(priorityID))
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(err))

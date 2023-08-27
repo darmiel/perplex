@@ -48,7 +48,7 @@ export default function OverviewTitle({
       </div>
 
       <div className="flex flex-row items-center text-neutral-500 space-x-2 mt-2">
-        <div>{tag}</div>
+        {tag && <div>{tag}</div>}
         <div>
           <ResolveUserName userID={creatorID} />
           <> created on </>
