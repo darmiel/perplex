@@ -101,8 +101,8 @@ func (a *actionService) FindActionsByPriority(priorityID uint) ([]model.Action, 
 func (a *actionService) FindActionsByTopic(topicID uint) ([]model.Action, error) {
 	var actions []model.Action
 	if err := a.preload().
-		Joins("Topics").
-		Where("topic_id = ?", topicID).
+		Joins("JOIN action_topic_assignments ON action_topic_assignments.action_id = actions.id").
+		Where("action_topic_assignments.topic_id = ?", topicID).
 		Find(&actions).Error; err != nil {
 		return nil, err
 	}

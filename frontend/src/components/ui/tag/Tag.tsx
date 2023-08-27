@@ -4,7 +4,8 @@ import { Priority, Tag as TagType } from "@/api/types"
 
 const tagStyles = {
   plain: "border border-neutral-500 text-neutral-500",
-  color: "text-white",
+  color: "text-black font-medium",
+  "color-border": "text-white border",
 } as const
 
 export function TagContainer({
@@ -20,9 +21,21 @@ export function TagContainer({
   color?: string
 }>) {
   const styleClassName = tagStyles[style]
+  let styleAttr = htmlStyle
+
+  console.log(style)
+  if (color) {
+    if (style === "color-border") {
+      styleAttr = { ...styleAttr, borderColor: color }
+    } else {
+      styleAttr = { ...styleAttr, backgroundColor: color }
+    }
+  }
+  console.log(styleAttr)
+
   return (
     <div
-      style={color ? { ...htmlStyle, backgroundColor: color } : htmlStyle}
+      style={styleAttr}
       className={`${className} ${styleClassName} rounded-full text-sm px-3 py-1 flex flex-row items-center space-x-1`}
     >
       {children}
@@ -47,7 +60,7 @@ export function TagFromType({
   className?: string
 }) {
   return (
-    <TagContainer style="color" color={tag.color} className={className}>
+    <TagContainer style="color-border" color={tag.color} className={className}>
       {tag.title}
     </TagContainer>
   )

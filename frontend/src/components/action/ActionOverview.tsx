@@ -201,10 +201,8 @@ export default function ActionOverview({ action }: { action: Action }) {
           </div>
 
           <Hr className="mt-4 mb-6" />
-
-          <ActionSectionTopics action={action} />
         </OverviewContent>
-        <OverviewSide>
+        <OverviewSide className="w-3/12">
           <OverviewSection name="Actions">
             {!isEdit ? (
               <Button
@@ -235,11 +233,14 @@ export default function ActionOverview({ action }: { action: Action }) {
               </div>
             )}
           </OverviewSection>
-          <OverviewSection name="Assigned">
+          <OverviewSection name="Assigned" badge={action.assigned_users.length}>
             <ActionSectionAssigned action={action} />
           </OverviewSection>
-          <OverviewSection name="Tags">
+          <OverviewSection name="Tags" badge={action.tags.length}>
             <ActionSectionTags action={action} />
+          </OverviewSection>
+          <OverviewSection name="Linked Topics" badge={action.topics.length}>
+            <ActionSectionTopics action={action} />
           </OverviewSection>
         </OverviewSide>
       </OverviewContainer>

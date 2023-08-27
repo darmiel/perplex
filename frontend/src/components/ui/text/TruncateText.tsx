@@ -23,13 +23,11 @@ export function truncateChildren(
 export function TruncateTitle({
   children,
   active = true,
-  className = "",
+  className = "font-semibold",
   truncate = 0,
 }: TruncateTitleProps) {
   return (
-    <h1
-      className={`font-semibold text-gray-${!active ? 500 : 100} ${className}`}
-    >
+    <h1 className={`text-gray-${!active ? 500 : 100} ${className}`}>
       {truncateChildren(truncate, children)}
     </h1>
   )

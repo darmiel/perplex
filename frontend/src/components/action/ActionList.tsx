@@ -65,19 +65,22 @@ export default function ActionList({
           </Button>
         )}
       </div>
+
       <Hr className="mt-4 mb-6 border-gray-700" />
 
-      {listActionQuery.data.data.map((action) => (
-        <Link
-          href={`/project/${projectID}/action/${action.ID}`}
-          key={action.ID}
-        >
-          <ActionListItem
-            action={action}
-            selected={action.ID === selectedActionID}
-          />
-        </Link>
-      ))}
+      <div className="flex flex-col space-y-4">
+        {listActionQuery.data.data.map((action) => (
+          <Link
+            href={`/project/${projectID}/action/${action.ID}`}
+            key={action.ID}
+          >
+            <ActionListItem
+              action={action}
+              selected={action.ID === selectedActionID}
+            />
+          </Link>
+        ))}
+      </div>
 
       {/* Create Meeting Popup */}
       <ModalPopup open={showCreateAction} setOpen={setShowCreateAction}>

@@ -39,7 +39,6 @@ func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name, descrip
 
 func (m *meetingService) GetMeeting(meetingID uint) (resp *model.Meeting, err error) {
 	err = m.DB.
-		Preload("User").
 		First(&resp, &model.Meeting{
 			Model: gorm.Model{
 				ID: meetingID,

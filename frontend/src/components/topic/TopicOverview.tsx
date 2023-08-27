@@ -15,13 +15,16 @@ import {
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, CommentType, Topic } from "@/api/types"
+import { Action, BackendResponse, CommentType, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
 import TopicCommentList from "@/components/topic/comment/TopicCommentList"
+import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
+import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
+import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
@@ -147,6 +150,7 @@ export default function TopicOverview({
     topicUpdateMutKey,
     topicListQueryKey,
     topicListQueryFn,
+    axios,
   } = useAuth()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -154,6 +158,12 @@ export default function TopicOverview({
   const topicInfoQuery = useQuery<BackendResponse<Topic>>({
     queryKey: topicInfoQueryKey!(projectID, meetingID, topicID),
     queryFn: topicInfoQueryFn!(projectID, meetingID, topicID),
+  })
+
+  const listActionsQuery = useQuery<BackendResponse<Action[]>, AxiosError>({
+    queryKey: [{ topicID }, "actions"],
+    queryFn: async () =>
+      (await axios!.get(`/project/${projectID}/action/topic/${topicID}`)).data,
   })
 
   const topicUpdateMutation = useMutation<BackendResponse<never>, AxiosError>({
@@ -326,6 +336,25 @@ export default function TopicOverview({
             )}
           </div>
 
+          {!!listActionsQuery.data?.data.length && (
+            <>
+              <Hr className="my-4" />
+
+              <div className="mb-2">
+                <BadgeHeader
+                  title="Linked Actions"
+                  badge={listActionsQuery.data?.data.length || 0}
+                />
+              </div>
+
+              <TopicSectionActions
+                actions={listActionsQuery.data?.data ?? []}
+                projectID={projectID}
+                topic={topic}
+              />
+            </>
+          )}
+
           <Hr className="my-4" />
 
           <TopicCommentList
@@ -372,6 +401,12 @@ export default function TopicOverview({
           </OverviewSection>
           <OverviewSection name="Participants">
             <SectionParticipants {...topicInfoProps} />
+          </OverviewSection>
+          <OverviewSection
+            name="Actions"
+            badge={listActionsQuery.data?.data.length}
+          >
+            <TopicSectionCreateAction projectID={projectID} topicID={topicID} />
           </OverviewSection>
         </OverviewSide>
       </OverviewContainer>

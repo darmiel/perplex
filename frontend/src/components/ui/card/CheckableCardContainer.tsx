@@ -36,12 +36,14 @@ export function CheckableCardContainer({
   style = "neutral",
   className = "",
   onClick,
+  htmlStyle,
   // PropsWithChildren
   children,
 }: CheckableCardContainerProps) {
   const isDisabled = disabled || loading
   return (
     <CardContainer
+      htmlStyle={htmlStyle}
       style={style}
       onClick={onClick}
       className={`flex items-center ${className}`}

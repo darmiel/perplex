@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react"
+import { CSSProperties, PropsWithChildren } from "react"
 
 const cardStyle = {
   neutral: "bg-neutral-900 border border-neutral-700",
@@ -11,6 +11,7 @@ export type CardContainerStype = keyof typeof cardStyle
 export type CardContainerProps = {
   style?: CardContainerStype
   className?: string
+  htmlStyle?: CSSProperties
   onClick?: () => void
 } & PropsWithChildren
 
@@ -18,6 +19,7 @@ export default function CardContainer({
   style = "neutral",
   onClick,
   className = "",
+  htmlStyle,
   children,
 }: CardContainerProps) {
   // base classes
@@ -30,7 +32,11 @@ export default function CardContainer({
   className && classNames.push(className)
 
   return (
-    <div className={classNames.join(" ")} onClick={() => onClick?.()}>
+    <div
+      style={htmlStyle}
+      className={classNames.join(" ")}
+      onClick={() => onClick?.()}
+    >
       {children}
     </div>
   )

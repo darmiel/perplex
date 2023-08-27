@@ -85,6 +85,11 @@ export default function ActionSectionTags({ action }: { action: Action }) {
             </div>
           </button>
         }
+        contentStyle={{
+          background: "none",
+          border: "none",
+          width: "auto",
+        }}
       >
         <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 space-y-2">
           {projectTagsQuery.isLoading ? (
