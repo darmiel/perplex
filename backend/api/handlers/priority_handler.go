@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
+	"sort"
 )
 
 type PriorityHandler struct {
@@ -25,9 +26,9 @@ func NewPriorityHandler(
 }
 
 type priorityDto struct {
-	Name   string `json:"name" validate:"required,min=1,max=64"`
-	Color  string `json:"color" validate:"required,min=1,max=64"`
-	Weight int    `json:"weight" validate:"required,min=0,max=9999"`
+	Title  string `json:"title" validate:"required,min=1,max=64"`
+	Color  string `json:"color"`
+	Weight int    `json:"weight" validate:"min=0,max=9999"`
 }
 
 func (a PriorityHandler) PriorityLocalsMiddleware(ctx *fiber.Ctx) error {
@@ -49,6 +50,10 @@ func (a PriorityHandler) ListPrioritiesForProject(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+	// sort by weight
+	sort.Slice(priorities, func(i, j int) bool {
+		return priorities[i].Weight > priorities[j].Weight
+	})
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("priorities by project", priorities))
 }
 
@@ -65,7 +70,7 @@ func (a PriorityHandler) CreatePriority(ctx *fiber.Ctx) error {
 	if err := a.validator.Struct(dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	priority, err := a.srv.CreatePriority(dto.Name, dto.Color, dto.Weight, p.ID)
+	priority, err := a.srv.CreatePriority(dto.Title, dto.Color, dto.Weight, p.ID)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -91,7 +96,7 @@ func (a PriorityHandler) EditPriority(ctx *fiber.Ctx) error {
 	if err := a.validator.Struct(dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := a.srv.EditPriority(py.ID, dto.Name, dto.Color, dto.Weight); err != nil {
+	if err := a.srv.EditPriority(py.ID, dto.Title, dto.Color, dto.Weight); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("updated priority", nil))

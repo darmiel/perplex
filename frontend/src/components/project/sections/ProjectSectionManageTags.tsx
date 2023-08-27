@@ -34,17 +34,19 @@ export default function ProjectSectionManageTags({
         />
       </ModalPopup>
       <TagList>
-        {projectTagsQuery.data?.data.map((tag) => (
-          <TagComponent
-            key={tag.ID}
-            className="text-white"
-            style={{
-              backgroundColor: tag.color,
-            }}
-          >
-            {tag.title}
-          </TagComponent>
-        ))}
+        {projectTagsQuery.isLoading
+          ? "Loading Tags..."
+          : projectTagsQuery.data?.data.map((tag) => (
+              <TagComponent
+                key={tag.ID}
+                className="text-white"
+                style={{
+                  backgroundColor: tag.color,
+                }}
+              >
+                {tag.title}
+              </TagComponent>
+            ))}
       </TagList>
       <Button
         className="w-full mt-4"

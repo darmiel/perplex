@@ -1,17 +1,49 @@
-import { CSSProperties, ReactNode } from "react"
+import { CSSProperties, PropsWithChildren, ReactNode } from "react"
 
-import { Tag as TagType } from "@/api/types"
+import { Priority, Tag as TagType } from "@/api/types"
+
+const tagStyles = {
+  plain: "border border-neutral-500 text-neutral-500",
+  color: "text-white",
+} as const
+
+export function TagContainer({
+  children,
+  style,
+  htmlStyle,
+  className = "",
+  color,
+}: PropsWithChildren<{
+  style: keyof typeof tagStyles
+  htmlStyle?: CSSProperties
+  className?: string
+  color?: string
+}>) {
+  const styleClassName = tagStyles[style]
+  return (
+    <div
+      style={color ? { ...htmlStyle, backgroundColor: color } : htmlStyle}
+      className={`${className} ${styleClassName} rounded-full text-sm px-3 py-1 flex flex-row items-center space-x-1`}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function PriorityTag({ priority }: { priority: Priority }) {
+  const htmlStyle = priority.color ? { color: priority.color } : undefined
+  return (
+    <TagContainer key={priority.ID} style="plain" htmlStyle={htmlStyle}>
+      {priority.title}
+    </TagContainer>
+  )
+}
 
 export function TagFromType({ tag }: { tag: TagType }) {
   return (
-    <Tag
-      className="text-white"
-      style={{
-        backgroundColor: tag.color,
-      }}
-    >
+    <TagContainer style="color" color={tag.color}>
       {tag.title}
-    </Tag>
+    </TagContainer>
   )
 }
 

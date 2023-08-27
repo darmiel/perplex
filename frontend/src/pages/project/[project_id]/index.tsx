@@ -7,6 +7,7 @@ import { toast } from "react-toastify"
 import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import MeetingList from "@/components/meeting/MeetingList"
+import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
 import Button from "@/components/ui/Button"
@@ -155,6 +156,12 @@ export default function ProjectPage() {
             </OverviewSection>
             <OverviewSection name="Project Tags">
               <ProjectSectionManageTags
+                projectID={project.ID}
+                isOwner={isOwner}
+              />
+            </OverviewSection>
+            <OverviewSection name="Project Priorities">
+              <ProjectSectionManagePriorities
                 projectID={project.ID}
                 isOwner={isOwner}
               />

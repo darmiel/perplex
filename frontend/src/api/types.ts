@@ -59,7 +59,7 @@ export type Topic = {
 }
 
 export type Priority = {
-  id: number
+  ID: number
   title: string
   weight: number
   color: string
@@ -68,7 +68,7 @@ export type Priority = {
 }
 
 export type Action = {
-  id: number
+  ID: number
   title: string
   description: string
   due_date: NullTime
