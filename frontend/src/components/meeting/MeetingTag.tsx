@@ -2,7 +2,7 @@ import { BsForward, BsPlay, BsRewind } from "react-icons/bs"
 
 import Tag from "@/components/ui/tag/Tag"
 
-const tags = {
+export const tagStyles = {
   past: {
     color: "text-neutral-500",
     icon: <BsRewind />,
@@ -23,6 +23,19 @@ const tags = {
   },
 }
 
+export type MeetingTense = "past" | "future" | "ongoing"
+
+export function getMeetingTense(date: Date): MeetingTense {
+  const now = new Date()
+  if (date.getTime() < now.getTime() - 2 * 3600 * 1000) {
+    return "past"
+  }
+  if (date.getTime() > now.getTime() + 2 * 3600 * 1000) {
+    return "future"
+  }
+  return "ongoing"
+}
+
 export default function MeetingTag({
   date,
   icon = false,
@@ -30,15 +43,7 @@ export default function MeetingTag({
   date: Date
   icon?: boolean
 }) {
-  let tag
-  const now = new Date()
-  if (date.getTime() < now.getTime() - 2 * 3600 * 1000) {
-    tag = tags.past
-  } else if (date.getTime() > now.getTime() + 2 * 3600 * 1000) {
-    tag = tags.future
-  } else {
-    tag = tags.ongoing
-  }
+  let tag = tagStyles[getMeetingTense(date)]
   if (icon) {
     return <div className={tag.color}>{tag.icon}</div>
   }

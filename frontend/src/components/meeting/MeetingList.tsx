@@ -7,7 +7,11 @@ import { BarLoader } from "react-spinners"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import MeetingTag from "@/components/meeting/MeetingTag"
+import MeetingTag, {
+  getMeetingTense,
+  MeetingTense,
+  tagStyles,
+} from "@/components/meeting/MeetingTag"
 import CreateMeeting from "@/components/modals/MeetingCreateModal"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
@@ -50,28 +54,34 @@ export default function MeetingList({
     )
   }
 
-  return (
-    <>
-      <div className="flex flex-row space-x-2">
-        <Button
-          onClick={() => setShowCreateMeeting(true)}
-          style="neutral"
-          icon={<BsPlusCircle color="gray" size="1em" />}
-          className="w-full"
-        >
-          Create Meeting
-        </Button>
-        {displayCollapse && (
-          <Button onClick={onCollapse} style="neutral">
-            <BsArrowLeft color="gray" size="1em" />
-          </Button>
-        )}
-      </div>
+  const tenses: { [key: string]: Meeting[] } = {
+    ongoing: [],
+    future: [],
+    past: [],
+  }
 
-      <Hr className="mt-4 mb-6 border-gray-700" />
+  listMeetingQuery.data.data.forEach((meeting) => {
+    tenses[getMeetingTense(new Date(meeting.start_date))].push(meeting)
+  })
 
+  const MeetingListForTense = ({ tense }: { tense: MeetingTense }) => {
+    const meetings = tenses[tense]
+    if (meetings.length === 0) {
+      return null
+    }
+    const style = tagStyles[tense]
+    return (
       <div className="space-y-4">
-        {listMeetingQuery.data.data.map((meeting, key) => (
+        <div className="flex items-center space-x-2">
+          <span className={style.color}>{style.icon}</span>
+          <h2 className="font-semibold text-sm text-neutral-400">
+            {style.text} Meetings
+          </h2>
+          <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+            {meetings.length}
+          </div>
+        </div>
+        {meetings.map((meeting, key) => (
           <div key={key}>
             <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
               <CardContainer
@@ -94,7 +104,34 @@ export default function MeetingList({
             </Link>
           </div>
         ))}
+        <Hr className="mt-4" />
       </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="flex flex-row space-x-2">
+        <Button
+          onClick={() => setShowCreateMeeting(true)}
+          style="neutral"
+          icon={<BsPlusCircle color="gray" size="1em" />}
+          className="w-full"
+        >
+          Create Meeting
+        </Button>
+        {displayCollapse && (
+          <Button onClick={onCollapse} style="neutral">
+            <BsArrowLeft color="gray" size="1em" />
+          </Button>
+        )}
+      </div>
+
+      <Hr className="mt-4 mb-6 border-gray-700" />
+
+      {Object.keys(tenses).map((tense, key) => (
+        <MeetingListForTense key={key} tense={tense as MeetingTense} />
+      ))}
 
       {/* Create Meeting Popup */}
       <ModalPopup open={showCreateMeeting} setOpen={setShowCreateMeeting}>
