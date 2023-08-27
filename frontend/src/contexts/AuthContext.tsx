@@ -28,7 +28,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     return auth.onAuthStateChanged((user) => {
       if (user) {
         const axios = axiosDefault.create({
-          baseURL: "http://localhost:8080",
+          baseURL: process.env.NEXT_PUBLIC_API_BASE_PATH,
         })
         axios.interceptors.request.use(async (config) => {
           config.headers.Authorization = `Bearer ${await user.getIdToken()}`
