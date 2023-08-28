@@ -348,6 +348,7 @@ export default function TopicOverview({
               </div>
 
               <TopicSectionActions
+                key={topic.ID}
                 actions={listActionsQuery.data?.data ?? []}
                 projectID={projectID}
                 topic={topic}

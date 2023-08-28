@@ -59,12 +59,12 @@ export default function ActionListItem({
           </TagContainer>
         </div>
         <div>
-          <TruncateTitle className="text-neutral-50">
+          <TruncateTitle truncate={20} className="text-neutral-50">
             {action.title}
           </TruncateTitle>
         </div>
       </div>
-      <TruncateSubTitle className="text-neutral-300">
+      <TruncateSubTitle truncate={20} className="text-neutral-300">
         {action.description}
       </TruncateSubTitle>
       {action.tags && (
