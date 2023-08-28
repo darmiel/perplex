@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useState } from "react"
 import {
+  BsArrowLeft,
   BsArrowRight,
   BsDoorOpen,
   BsSearch,
@@ -305,6 +306,14 @@ function ModalDelete({
             Well it can, but I don&apos;t want to manually do that. That&apos;s
             annoying.
           </p>
+          <Button
+            className="w-fit text-white"
+            onClick={onBack}
+            icon={<BsArrowLeft />}
+            style="primary"
+          >
+            Take me back!
+          </Button>
         </div>
         <div>
           <Hr />
