@@ -10,7 +10,6 @@ import Removable from "@/components/ui/Removable"
 import { PriorityTag, TagContainer } from "@/components/ui/tag/Tag"
 import TagList from "@/components/ui/tag/TagList"
 import { TruncateTitle } from "@/components/ui/text/TruncateText"
-import ResolveUserName from "@/components/user/ResolveUserName"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicSectionActions({
@@ -57,7 +56,7 @@ export default function TopicSectionActions({
         {actions.map((action) => (
           <div
             key={topic.ID}
-            className="w-fit py-2 px-4 flex flex-col space-x-2 space-y-1 bg-neutral-900 border border-neutral-700 rounded-md max-w-sm"
+            className="w-fit py-2 px-2 flex flex-col space-x-2 space-y-1 bg-neutral-900 border border-neutral-700 rounded-md max-w-sm"
           >
             <Link href={`/project/${action.project_id}/action/${action.ID}`}>
               <Removable
@@ -74,7 +73,7 @@ export default function TopicSectionActions({
                     <div>
                       <TagContainer
                         style="color"
-                        color={action.closed_at.Valid ? "red" : "green"}
+                        color={action.closed_at.Valid ? "#ef4444" : "#22c55e"}
                         className="text-xs"
                       >
                         {action.closed_at.Valid ? "Closed" : "Open"}
@@ -84,14 +83,10 @@ export default function TopicSectionActions({
                       <TruncateTitle truncate={30} className="text-sm">
                         {action.title}
                       </TruncateTitle>
-                      <span className="text-xs">
-                        Created by{" "}
-                        <ResolveUserName userID={action.creator_id} />
-                      </span>
                     </div>
                   </div>
 
-                  {(!!action.priority || !!action.tags) && (
+                  {(!!action.priority_id || action.tags?.length > 0) && (
                     <div>
                       <Hr className="py-1" />
                       <TagList>

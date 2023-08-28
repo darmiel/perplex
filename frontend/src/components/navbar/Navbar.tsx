@@ -28,9 +28,16 @@ export default function Navbar() {
     >
       <div className="h-full px-3 py-4 overflow-y-auto bg-black flex flex-col justify-between">
         <div>
-          <h1 className="text-center font-bold text-3xl mt-10 text-primary-600 -rotate-90">
-            DMP
-          </h1>
+          <div className="flex justify-center w-full mt-4">
+            <h1
+              style={{
+                writingMode: "vertical-rl",
+              }}
+              className="font-bold text-3xl  text-primary-600 -rotate-180"
+            >
+              DMP
+            </h1>
+          </div>
 
           <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">
             {projectListQuery.isLoading ? (

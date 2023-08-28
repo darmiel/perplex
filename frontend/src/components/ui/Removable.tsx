@@ -14,7 +14,14 @@ export default function Removable({
   return (
     <div className="flex justify-between items-center space-x-2">
       {children}
-      <div className="cursor-pointer" onClick={() => !loading && onRemove?.()}>
+      <div
+        className="cursor-pointer"
+        onClick={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          !loading && onRemove?.()
+        }}
+      >
         {loading ? <ClipLoader color="orange" size="1em" /> : <BsX />}
       </div>
     </div>

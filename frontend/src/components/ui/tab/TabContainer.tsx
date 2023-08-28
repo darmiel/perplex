@@ -21,7 +21,7 @@ export default function TabContainer({
   children: ReactNode
 }) {
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col max-h-screen">
       <div className="w-full px-4 py-2 bg-neutral-950 border-b border-b-neutral-700">
         {panes.map((item, key) => (
           <Button

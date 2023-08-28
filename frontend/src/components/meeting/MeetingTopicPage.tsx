@@ -18,9 +18,9 @@ export default function MeetingTopicPage({
 }) {
   const [showTopicList, setShowTopicList] = useState(true)
   return (
-    <div className="flex flex-row h-full">
+    <div className="flex flex-row h-full max-h-screen">
       {showTopicList ? (
-        <div className="flex-initial w-[21rem] bg-neutral-950 p-6 border-r border-neutral-700">
+        <div className="flex-initial w-[21rem] bg-neutral-900 p-6 border-r border-neutral-700">
           <TopicList
             projectID={String(projectID)}
             meetingID={String(meetingID)}

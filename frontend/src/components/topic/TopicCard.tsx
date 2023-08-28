@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { BiSolidErrorCircle } from "react-icons/bi"
-import { BsCheckCircleFill, BsCheckSquareFill } from "react-icons/bs"
+import { BsCheck, BsCheckCircleFill } from "react-icons/bs"
 import { toast } from "react-toastify"
 
 import { Topic } from "@/api/types"
@@ -86,7 +86,7 @@ export default function TopicCard({
           <div className="flex flex-row items-center space-x-2">
             {!!topic.solution_id && (
               <div className="text-primary-500">
-                <BsCheckSquareFill />
+                <BsCheck />
               </div>
             )}
             <div>

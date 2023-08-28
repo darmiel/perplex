@@ -6,12 +6,13 @@ import { Inter } from "next/font/google"
 import Head from "next/head"
 import { useEffect } from "react"
 
-import Navbar from "@/components/navbar/Navbar"
 import { AuthProvider } from "@/contexts/AuthContext"
 
 import "./globals.css"
 
 import { ToastContainer } from "react-toastify"
+
+import Navbar from "@/components/navbar/Navbar"
 
 import "react-toastify/dist/ReactToastify.css"
 
@@ -41,7 +42,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <div className="flex">
+          <div className="h-screen w-screen max-h-screen flex">
             <Navbar />
             {/*<Register>*/}
             <Component {...pageProps} />
