@@ -35,7 +35,7 @@ export default function Navbar() {
               }}
               className="font-bold text-3xl  text-primary-600 -rotate-180"
             >
-              DMP
+              <Link href="/">DMP</Link>
             </h1>
           </div>
 

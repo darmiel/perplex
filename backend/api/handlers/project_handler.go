@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
+	"sort"
 )
 
 var ErrNoAccess = errors.New("no access")
@@ -111,6 +112,10 @@ func (h *ProjectHandler) GetProjects(ctx *fiber.Ctx) error {
 	for _, v := range projects {
 		result = append(result, v)
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", result))
 }
 
