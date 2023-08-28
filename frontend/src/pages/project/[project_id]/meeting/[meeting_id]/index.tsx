@@ -23,7 +23,11 @@ export default function ProjectPage() {
       </div>
 
       <div className="w-full bg-neutral-950 p-6 pl-10">
-        <MeetingOverview projectID={projectID} meetingID={meetingID} />
+        <MeetingOverview
+          key={meetingID}
+          projectID={projectID}
+          meetingID={meetingID}
+        />
       </div>
     </>
   )

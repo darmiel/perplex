@@ -11,6 +11,7 @@ import {
   BsCheck,
   BsPen,
   BsPeople,
+  BsTrash,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
@@ -143,6 +144,9 @@ export default function TopicOverview({
   const [editDescription, setEditDescription] = useState("")
   const [editForceSolution, setEditForceSolution] = useState(false)
 
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [wasDeleted, setWasDeleted] = useState(false)
+
   const {
     topicInfoQueryFn,
     topicInfoQueryKey,
@@ -195,6 +199,33 @@ export default function TopicOverview({
     },
   })
 
+  const topicDeleteMutation = useMutation<BackendResponse<never>, AxiosError>({
+    mutationFn: async () =>
+      (
+        await axios!.delete(
+          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
+        )
+      ).data,
+    onError: (err) => {
+      toast(
+        <>
+          <strong>Failed to delete Topic</strong>
+          <pre>{extractErrorMessage(err)}</pre>
+        </>,
+        { type: "error" },
+      )
+    },
+    onSuccess: () => {
+      toast(`Topic #${meetingID} deleted`, { type: "success" })
+      queryClient.invalidateQueries(
+        topicInfoQueryKey!(projectID, meetingID, topicID),
+      )
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
+      setConfirmDelete(false)
+      setWasDeleted(true)
+    },
+  })
+
   const topicListQuery = useQuery<BackendResponse<Topic[]>>({
     queryKey: topicListQueryKey!(projectID, meetingID),
     queryFn: topicListQueryFn!(projectID, meetingID),
@@ -230,6 +261,15 @@ export default function TopicOverview({
     setIsEdit(true)
   }
 
+  function deleteTopic() {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setConfirmDelete(false)
+    topicDeleteMutation.mutate()
+  }
+
   let nextTopicURL: string | undefined
   let prevTopicURL: string | undefined
 
@@ -248,6 +288,29 @@ export default function TopicOverview({
         }`
       }
     }
+  }
+
+  if (wasDeleted) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="flex flex-col space-y-4 p-6 border border-red-500 bg-red-500 bg-opacity-10 rounded-md">
+          <h1 className="text-red-500 text-2xl font-semibold">
+            Topic not found
+          </h1>
+          <p className="text-neutral-300">
+            The topic cannot be found, because you just deleted it.
+            <br />
+            That&apos;s what you wanted, right?{" "}
+            <span className="text-neutral-500">right?</span>
+          </p>
+          <div className="flex items-center">
+            <Link href={`/project/${projectID}/meeting/${meetingID}`}>
+              <Button raw>Go to Topic Overview</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -367,13 +430,27 @@ export default function TopicOverview({
         <OverviewSide>
           <OverviewSection name="Edit">
             {!isEdit ? (
-              <Button
-                className="w-full text-sm"
-                icon={<BsPen />}
-                onClick={() => enterEdit()}
-              >
-                Edit Topic
-              </Button>
+              <div className="flex space-x-2 items-center">
+                <Button
+                  className="w-full text-sm"
+                  icon={<BsPen />}
+                  onClick={() => enterEdit()}
+                >
+                  Edit
+                </Button>
+                <Button
+                  className={
+                    confirmDelete
+                      ? "w-full bg-red-500 hover:bg-red-600 text-white"
+                      : "w-full text-red-500"
+                  }
+                  icon={<BsTrash />}
+                  onClick={deleteTopic}
+                  isLoading={topicDeleteMutation.isLoading}
+                >
+                  {confirmDelete ? "Confirm" : "Delete"}
+                </Button>
+              </div>
             ) : (
               <div className="flex space-x-2">
                 <Button

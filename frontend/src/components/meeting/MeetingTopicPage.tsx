@@ -44,6 +44,7 @@ export default function MeetingTopicPage({
 
       <div className="flex-auto bg-neutral-950 p-6">
         <TopicOverview
+          key={topicID}
           projectID={String(projectID)}
           meetingID={String(meetingID)}
           topicID={String(topicID)}
