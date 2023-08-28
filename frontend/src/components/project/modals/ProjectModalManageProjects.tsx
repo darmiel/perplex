@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useState } from "react"
-import { BsDoorOpen, BsSearch, BsTrash } from "react-icons/bs"
+import {
+  BsArrowRight,
+  BsDoorOpen,
+  BsSearch,
+  BsTrash,
+  BsTriangleFill,
+} from "react-icons/bs"
 import { toast } from "react-toastify"
 
 import { BackendResponse, Project } from "@/api/types"
@@ -256,10 +262,10 @@ function ModalDelete({
   onDelete: () => void
   onBack: () => void
 }) {
+  const [confirmDeleteText, setConfirmDeleteText] = useState("")
+
   const queryClient = useQueryClient()
   const { axios, projectListQueryKey } = useAuth()
-
-  const [confirmDeleteText, setConfirmDeleteText] = useState("")
 
   const deleteProjectMutation = useMutation<BackendResponse, AxiosError>({
     mutationFn: async () =>
@@ -287,8 +293,11 @@ function ModalDelete({
   return (
     <ModalContainer title={`Delete Project #${project.ID}`}>
       <div className="flex flex-col space-y-4">
-        <div className="flex flex-col space-y-2 p-4 border border-red-500 text-red-500 rounded-md">
-          <strong className="text-lg">Heads up!</strong>
+        <div className="flex flex-col space-y-2 p-4 border border-red-500 text-red-500 rounded-md bg-red-500 bg-opacity-10">
+          <div className="flex items-center space-x-2">
+            <BsTriangleFill />
+            <strong className="text-lg">Heads up!</strong>
+          </div>
           <p>
             You are about to delete a project. This action{" "}
             <strong>cannot be undone</strong>.
@@ -302,29 +311,35 @@ function ModalDelete({
         </div>
         <div className="flex flex-col space-y-2">
           <span>Please deletion by entering the name of the project:</span>
-          <span className="w-fit px-2 py-1 bg-neutral-700 rounded-md text-sm text-neutral-500">
-            {project.name}
-          </span>
-          <div className="flex space-x-2">
-            <input
-              id="prioritySearch"
-              type="text"
-              className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
-              placeholder={project.name}
-              onChange={(event) => setConfirmDeleteText(event.target.value)}
-              value={confirmDeleteText}
-            />
-            <Button
-              style="neutral"
-              disabled={!triggerReady}
-              icon={<BsTrash />}
-              className={triggerReady ? "w-fit bg-red-500" : "w-fit"}
-              isLoading={deleteProjectMutation.isLoading}
-              onClick={() => deleteProjectMutation.mutate()}
-            >
-              Delete
-            </Button>
+          <div className="flex space-x-2 items-center">
+            <BsArrowRight />
+            <span className="w-fit px-2 py-1 bg-neutral-700 rounded-md text-sm text-neutral-500">
+              {project.name}
+            </span>
           </div>
+        </div>
+        <div>
+          <Hr />
+        </div>
+        <div className="flex space-x-2 items-center">
+          <input
+            id="prioritySearch"
+            type="text"
+            className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+            placeholder={project.name}
+            onChange={(event) => setConfirmDeleteText(event.target.value)}
+            value={confirmDeleteText}
+          />
+          <Button
+            style="neutral"
+            disabled={!triggerReady}
+            icon={<BsTrash />}
+            className={triggerReady ? "w-fit bg-red-500" : "w-fit"}
+            isLoading={deleteProjectMutation.isLoading}
+            onClick={() => deleteProjectMutation.mutate()}
+          >
+            Delete
+          </Button>
         </div>
       </div>
     </ModalContainer>
