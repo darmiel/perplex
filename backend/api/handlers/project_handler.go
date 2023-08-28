@@ -16,7 +16,8 @@ var ErrNoAccess = errors.New("no access")
 var ErrNotFound = errors.New("not found")
 var ErrAlreadyInProject = errors.New("user already in project")
 var ErrNotInProject = errors.New("user not in project")
-var ErrOnlyOwner = errors.New("only owner can perform this action")
+var ErrOnlyOwner = errors.New("only owners can perform this action")
+var ErrOnlyUser = errors.New("only users can perform this action")
 
 type ProjectHandler struct {
 	srv       services.ProjectService
@@ -34,7 +35,7 @@ func NewProjectHandler(
 
 type projectDto struct {
 	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name,omitempty"`
-	Description string `validate:"proj-extended,max=256" json:"description,omitempty"`
+	Description string `validate:"max=256" json:"description,omitempty"`
 }
 
 // ProjectAccessMiddleware checks if the requesting user has access to the project
@@ -111,6 +112,19 @@ func (h *ProjectHandler) GetProjects(ctx *fiber.Ctx) error {
 		result = append(result, v)
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", result))
+}
+
+// LeaveProject is a self-service for users
+func (h *ProjectHandler) LeaveProject(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	p := ctx.Locals("project").(model.Project)
+	if u.UserID == p.OwnerID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyUser))
+	}
+	if err := h.srv.RemoveUser(p.ID, u.UserID); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project left", nil))
 }
 
 // DeleteProject deletes a project
