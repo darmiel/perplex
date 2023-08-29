@@ -18,7 +18,7 @@ export default function MeetingTopicPage({
 }) {
   const [showTopicList, setShowTopicList] = useState(true)
   return (
-    <div className="flex flex-row h-full max-h-screen">
+    <div className="flex flex-row h-full overflow-y-auto">
       {showTopicList ? (
         <div className="flex-initial w-[21rem] bg-neutral-900 p-6 border-r border-neutral-700">
           <TopicList

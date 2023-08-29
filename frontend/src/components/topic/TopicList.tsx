@@ -68,7 +68,7 @@ export default function TopicList({
   const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
 
   return (
-    <ul className="flex flex-col flex-grow h-full max-h-screen overflow-y-auto space-y-4">
+    <ul className="flex flex-col flex-grow h-full overflow-y-auto  space-y-4">
       <div className="flex space-x-2">
         <Button
           onClick={() => setShowCreateTopic(true)}
@@ -103,7 +103,7 @@ export default function TopicList({
 
       <hr className="mt-4 mb-6 border-gray-700" />
 
-      <div className="flex-grow overflow-y-auto space-y-4">
+      <div className="flex-grow overflow-y-auto overscroll-y-none space-y-4">
         {/* Topic List (Open Topics) */}
         {openTopics.length > 0 && (
           <>

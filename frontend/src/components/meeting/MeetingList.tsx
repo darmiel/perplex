@@ -15,7 +15,6 @@ import MeetingTag, {
 import CreateMeeting from "@/components/modals/MeetingCreateModal"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
-import Hr from "@/components/ui/Hr"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 import {
   TruncateSubTitle,
@@ -106,14 +105,14 @@ export default function MeetingList({
             </Link>
           </div>
         ))}
-        <Hr className="mt-4" />
+        <div className="mt-4"></div>
       </div>
     )
   }
 
   return (
     <>
-      <div className={`flex flex-row space-x-2 ${className}`}>
+      <div className={`h-fit flex flex-row space-x-2 ${className}`}>
         <Button
           onClick={() => setShowCreateMeeting(true)}
           style="neutral"
@@ -129,11 +128,11 @@ export default function MeetingList({
         )}
       </div>
 
-      <Hr className="mt-4 mb-6 border-gray-700" />
-
-      {Object.keys(tenses).map((tense, key) => (
-        <MeetingListForTense key={key} tense={tense as MeetingTense} />
-      ))}
+      <div className="h-full max-h-full overflow-y-auto overscroll-none">
+        {Object.keys(tenses).map((tense, key) => (
+          <MeetingListForTense key={key} tense={tense as MeetingTense} />
+        ))}
+      </div>
 
       {/* Create Meeting Popup */}
       <ModalPopup open={showCreateMeeting} setOpen={setShowCreateMeeting}>

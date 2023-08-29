@@ -87,8 +87,6 @@ export default function ActionCreateModal({
       // clear form
       setActionTitle("")
       setActionDescription("")
-      setActionDueDate("")
-      setActionPriorityID(null)
 
       // link topic
       linkActionMut.mutate({ actionID: data.data.ID })
@@ -124,6 +122,7 @@ export default function ActionCreateModal({
         { projectID: String(projectID) },
         "actions",
       ])
+      queryClient.invalidateQueries([{ topicID }, "actions"])
     },
     onError: (error) => {
       toast(
@@ -425,13 +424,9 @@ export default function ActionCreateModal({
             assignTagMut.isLoading ||
             assignUserMut.isLoading
           }
-          onClick={() => {
-            createActionMutation.isSuccess
-              ? onClose?.()
-              : createActionMutation.mutate()
-          }}
+          onClick={() => createActionMutation.mutate()}
         >
-          {createActionMutation.isSuccess ? "Close" : "Create"}
+          Create
         </Button>
       </div>
     </ModalContainer>
