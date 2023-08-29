@@ -47,9 +47,27 @@ func (a ActionHandler) ListActionsForProject(ctx *fiber.Ctx) error {
 
 type actionDto struct {
 	Title       string `json:"title" validate:"required,min=1,max=64"`
-	Description string `json:"description" validate:"required,min=1,max=1024"`
+	Description string `json:"description"`
 	DueDate     string `json:"due_date" validate:"omitempty,datetime=2006-01-02T15:04:05Z07:00"`
 	PriorityID  uint   `json:"priority_id"`
+}
+
+func (a ActionHandler) ValidateActionDto(dto *actionDto) (dueDate sql.NullTime, err error) {
+	if err = a.validator.Struct(dto); err != nil {
+		return
+	}
+	if len(dto.Description) > MaxDescriptionLength {
+		err = ErrDescriptionTooLong
+		return
+	}
+	if dto.DueDate != "" {
+		var dueTime time.Time
+		if dueTime, err = time.Parse(time.RFC3339, dto.DueDate); err != nil {
+			return
+		}
+		dueDate = sql.NullTime{Time: dueTime, Valid: true}
+	}
+	return
 }
 
 func fiberResponseNoVal(ctx *fiber.Ctx, message string, err error) error {
@@ -70,17 +88,9 @@ func (a ActionHandler) CreateAction(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := a.validator.Struct(dto); err != nil {
+	dueDate, err := a.ValidateActionDto(&dto)
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	// parse due date
-	var dueDate sql.NullTime
-	if dto.DueDate != "" {
-		if startTime, err := time.Parse(time.RFC3339, dto.DueDate); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-		} else {
-			dueDate = sql.NullTime{Time: startTime, Valid: true}
-		}
 	}
 	// create action
 	action, err := a.srv.CreateAction(dto.Title, dto.Description, dueDate, dto.PriorityID, p.ID, u.UserID)
@@ -123,17 +133,9 @@ func (a ActionHandler) EditAction(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&dto); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := a.validator.Struct(dto); err != nil {
+	dueDate, err := a.ValidateActionDto(&dto)
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	// parse due date
-	var dueDate sql.NullTime
-	if dto.DueDate != "" {
-		if startTime, err := time.Parse(time.RFC3339, dto.DueDate); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-		} else {
-			dueDate = sql.NullTime{Time: startTime, Valid: true}
-		}
 	}
 	// edit action
 	return fiberResponseNoVal(ctx, "created action",

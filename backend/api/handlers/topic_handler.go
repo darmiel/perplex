@@ -34,8 +34,18 @@ var ErrNoSolution = errors.New("topic requires a solution before close")
 
 type topicDto struct {
 	Title         string `validate:"required,startsnotwith= ,endsnotwith= ,min=1,max=128" json:"title"`
-	Description   string `validate:"max=1024" json:"description"`
+	Description   string `json:"description"`
 	ForceSolution bool   `json:"force_solution"`
+}
+
+func (h *TopicHandler) ValidateTopicDto(dto *topicDto) error {
+	if err := h.validator.Struct(dto); err != nil {
+		return err
+	}
+	if len(dto.Description) > MaxDescriptionLength {
+		return ErrDescriptionTooLong
+	}
+	return nil
 }
 
 // TopicAuthorizationMiddleware is a middleware function for authorizing topic related actions.
@@ -69,7 +79,7 @@ func (h *TopicHandler) AddTopic(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := h.validator.Struct(payload); err != nil {
+	if err := h.ValidateTopicDto(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 
@@ -115,7 +125,7 @@ func (h *TopicHandler) EditTopic(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := h.validator.Struct(payload); err != nil {
+	if err := h.ValidateTopicDto(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 

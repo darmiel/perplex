@@ -36,7 +36,17 @@ func NewProjectHandler(
 
 type projectDto struct {
 	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name,omitempty"`
-	Description string `validate:"max=256" json:"description,omitempty"`
+	Description string `json:"description"`
+}
+
+func (h *ProjectHandler) ValidateProjectDto(dto *projectDto) error {
+	if err := h.validator.Struct(dto); err != nil {
+		return err
+	}
+	if len(dto.Description) > MaxDescriptionLength {
+		return ErrDescriptionTooLong
+	}
+	return nil
 }
 
 // ProjectAccessMiddleware checks if the requesting user has access to the project
@@ -72,7 +82,7 @@ func (h *ProjectHandler) AddProject(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := h.validator.Struct(payload); err != nil {
+	if err := h.ValidateProjectDto(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 
@@ -156,8 +166,7 @@ func (h *ProjectHandler) EditProject(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	h.logger.Infof("Validating %+v :: %v", payload, h.validator.Struct(payload))
-	if err := h.validator.Struct(payload); err != nil {
+	if err := h.ValidateProjectDto(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 	if err := h.srv.EditProject(p.ID, payload.Name, payload.Description); err != nil {

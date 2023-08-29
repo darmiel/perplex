@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/darmiel/dmp/api/presenter"
 	"github.com/darmiel/dmp/api/services"
 	"github.com/darmiel/dmp/pkg/model"
@@ -12,6 +13,9 @@ import (
 	"sort"
 	"time"
 )
+
+const MaxDescriptionLength = 1024 * 1024 // 1 MiB
+var ErrDescriptionTooLong = errors.New("description too long")
 
 type MeetingHandler struct {
 	srv       services.MeetingService
@@ -33,6 +37,20 @@ type meetingDto struct {
 	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name"`
 	Description string `json:"description"`
 	StartDate   string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date"`
+}
+
+func (h *MeetingHandler) ValidateMeetingDto(dto *meetingDto) (*time.Time, error) {
+	if err := h.validator.Struct(dto); err != nil {
+		return nil, err
+	}
+	if len(dto.Description) > MaxDescriptionLength {
+		return nil, ErrDescriptionTooLong
+	}
+	startTime, err := time.Parse(time.RFC3339, dto.StartDate)
+	if err != nil {
+		return nil, err
+	}
+	return &startTime, nil
 }
 
 // PreloadMeetingsMiddleware preloads meetings for the current project and updates the project in the locals
@@ -74,15 +92,12 @@ func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := h.validator.Struct(payload); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	startTime, err := time.Parse(time.RFC3339, payload.StartDate)
+	startTime, err := h.ValidateMeetingDto(&payload)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 	// create meeting
-	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, payload.Description, startTime)
+	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, payload.Description, *startTime)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -123,14 +138,11 @@ func (h *MeetingHandler) EditMeeting(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err := h.validator.Struct(payload); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	startTime, err := time.Parse(time.RFC3339, payload.StartDate)
+	startTime, err := h.ValidateMeetingDto(&payload)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err = h.srv.EditMeeting(m.ID, payload.Name, payload.Description, startTime); err != nil {
+	if err = h.srv.EditMeeting(m.ID, payload.Name, payload.Description, *startTime); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting edited", nil))
