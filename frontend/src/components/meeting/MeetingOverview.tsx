@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import Head from "next/head"
 import Link from "next/link"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
@@ -177,6 +178,10 @@ export default function MeetingOverview({
 
   return (
     <div className="flex flex-col">
+      <Head>
+        <title>Perplex - M# {meeting.name ?? "Unknown Project"}</title>
+      </Head>
+
       <OverviewTitle
         creatorID={meeting.creator_id}
         title={meeting.name}

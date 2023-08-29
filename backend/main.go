@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go"
-	"github.com/darmiel/dmp/api/handlers"
-	"github.com/darmiel/dmp/api/routes"
-	"github.com/darmiel/dmp/api/services"
-	"github.com/darmiel/dmp/pkg/model"
-	"github.com/darmiel/dmp/pkg/util"
+	"github.com/darmiel/perplex/api/handlers"
+	"github.com/darmiel/perplex/api/routes"
+	"github.com/darmiel/perplex/api/services"
+	"github.com/darmiel/perplex/pkg/model"
+	"github.com/darmiel/perplex/pkg/util"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
@@ -55,11 +55,11 @@ func main() {
 
 	// api
 	app := fiber.New(fiber.Config{
-		AppName: "dmp-api",
+		AppName: "perplex-api",
 	})
 	app.Use(cors.New())
 	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.SendString("Welcome to the dmp api!")
+		return ctx.SendString("Welcome to the perplex api! https://github.com/darmiel/perplex")
 	})
 
 	app.Use(gofiberfirebaseauth.New(fbApp, gofiberfirebaseauth.Config{

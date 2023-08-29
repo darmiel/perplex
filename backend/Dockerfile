@@ -1,7 +1,7 @@
 FROM golang:1.21
 
 LABEL maintainer="darmiel <hi@d2a.io>"
-LABEL org.opencontainers.image.source = "https://github.com/darmiel/dmp"
+LABEL org.opencontainers.image.source = "https://github.com/darmiel/perplex"
 
 WORKDIR /usr/src/app
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -18,11 +18,11 @@ COPY main.go .
 COPY go.mod .
 COPY go.sum .
 
-RUN go build -o dmp-backend main.go
+RUN go build -o perplex-backend main.go
 
 COPY /firebase.json .
 RUN ls -la
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/usr/src/app/dmp-backend" ]
+ENTRYPOINT [ "/usr/src/app/perplex-backend" ]

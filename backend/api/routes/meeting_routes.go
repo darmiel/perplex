@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/darmiel/dmp/api/handlers"
+	"github.com/darmiel/perplex/api/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 

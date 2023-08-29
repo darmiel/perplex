@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"errors"
-	"github.com/darmiel/dmp/api/presenter"
-	"github.com/darmiel/dmp/api/services"
-	"github.com/darmiel/dmp/pkg/model"
-	"github.com/darmiel/dmp/pkg/util"
+	"github.com/darmiel/perplex/api/presenter"
+	"github.com/darmiel/perplex/api/services"
+	"github.com/darmiel/perplex/pkg/model"
+	"github.com/darmiel/perplex/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"

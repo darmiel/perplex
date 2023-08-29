@@ -1,6 +1,6 @@
 package util
 
-import "github.com/darmiel/dmp/pkg/model"
+import "github.com/darmiel/perplex/pkg/model"
 
 func HasAccess(project *model.Project, userID string) bool {
 	if project.OwnerID == userID {

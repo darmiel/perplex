@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/darmiel/dmp/pkg/model"
+	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"regexp"

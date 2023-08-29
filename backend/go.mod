@@ -1,4 +1,4 @@
-module github.com/darmiel/dmp
+module github.com/darmiel/perplex
 
 go 1.20
 

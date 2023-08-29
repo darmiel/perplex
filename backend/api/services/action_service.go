@@ -2,7 +2,7 @@ package services
 
 import (
 	"database/sql"
-	"github.com/darmiel/dmp/pkg/model"
+	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
 	"time"
 )

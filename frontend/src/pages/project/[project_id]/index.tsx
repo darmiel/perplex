@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsPen } from "react-icons/bs"
@@ -93,6 +94,9 @@ export default function ProjectPage() {
 
   return (
     <div className="w-full bg-neutral-950 p-6 pl-10">
+      <Head>
+        <title>Perplex - P# {project.name ?? "Unknown Project"}</title>
+      </Head>
       <div className="flex flex-col">
         <OverviewTitle
           creatorID={project.owner_id}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import Head from "next/head"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { BsGear, BsPersonWorkspace } from "react-icons/bs"
@@ -110,6 +111,9 @@ export default function Home() {
 
   return (
     <div className="p-20 bg-neutral-900 w-full flex flex-col space-y-6">
+      <Head>
+        <title>Perplex - Dashboard</title>
+      </Head>
       <h1 className="text-5xl text-neutral-400">
         {greeting}
         <span className="text-white font-bold">

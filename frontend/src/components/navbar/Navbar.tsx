@@ -35,7 +35,7 @@ export default function Navbar() {
               }}
               className="font-bold text-3xl  text-primary-600 -rotate-180"
             >
-              <Link href="/">DMP</Link>
+              <Link href="/">Perplex</Link>
             </h1>
           </div>
 
@@ -67,7 +67,7 @@ export default function Navbar() {
         <div className="mt-auto">
           <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">
             <li className="p-2">
-              <a href="https://github.com/darmiel/dmp">
+              <a href="https://github.com/darmiel/perplex">
                 <BsGithub size="100%" />
               </a>
             </li>

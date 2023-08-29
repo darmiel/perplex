@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import "react-datepicker/dist/react-datepicker.css"
 
+import Head from "next/head"
 import { toast } from "react-toastify"
 
 import { extractErrorMessage } from "@/api/util"
@@ -121,6 +122,9 @@ export default function ActionOverview({ action }: { action: Action }) {
 
   return (
     <div className="flex flex-col">
+      <Head>
+        <title>Perplex - A# {action.title}</title>
+      </Head>
       <OverviewTitle
         creatorID={action.creator_id}
         title={action.title}

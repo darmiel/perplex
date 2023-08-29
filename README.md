@@ -1,7 +1,8 @@
+# Perplex
 
-# DMP - Daniel's Meeting Planner
-
-DMP (Daniel's Meeting Planner) is a web service designed to help you effectively manage meeting topics and collaborate with your team. It acts as a meeting minutes tool, allowing you to create and track meeting topics, record action items, and facilitate collaboration among participants.
+Perplex is a web service designed to help you effectively manage meeting topics and collaborate with your team. 
+It acts as a meeting minutes tool, allowing you to create and track meeting topics, record action items, 
+and facilitate collaboration among participants.
 
 ![](./assets/Screenshot1.png)
 
