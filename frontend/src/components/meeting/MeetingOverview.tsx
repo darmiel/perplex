@@ -10,6 +10,7 @@ import { toast } from "react-toastify"
 
 import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
@@ -26,8 +27,8 @@ export default function MeetingOverview({
   projectID,
   meetingID,
 }: {
-  projectID: string
-  meetingID: string
+  projectID: number
+  meetingID: number
 }) {
   const [isEdit, setIsEdit] = useState(false)
   const [editTitle, setEditTitle] = useState("")
@@ -229,6 +230,12 @@ export default function MeetingOverview({
           <hr className="mt-4 mb-6 border-gray-700" />
 
           <TopicList projectID={projectID} meetingID={meetingID} />
+
+          <CommentSuite
+            projectID={projectID}
+            commentType="meeting"
+            commentEntityID={meetingID}
+          />
         </OverviewContent>
         <OverviewSide>
           <OverviewSection name="Actions">

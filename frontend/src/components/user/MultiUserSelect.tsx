@@ -18,9 +18,9 @@ export default function MultiUserSelect({
   initialSelection,
   children,
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
+  projectID: number
+  meetingID: number
+  topicID: number
   initialSelection: string[]
   children: JSX.Element
 }) {

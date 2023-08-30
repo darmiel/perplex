@@ -1,3 +1,5 @@
+export type CommentEntityType = "topic" | "meeting" | "action" | "project"
+
 export interface NullTime {
   Valid: boolean
   Time: string
@@ -20,7 +22,7 @@ export interface BackendResponse<T = never> {
   data: T
 }
 
-export type CommentType = {
+export type Comment = {
   ID: number
   author_id: string
   content: string
@@ -51,7 +53,7 @@ export type Topic = {
   title: string
   description: string
   force_solution?: boolean
-  comments?: CommentType[]
+  comments?: Comment[]
   solution_id?: number
   closed_at: NullTime
   assigned_users?: User[]

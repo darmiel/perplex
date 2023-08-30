@@ -31,6 +31,7 @@ import { extractErrorMessage } from "@/api/util"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
 import ActionSectionTags from "@/components/action/sections/ActionSectionTags"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
+import CommentSuite from "@/components/comment/CommentSuite"
 
 // TODO: remove duplicate
 const tags = {
@@ -205,6 +206,12 @@ export default function ActionOverview({ action }: { action: Action }) {
           </div>
 
           <Hr className="mt-4 mb-6" />
+
+          <CommentSuite
+            projectID={action.project_id}
+            commentType="action"
+            commentEntityID={action.ID}
+          />
         </OverviewContent>
         <OverviewSide className="w-3/12">
           <OverviewSection name="Actions">

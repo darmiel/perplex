@@ -9,8 +9,8 @@ export default function TopicSectionCreateAction({
   projectID,
   topicID,
 }: {
-  projectID: string
-  topicID: string
+  projectID: number
+  topicID: number
 }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)

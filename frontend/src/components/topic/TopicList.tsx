@@ -16,14 +16,14 @@ import CreateTopic from "@/components/modals/TopicCreateModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 export default function TopicList({
-  selectedTopicID,
   projectID,
   meetingID,
+  selectedTopicID,
   onCollapse,
 }: {
-  selectedTopicID?: string
-  projectID: string
-  meetingID: string
+  projectID: number
+  meetingID: number
+  selectedTopicID?: number
   onCollapse?: () => void
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
@@ -60,7 +60,7 @@ export default function TopicList({
           topic={topic}
           projectID={projectID}
           meetingID={meetingID}
-          active={selectedTopicID === String(topic.ID)}
+          active={selectedTopicID === topic.ID}
         />
       </div>
     ))

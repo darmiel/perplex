@@ -17,7 +17,7 @@ export default function TopicSectionActions({
   topic,
   actions,
 }: {
-  projectID: string
+  projectID: number
   topic: Topic
   actions: Action[]
 }) {

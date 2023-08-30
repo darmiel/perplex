@@ -18,7 +18,7 @@ export default function CreateMeeting({
   projectID,
   onClose,
 }: {
-  projectID: string
+  projectID: number
   onClose: (newMeetingID: number) => void
 }) {
   const [meetingTitle, setMeetingTitle] = useState<string>("")

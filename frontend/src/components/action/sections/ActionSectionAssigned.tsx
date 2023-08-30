@@ -22,7 +22,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
 
   // get project information to check which users are already in the project
   const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(String(action.project_id)),
+    queryKey: projectUsersQueryKey!(action.project_id),
     queryFn: projectUsersQueryFn!(action.project_id),
   })
 

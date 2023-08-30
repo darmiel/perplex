@@ -139,8 +139,16 @@ func main() {
 	routes.TopicRoutes(topicGroup, topicHandler)
 
 	// /comment
-	commentHandler := handlers.NewCommentHandler(commentService, meetingService, sugar, validate)
-	commentGroup := topicGroup.Group("/:topic_id/comment")
+	commentHandler := handlers.NewCommentHandler(
+		commentService,
+		meetingService,
+		topicService,
+		actionService,
+		projectService,
+		sugar,
+		validate,
+	)
+	commentGroup := projectGroup.Group("/:project_id/comment")
 	routes.CommentRoutes(commentGroup, commentHandler)
 
 	// /user

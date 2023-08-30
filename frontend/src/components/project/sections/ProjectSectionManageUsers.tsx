@@ -22,7 +22,7 @@ export default function ProjectSectionManageUsers({
   const { projectUsersQueryFn, projectUsersQueryKey } = useAuth()
 
   const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(String(projectID)),
+    queryKey: projectUsersQueryKey!(projectID),
     queryFn: projectUsersQueryFn!(projectID),
   })
 

@@ -6,14 +6,18 @@ import (
 )
 
 func CommentRoutes(router fiber.Router, handler *handlers.CommentHandler) {
-	router.Get("/", handler.ListCommentsForTopic)
-	router.Post("/", handler.AddComment)
+	solutionGroup := router.Group("/solution/:comment_id")
+	solutionGroup.Use("/", handler.CommentLocalsMiddleware)
+	solutionGroup.Post("/", handler.MarkSolutionComment(true))
+	solutionGroup.Delete("/", handler.MarkSolutionComment(false))
 
-	router.Use("/:comment_id", handler.CommentLocalsMiddleware)
-	router.Post("/:comment_id/solution", handler.MarkSolutionComment(true))
-	router.Delete("/:comment_id/solution", handler.MarkSolutionComment(false))
+	typeGroup := router.Group("/:comment_target_type/:comment_target_id")
+	typeGroup.Get("/", handler.ListGenericComment)
+	typeGroup.Post("/", handler.AddGenericComment)
 
-	router.Use("/:comment_id", handler.CommentOwnershipMiddleware)
-	router.Put("/:comment_id", handler.EditComment)
-	router.Delete("/:comment_id", handler.DeleteComment)
+	specificCommentGroup := router.Group("/:comment_id")
+	specificCommentGroup.Use("/", handler.CommentLocalsMiddleware)
+	specificCommentGroup.Use("/", handler.CommentOwnershipMiddleware)
+	specificCommentGroup.Put("/", handler.EditComment)
+	specificCommentGroup.Delete("/", handler.DeleteComment)
 }

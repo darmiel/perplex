@@ -1,5 +1,7 @@
 import { Axios } from "axios"
 
+import { CommentEntityType } from "@/api/types"
+
 export type sendCommentMutVars = {
   comment: string
 }
@@ -20,21 +22,21 @@ export const functions = (axios: Axios) => ({
     return ["projects"]
   },
 
-  projectGetQueryFn(projectID: any) {
+  projectGetQueryFn(projectID: number) {
     return async () => (await axios!.get(`/project/${projectID}`)).data
   },
-  projectGetQueryKey(projectID: string) {
+  projectGetQueryKey(projectID: number) {
     return [{ projectID }]
   },
 
-  projectUsersQueryFn(projectID: any) {
+  projectUsersQueryFn(projectID: number) {
     return async () => (await axios!.get(`/project/${projectID}/users`)).data
   },
-  projectUsersQueryKey(projectID: string) {
+  projectUsersQueryKey(projectID: number) {
     return [{ projectID }, "users"]
   },
 
-  projectUserAddMutFn(projectID: any) {
+  projectUserAddMutFn(projectID: number) {
     return async ({ userID, add }: projectUserAddVars) =>
       (
         await axios![add ? "post" : "delete"](
@@ -42,11 +44,11 @@ export const functions = (axios: Axios) => ({
         )
       ).data
   },
-  projectUserAddMutKey(projectID: string) {
+  projectUserAddMutKey(projectID: number) {
     return [{ projectID }, "user-add-mut"]
   },
 
-  projectUpdateMutFn(projectID: any, name: string, description: string) {
+  projectUpdateMutFn(projectID: number, name: string, description: string) {
     return async () =>
       (
         await axios!.put(`/project/${projectID}`, {
@@ -55,22 +57,22 @@ export const functions = (axios: Axios) => ({
         })
       ).data
   },
-  projectUpdateMutKey(projectID: string) {
+  projectUpdateMutKey(projectID: number) {
     return [{ projectID }, "project-update-mut"]
   },
 
   // ======================
   // Meeting
   // ======================
-  meetingListQueryFn(projectID: any) {
+  meetingListQueryFn(projectID: number) {
     return async () => (await axios!.get(`/project/${projectID}/meeting`)).data
   },
-  meetingListQueryKey(projectID: string) {
+  meetingListQueryKey(projectID: number) {
     return [{ projectID }, "meetings"]
   },
 
   meetingCreateMutFn(
-    projectID: any,
+    projectID: number,
     title: string,
     description: string,
     date: Date,
@@ -84,21 +86,21 @@ export const functions = (axios: Axios) => ({
         })
       ).data
   },
-  meetingCreateMutKey(projectID: string) {
+  meetingCreateMutKey(projectID: number) {
     return [{ projectID }, "meeting-create-mut"]
   },
 
-  meetingInfoQueryFn(projectID: any, meetingID: any) {
+  meetingInfoQueryFn(projectID: number, meetingID: number) {
     return async () =>
       (await axios!.get(`/project/${projectID}/meeting/${meetingID}`)).data
   },
-  meetingInfoQueryKey(projectID: string, meetingID: string) {
+  meetingInfoQueryKey(projectID: number, meetingID: number) {
     return [{ projectID }, { meetingID }]
   },
 
   meetingUpdateMutFn(
-    projectID: string,
-    meetingID: string,
+    projectID: number,
+    meetingID: number,
     title: string,
     description: string,
     date: Date,
@@ -112,23 +114,23 @@ export const functions = (axios: Axios) => ({
         })
       ).data
   },
-  meetingUpdateMutKey(projectID: string, meetingID: string) {
+  meetingUpdateMutKey(projectID: number, meetingID: number) {
     return [{ projectID }, { meetingID }, "meeting-update-mut"]
   },
 
   // ======================
   // Topic
   // ======================
-  topicListQueryFn(projectID: any, meetingID: any) {
+  topicListQueryFn(projectID: number, meetingID: number) {
     return async () =>
       (await axios!.get(`/project/${projectID}/meeting/${meetingID}/topic`))
         .data
   },
-  topicListQueryKey(projectID: string, meetingID: string) {
+  topicListQueryKey(projectID: number, meetingID: number) {
     return [{ projectID }, { meetingID }, "topics"]
   },
 
-  topicInfoQueryFn(projectID: any, meetingID: any, topicID: any) {
+  topicInfoQueryFn(projectID: number, meetingID: number, topicID: number) {
     return async () =>
       (
         await axios!.get(
@@ -136,15 +138,11 @@ export const functions = (axios: Axios) => ({
         )
       ).data
   },
-  topicInfoQueryKey(
-    projectID: string,
-    meetingID: string,
-    topicID: string | number,
-  ) {
-    return [{ projectID }, { meetingID }, { topicID: String(topicID) }]
+  topicInfoQueryKey(projectID: number, meetingID: number, topicID: number) {
+    return [{ projectID }, { meetingID }, { topicID }]
   },
 
-  topicStatusMutFn(projectID: any, meetingID: any, topicID: any) {
+  topicStatusMutFn(projectID: number, meetingID: number, topicID: number) {
     return async (check: boolean) =>
       (
         await axios![check ? "post" : "delete"](
@@ -152,19 +150,14 @@ export const functions = (axios: Axios) => ({
         )
       ).data
   },
-  topicStatusMutKey(projectID: string, meetingID: string, topicID: any) {
-    return [
-      { projectID },
-      { meetingID },
-      { topicID: String(topicID) },
-      "status-assign-mut",
-    ]
+  topicStatusMutKey(projectID: number, meetingID: number, topicID: number) {
+    return [{ projectID }, { meetingID }, { topicID }, "status-assign-mut"]
   },
 
   topicUpdateMutFn(
-    projectID: string,
-    meetingID: string,
-    topicID: string,
+    projectID: number,
+    meetingID: number,
+    topicID: number,
     title: string,
     description: string,
     force_solution: boolean,
@@ -181,13 +174,13 @@ export const functions = (axios: Axios) => ({
         )
       ).data
   },
-  topicUpdateMutKey(projectID: string, meetingID: string, topicID: string) {
+  topicUpdateMutKey(projectID: number, meetingID: number, topicID: number) {
     return [{ projectID }, { meetingID }, { topicID }, "topic-update-mut"]
   },
 
   createTopicMutFn(
-    projectID: any,
-    meetingID: any,
+    projectID: number,
+    meetingID: number,
     title: any,
     description: any,
     discuss: boolean,
@@ -201,11 +194,11 @@ export const functions = (axios: Axios) => ({
         })
       ).data
   },
-  createTopicMutKey(projectID: string, meetingID: string) {
+  createTopicMutKey(projectID: number, meetingID: number) {
     return [{ projectID }, { meetingID }, "topic-create-mut"]
   },
 
-  assignTopicMutFn(projectID: any, meetingID: any) {
+  assignTopicMutFn(projectID: number, meetingID: number) {
     return async ({ userIDs, topicID }: { userIDs: string[]; topicID: any }) =>
       (
         await axios.post(
@@ -216,87 +209,80 @@ export const functions = (axios: Axios) => ({
         )
       ).data
   },
-  assignTopicMutKey(projectID: string, meetingID: string) {
+  assignTopicMutKey(projectID: number, meetingID: number) {
     return [{ projectID }, { meetingID }, "topic-assign-mut"]
   },
 
   // ======================
   // Comment
   // ======================
-  commentListQueryFn(projectID: any, meetingID: any, topicID: any) {
+  commentListQueryFn(
+    projectID: number,
+    entityType: CommentEntityType,
+    entityID: number,
+  ) {
     return async () =>
       (
         await axios!.get(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
+          `/project/${projectID}/comment/${entityType}/${entityID}`,
         )
       ).data
   },
-  commentListQueryKey(projectID: string, meetingID: string, topicID: string) {
-    return [{ projectID }, { meetingID }, { topicID }, "comments"]
+  commentListQueryKey(
+    projectID: number,
+    entityType: CommentEntityType,
+    entityID: number,
+  ) {
+    return [{ projectID }, "comments", entityType, entityID]
   },
 
-  commentSendMutFn(projectID: string, meetingID: string, topicID: string) {
+  commentSendMutFn(
+    projectID: number,
+    entityType: CommentEntityType,
+    entityID: number,
+  ) {
     return async ({ comment }: sendCommentMutVars) =>
       (
         await axios!.post(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment`,
+          `/project/${projectID}/comment/${entityType}/${entityID}`,
           comment,
         )
       ).data
   },
-  commentSendMutKey(projectID: string, meetingID: string, topicID: string) {
-    return [{ projectID }, { meetingID }, { topicID }, "comment-send-mut"]
+  commentSendMutKey(
+    projectID: number,
+    entityType: CommentEntityType,
+    entityID: number,
+  ) {
+    return [{ projectID }, "comments", entityType, entityID, "comment-send-mut"]
   },
 
-  commentDeleteMutFn(
-    projectID: string,
-    meetingID: string,
-    topicID: string,
-    commentID: number,
-  ) {
+  commentDeleteMutFn(projectID: number, commentID: number) {
     return async () =>
-      (
-        await axios!.delete(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}`,
-        )
-      ).data
+      (await axios!.delete(`/project/${projectID}/comment/${commentID}`)).data
   },
   commentDeleteMutKey(commentID: number) {
     return [{ commentID }, "comment-delete-mut"]
   },
 
-  commentEditMutFn(
-    projectID: string,
-    meetingID: string,
-    topicID: string,
-    commentID: number,
-  ) {
+  commentEditMutFn(projectID: number, commentID: number) {
     return async (content: string) =>
-      (
-        await axios!.put(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}`,
-          content,
-        )
-      ).data
+      (await axios!.put(`/project/${projectID}/comment/${commentID}`, content))
+        .data
   },
   commentEditMutKey(commentID: number) {
     return [{ commentID }, "comment-edit-mut"]
   },
 
-  commentMarkSolutionMutFn(
-    projectID: string,
-    meetingID: string,
-    topicID: string,
-    commentID: number,
-  ) {
-    return async (solution: boolean) =>
+  commentMarkSolutionMutFn(projectID: number) {
+    return async ({ mark, commentID }: { mark: boolean; commentID: number }) =>
       (
-        await axios![solution ? "post" : "delete"](
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/comment/${commentID}/solution`,
+        await axios![mark ? "post" : "delete"](
+          `/project/${projectID}/comment/solution/${commentID}`,
         )
       ).data
   },
-  commentMarkSolutionMutKey(topicID: string) {
+  commentMarkSolutionMutKey(topicID: number) {
     return [{ topicID }, "solution-mut"]
   },
 

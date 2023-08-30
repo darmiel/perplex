@@ -27,9 +27,9 @@ export default function ProjectPage() {
 
   const router = useRouter()
   const {
-    project_id: projectID,
-    meeting_id: meetingID,
-    topic_id: topicID,
+    project_id: projectIDStr,
+    meeting_id: meetingIDStr,
+    topic_id: topicIDStr,
     tab: tabFromURL,
   } = router.query
 
@@ -43,23 +43,27 @@ export default function ProjectPage() {
   }
 
   if (
-    !projectID ||
-    !meetingID ||
-    !topicID ||
-    typeof topicID !== "string" ||
-    typeof meetingID !== "string" ||
-    typeof projectID !== "string"
+    !projectIDStr ||
+    !meetingIDStr ||
+    !topicIDStr ||
+    Array.isArray(topicIDStr) ||
+    Array.isArray(meetingIDStr) ||
+    Array.isArray(topicIDStr)
   ) {
     return <div>Invalid URL</div>
   }
+
+  const projectID = Number(projectIDStr)
+  const meetingID = Number(meetingIDStr)
+  const topicID = Number(topicIDStr)
 
   return (
     <>
       {showMeetingList ? (
         <div className="flex flex-col h-full max-h-full w-[25rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
           <MeetingList
-            projectID={String(projectID)}
-            selectedMeetingID={String(meetingID)}
+            projectID={projectID}
+            selectedMeetingID={meetingID}
             displayCollapse={true}
             onCollapse={() => setShowMeetingList(false)}
           />
@@ -102,7 +106,6 @@ export default function ProjectPage() {
             projectID={projectID}
             meetingID={meetingID}
             topicID={topicID}
-            router={router}
           />
         ) : tab === "Notes" ? (
           <MeetingNotePage />

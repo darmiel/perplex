@@ -10,31 +10,73 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
+	"strconv"
 )
-
-type CommentHandler struct {
-	srv       services.CommentService
-	meetSrv   services.MeetingService
-	logger    *zap.SugaredLogger
-	validator *validator.Validate
-}
-
-func NewCommentHandler(
-	srv services.CommentService,
-	meetSrv services.MeetingService,
-	logger *zap.SugaredLogger,
-	validator *validator.Validate,
-) *CommentHandler {
-	return &CommentHandler{srv, meetSrv, logger, validator}
-}
 
 const (
 	// MaxCommentLength - 8 MiB
 	MaxCommentLength = 8 * 1024 * 1024
 )
 
-var ErrCommentTooLong = errors.New("comment too long (max. 8 MiB)")
+var (
+	ErrCommentTooLong       = errors.New("comment too long (max. 8 MiB)")
+	ErrInvalidCommentTarget = errors.New("invalid comment target")
+)
 
+type CommentHandler struct {
+	srv                       services.CommentService
+	meetSrv                   services.MeetingService
+	topicSrv                  services.TopicService
+	actionSrv                 services.ActionService
+	projectSrv                services.ProjectService
+	logger                    *zap.SugaredLogger
+	validator                 *validator.Validate
+	commentTypes              map[string]genericCommentAddHandler
+	commentTypesListTransform map[string]func(targetID uint, comment *model.Comment)
+}
+
+func NewCommentHandler(
+	srv services.CommentService,
+	meetSrv services.MeetingService,
+	topicSrv services.TopicService,
+	actionSrv services.ActionService,
+	projectSrv services.ProjectService,
+	logger *zap.SugaredLogger,
+	validator *validator.Validate,
+) *CommentHandler {
+	h := &CommentHandler{
+		srv:        srv,
+		meetSrv:    meetSrv,
+		topicSrv:   topicSrv,
+		actionSrv:  actionSrv,
+		projectSrv: projectSrv,
+		logger:     logger,
+		validator:  validator,
+	}
+	h.commentTypes = map[string]genericCommentAddHandler{
+		"topic":   h.addTopicComment,
+		"action":  h.addActionComment,
+		"meeting": h.addMeetingComment,
+		"project": h.addProjectComment,
+	}
+	h.commentTypesListTransform = map[string]func(targetID uint, comment *model.Comment){
+		"topic": func(targetID uint, comment *model.Comment) {
+			comment.TopicID = targetID
+		},
+		"action": func(targetID uint, comment *model.Comment) {
+			comment.ActionID = targetID
+		},
+		"meeting": func(targetID uint, comment *model.Comment) {
+			comment.MeetingID = targetID
+		},
+		"project": func(targetID uint, comment *model.Comment) {
+			comment.ProjectID = targetID
+		},
+	}
+	return h
+}
+
+// CommentLocalsMiddleware is a middleware function that retrieves the comment by ID from the request parameters
 func (h *CommentHandler) CommentLocalsMiddleware(ctx *fiber.Ctx) error {
 	commentID, err := ctx.ParamsInt("comment_id")
 	if err != nil {
@@ -61,26 +103,113 @@ func (h *CommentHandler) CommentOwnershipMiddleware(ctx *fiber.Ctx) error {
 	return ctx.Next()
 }
 
-// AddComment is an endpoint function to create a new comment for a specific topic.
-func (h *CommentHandler) AddComment(ctx *fiber.Ctx) error {
-	u := ctx.Locals("user").(gofiberfirebaseauth.User)
-	t := ctx.Locals("topic").(model.Topic)
+type genericCommentAddHandler func(ctx *fiber.Ctx, targetID, content string) error
 
+func addEntityComment[T model.Ownership](
+	srv services.CommentService,
+	ctx *fiber.Ctx,
+	targetTypeDisplay, targetID, content string,
+	getEntity func(entityID uint, projectID uint) (T, error),
+	populateComment func(comment *model.Comment, entity T),
+) error {
+	entityID, err := strconv.Atoi(targetID)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	p := ctx.Locals("project").(model.Project)
+	entity, err := getEntity(uint(entityID), p.ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(err))
+	}
+	if !entity.CheckProjectOwnership(p.ID) {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNoAccess))
+	}
+	// create comment
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	comment, err := srv.AddComment(u.UserID, content, func(comment *model.Comment) {
+		populateComment(comment, entity)
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusCreated).
+		JSON(presenter.SuccessResponse("comment created for "+targetTypeDisplay, comment))
+}
+
+func (h *CommentHandler) addTopicComment(ctx *fiber.Ctx, targetID, content string) error {
+	return addEntityComment(h.srv, ctx, "topic", targetID, content,
+		func(entityID uint, projectID uint) (*model.Topic, error) {
+			return h.topicSrv.GetTopic(entityID, "Meeting")
+		}, func(comment *model.Comment, entity *model.Topic) {
+			comment.TopicID = entity.ID
+		})
+}
+
+func (h *CommentHandler) addMeetingComment(ctx *fiber.Ctx, targetID, content string) error {
+	return addEntityComment(h.srv, ctx, "meeting", targetID, content,
+		func(entityID uint, projectID uint) (*model.Meeting, error) {
+			return h.meetSrv.GetMeeting(entityID)
+		},
+		func(comment *model.Comment, entity *model.Meeting) {
+			comment.MeetingID = entity.ID
+		})
+}
+
+func (h *CommentHandler) addActionComment(ctx *fiber.Ctx, targetID, content string) error {
+	return addEntityComment(h.srv, ctx, "action", targetID, content,
+		func(entityID uint, projectID uint) (*model.Action, error) {
+			return h.actionSrv.FindAction(entityID)
+		},
+		func(comment *model.Comment, entity *model.Action) {
+			comment.ActionID = entity.ID
+		})
+}
+
+func (h *CommentHandler) addProjectComment(ctx *fiber.Ctx, targetID, content string) error {
+	return addEntityComment(h.srv, ctx, "project", targetID, content,
+		func(entityID uint, projectID uint) (*model.Project, error) {
+			return h.projectSrv.FindProject(entityID)
+		},
+		func(comment *model.Comment, entity *model.Project) {
+			comment.ProjectID = entity.ID
+		})
+}
+
+func (h *CommentHandler) AddGenericComment(ctx *fiber.Ctx) error {
+	// check comment length
 	content := utils.CopyString(string(ctx.Body()))
 	if len(content) > MaxCommentLength {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrCommentTooLong))
 	}
-	comment, err := h.srv.AddComment(u.UserID, t.ID, content)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+
+	// check target type and call handler
+	commentTargetType := ctx.Params("comment_target_type")
+	commentTargetID := ctx.Params("comment_target_id")
+
+	if handler, ok := h.commentTypes[commentTargetType]; ok {
+		return handler(ctx, commentTargetID, content)
 	}
-	return ctx.Status(fiber.StatusCreated).JSON(presenter.SuccessResponse("comment created", comment))
+	return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrInvalidCommentTarget))
 }
 
-// ListCommentsForTopic is an endpoint function to retrieve a list of all comments related to a specific topic.
-func (h *CommentHandler) ListCommentsForTopic(ctx *fiber.Ctx) error {
-	t := ctx.Locals("topic").(model.Topic)
-	comments, err := h.srv.ListCommentsForTopic(t.ID)
+func (h *CommentHandler) ListGenericComment(ctx *fiber.Ctx) error {
+	// check target type and call handler
+	commentTargetType := ctx.Params("comment_target_type")
+	commentTargetID := ctx.Params("comment_target_id")
+
+	handler, ok := h.commentTypesListTransform[commentTargetType]
+	if !ok {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrInvalidCommentTarget))
+	}
+
+	entityID, err := strconv.Atoi(commentTargetID)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+
+	comments, err := h.srv.FindComments(func(comment *model.Comment) {
+		handler(uint(entityID), comment)
+	})
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}

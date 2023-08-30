@@ -21,8 +21,8 @@ export default function TopicCard({
   className = "",
 }: {
   topic: Topic
-  projectID: string
-  meetingID: string
+  projectID: number
+  meetingID: number
   active?: boolean
   disabled?: boolean
   className?: string

@@ -41,6 +41,17 @@ type Comment struct {
 	Content string `json:"content"`
 	// TopicID is the ID of the topic the comment belongs to
 	TopicID uint `json:"topic_id"`
+	// MeetingID is the ID of the meeting the comment belongs to
+	MeetingID uint `json:"meeting_id"`
+	// ProjectID is the ID of the project the comment belongs to
+	ProjectID uint `json:"project_id"`
+	// ActionID is the ID of the action the comment belongs to
+	ActionID uint `json:"action_id"`
+}
+
+// CheckProjectOwnership checks if the comment belongs to the project
+func (c Comment) CheckProjectOwnership(projectID uint) bool {
+	return c.ProjectID == projectID
 }
 
 // Topic represents a TO|DO-Point for the meeting
@@ -66,10 +77,17 @@ type Topic struct {
 	ForceSolution bool `json:"force_solution"`
 	// MeetingID is the ID of the meeting the topic belongs to
 	MeetingID uint `json:"meeting_id"`
+	// Meeting is the meeting the topic belongs to
+	Meeting Meeting
 	// AssignedUsers contains a list of users assigned to a topic
 	AssignedUsers []User `gorm:"many2many:user_topic_assignments" json:"assigned_users"`
 	// Actions contains a list of actions related to the topic
 	Actions []Action `gorm:"many2many:topic_action_assignments" json:"actions"`
+}
+
+func (t Topic) CheckProjectOwnership(projectID uint) bool {
+	// checking the Meeting ID for 0 is necessary because the meeting may not preloaded
+	return t.Meeting.ID != 0 && t.Meeting.ProjectID == projectID
 }
 
 // Meeting represents a meeting (who would've guessed)
@@ -89,6 +107,12 @@ type Meeting struct {
 	CreatorID string `json:"creator_id"`
 	// Creator of the meeting
 	Creator User `json:"creator,omitempty"`
+	// Comments for the meeting
+	Comments []Comment `json:"comments,omitempty"`
+}
+
+func (m Meeting) CheckProjectOwnership(projectID uint) bool {
+	return m.ProjectID == projectID
 }
 
 // Project is a custom "realm" where meetings are saved
@@ -114,6 +138,12 @@ type Project struct {
 	Tags []Tag `json:"tags,omitempty"`
 	// Actions contains all actions in the project
 	Actions []Action `json:"actions,omitempty"`
+	// Comments for the project
+	Comments []Comment `json:"comments,omitempty"`
+}
+
+func (p Project) CheckProjectOwnership(projectID uint) bool {
+	return p.ID == projectID
 }
 
 type Priority struct {
@@ -128,6 +158,10 @@ type Priority struct {
 	ProjectID uint `json:"project_id"`
 	// Project is the project the priority belongs to
 	Project Project `json:"project,omitempty"`
+}
+
+func (p Priority) CheckProjectOwnership(projectID uint) bool {
+	return p.ProjectID == projectID
 }
 
 type Action struct {
@@ -156,6 +190,12 @@ type Action struct {
 	ClosedAt sql.NullTime `json:"closed_at"`
 	// CreatorID is the ID of the creator of the action
 	CreatorID string `json:"creator_id"`
+	// Comments for the action
+	Comments []Comment `json:"comments,omitempty"`
+}
+
+func (a Action) CheckProjectOwnership(projectID uint) bool {
+	return a.ProjectID == projectID
 }
 
 type Tag struct {
@@ -170,4 +210,8 @@ type Tag struct {
 	Project Project `json:"project,omitempty"`
 	// Actions contains all actions the tag is related to
 	Actions []Action `gorm:"many2many:action_tag_assignments" json:"actions"`
+}
+
+func (t Tag) CheckProjectOwnership(projectID uint) bool {
+	return t.ProjectID == projectID
 }

@@ -29,8 +29,8 @@ export default function MeetingList({
   onCollapse,
   className = "",
 }: {
-  projectID: string
-  selectedMeetingID?: string
+  projectID: number
+  selectedMeetingID?: number
   displayCollapse?: boolean
   onCollapse?: () => void
   className?: string
@@ -87,7 +87,7 @@ export default function MeetingList({
             <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
               <CardContainer
                 style={
-                  selectedMeetingID === String(meeting.ID)
+                  selectedMeetingID === meeting.ID
                     ? "selected-border"
                     : "neutral"
                 }

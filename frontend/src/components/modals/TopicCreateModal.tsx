@@ -89,8 +89,8 @@ export default function CreateTopic({
   meetingID,
   onClose,
 }: {
-  projectID: string
-  meetingID: string
+  projectID: number
+  meetingID: number
   onClose: (newTopicID: number) => void
 }) {
   const [topicTitle, setTopicTitle] = useState<string>("")

@@ -12,7 +12,7 @@ import {
 import { ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, CommentType } from "@/api/types"
+import { BackendResponse, Comment, CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { RelativeDate } from "@/components/ui/DateString"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
@@ -20,52 +20,40 @@ import ResolveUserName from "@/components/user/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
-function LoadingButton({
-  isLoading,
-  onClick,
-  className = "",
+function Loadable({
+  loading,
   children,
 }: {
-  isLoading: boolean
-  onClick?: () => void
-  className?: string
+  loading: boolean
   children: ReactNode
 }) {
-  return (
-    <button
-      onClick={() => !isLoading && onClick?.()}
-      className={`text-neutral-400 ${className}`}
-      disabled={isLoading}
-    >
-      {isLoading ? <ClipLoader color="orange" size={16} /> : children}
-    </button>
-  )
+  return loading ? <ClipLoader color="orange" size={16} /> : children
 }
 
-export default function UserComment({
+export default function CommentListItem({
   projectID,
-  meetingID,
-  topicID,
   comment,
+  commentType,
+  commentEntityID,
   solution,
+  onSolutionClick,
+  isSolutionMutLoading,
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
-  comment: CommentType
+  projectID: number
+  comment: Comment
+  commentType: CommentEntityType
+  commentEntityID: number
   solution?: boolean
+  onSolutionClick?: (solution: boolean) => void
+  isSolutionMutLoading?: boolean
 }) {
   const {
     user,
     commentListQueryKey,
-    topicInfoQueryKey,
-    topicListQueryKey,
     commentDeleteMutFn,
     commentDeleteMutKey,
     commentEditMutFn,
     commentEditMutKey,
-    commentMarkSolutionMutFn,
-    commentMarkSolutionMutKey,
   } = useAuth()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -73,19 +61,23 @@ export default function UserComment({
   const [editContent, setEditContent] = useState("")
 
   const queryClient = useQueryClient()
+
+  const refreshCommentList = () =>
+    queryClient.invalidateQueries(
+      commentListQueryKey!(projectID, commentType, commentEntityID),
+    )
+
   const deleteCommentMutation = useMutation<BackendResponse, AxiosError>({
     mutationKey: commentDeleteMutKey!(comment.ID),
-    mutationFn: commentDeleteMutFn!(projectID, meetingID, topicID, comment.ID),
+    mutationFn: commentDeleteMutFn!(projectID, comment.ID),
     onSuccess() {
       toast(`Comment #${comment.ID} deleted!`, { type: "success" })
-      queryClient.invalidateQueries(
-        commentListQueryKey!(projectID, meetingID, topicID),
-      )
+      refreshCommentList()
     },
     onError(err) {
       toast(
         <>
-          <strong>Failed to delete comment</strong>
+          <strong>Failed to delete Comment:</strong>
           <pre>{extractErrorMessage(err)}</pre>
         </>,
         { type: "error" },
@@ -95,48 +87,19 @@ export default function UserComment({
 
   const editCommentMutation = useMutation<BackendResponse, AxiosError, string>({
     mutationKey: commentEditMutKey!(comment.ID),
-    mutationFn: commentEditMutFn!(projectID, meetingID, topicID, comment.ID),
+    mutationFn: commentEditMutFn!(projectID, comment.ID),
     onSuccess() {
       toast(`Comment #${comment.ID} edited!`, { type: "success" })
-      queryClient.invalidateQueries(
-        commentListQueryKey!(projectID, meetingID, topicID),
-      )
+      refreshCommentList()
       setEditMode(false)
     },
   })
 
-  const markSolutionMutation = useMutation<
-    BackendResponse,
-    AxiosError,
-    boolean
-  >({
-    mutationKey: commentMarkSolutionMutKey!(topicID),
-    mutationFn: commentMarkSolutionMutFn!(
-      projectID,
-      meetingID,
-      topicID,
-      comment.ID,
-    ),
-    onSuccess() {
-      toast(`Comment #${comment.ID} marked as solution!`, { type: "success" })
-      queryClient.invalidateQueries(
-        commentListQueryKey!(projectID, meetingID, topicID),
-      )
-      queryClient.invalidateQueries(
-        topicInfoQueryKey!(projectID, meetingID, topicID),
-      )
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
-    },
-  })
-
-  const date = new Date(Date.parse(comment.CreatedAt))
+  const createdAtDate = new Date(Date.parse(comment.CreatedAt))
   const wasEdited = comment.CreatedAt !== comment.UpdatedAt
+  const isAuthor = user?.uid === comment.author_id
 
-  function onSolutionClick(solution: boolean) {
-    markSolutionMutation.mutate(solution)
-  }
-
-  function editEnter() {
+  function onEditClick() {
     setEditContent(comment.content)
     setEditMode(true)
   }
@@ -152,58 +115,61 @@ export default function UserComment({
 
   return (
     <div
-      id={`comment-${comment.ID}`}
+      id={`comment-${commentType}-${comment.ID}`}
       className={`flex ${
         solution ? "border-l-4 border-primary-600 pl-3 py-3" : ""
       } p-4`}
     >
-      <div className="flex flex-col items-center space-y-4">
-        <div>
-          <UserAvatar height={256} width={256} userID={comment.author_id} />
-        </div>
+      <div>
+        <UserAvatar height={256} width={256} userID={comment.author_id} />
       </div>
       <div className="flex flex-col ml-4 w-full">
         <div className="flex space-x-4 items-center">
-          {/* Author and date */}
+          {/* Author and Creation Date */}
           <div>
             <span className="font-semibold">
               <ResolveUserName userID={comment.author_id} />
             </span>
             <span className="text-neutral-500">
-              - <RelativeDate date={date} />
+              - <RelativeDate date={createdAtDate} />
             </span>
             {wasEdited && <span className="text-neutral-500"> (edited)</span>}
           </div>
 
           {/* Solution button */}
-          <LoadingButton
-            onClick={() => onSolutionClick(!solution)}
-            className={`${solution ? "text-primary-500" : "text-neutral-400"}`}
-            isLoading={markSolutionMutation.isLoading}
-          >
-            {solution ? (
-              <div className="space-x-2 bg-primary-500 px-2 py-1 flex items-center text-primary-100 text-sm rounded-md">
-                <BsCheckSquareFill />
-                <span>Marked Solution</span>
-              </div>
-            ) : (
-              <BsCheckSquare />
-            )}
-          </LoadingButton>
+          {onSolutionClick && (
+            <Loadable loading={isSolutionMutLoading ?? false}>
+              <button onClick={() => onSolutionClick(!solution)}>
+                {solution ? (
+                  <div className="space-x-2 bg-primary-500 px-2 py-1 flex items-center text-primary-100 text-sm rounded-md">
+                    <BsCheckSquareFill />
+                    <span>Marked Solution</span>
+                  </div>
+                ) : (
+                  <BsCheckSquare />
+                )}
+              </button>
+            </Loadable>
+          )}
 
           {/* Edit button */}
-          {user?.uid === comment.author_id && (
+          {isAuthor && (
             <>
               {editMode ? (
                 <div className="space-x-2 border border-primary-500 px-2 py-1 flex items-center">
                   <span>Edit:</span>
-                  <LoadingButton
-                    onClick={() => editCommentMutation.mutate(editContent)}
-                    className="text-neutral-400"
-                    isLoading={editCommentMutation.isLoading}
-                  >
-                    <BsCheck size="20px" />
-                  </LoadingButton>
+
+                  {/* Commit Edit */}
+                  <Loadable loading={editCommentMutation.isLoading}>
+                    <button
+                      onClick={() => editCommentMutation.mutate(editContent)}
+                      className="text-primary-500"
+                    >
+                      <BsCheck size="20px" />
+                    </button>
+                  </Loadable>
+
+                  {/* Abort Edit */}
                   <button
                     onClick={() => setEditMode(false)}
                     className="text-neutral-400"
@@ -213,28 +179,27 @@ export default function UserComment({
                 </div>
               ) : (
                 <button
-                  onClick={() => editEnter()}
+                  onClick={() => onEditClick()}
                   className="text-neutral-400"
                 >
                   <BsPen />
                 </button>
               )}
 
-              <LoadingButton
-                isLoading={deleteCommentMutation.isLoading}
-                onClick={onDeleteClick}
-              >
-                {confirmDelete ? (
-                  <div className="flex justify-center items-center text-red-500 space-x-2">
-                    <span>Delete?</span>
-                    <BsTrash />
-                  </div>
-                ) : (
-                  <div className="text-neutral-400">
-                    <BsTrash />
-                  </div>
-                )}
-              </LoadingButton>
+              <Loadable loading={deleteCommentMutation.isLoading}>
+                <button onClick={onDeleteClick} className="text-red-500">
+                  {confirmDelete ? (
+                    <div className="flex justify-center items-center text-red-500 space-x-2">
+                      <span>Delete?</span>
+                      <BsTrash />
+                    </div>
+                  ) : (
+                    <div className="text-neutral-400">
+                      <BsTrash />
+                    </div>
+                  )}
+                </button>
+              </Loadable>
             </>
           )}
         </div>

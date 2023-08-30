@@ -33,7 +33,7 @@ export default function UserSelection({
   const queryClient = useQueryClient()
   const projectInfoQuery = useQuery<BackendResponse<User[]>>({
     enabled: open,
-    queryKey: projectUsersQueryKey!(String(projectID)),
+    queryKey: projectUsersQueryKey!(projectID),
     queryFn: projectUsersQueryFn!(projectID),
   })
 

@@ -9,7 +9,7 @@ import (
 
 type TopicService interface {
 	AddTopic(creatorID string, meetingID uint, title, description string, forceSolution bool) (*model.Topic, error)
-	GetTopic(topicID uint) (*model.Topic, error)
+	GetTopic(topicID uint, preload ...string) (*model.Topic, error)
 	ListTopicsForMeeting(meetingID uint) ([]*model.Topic, error)
 	DeleteTopic(topicID uint) error
 	EditTopic(topicID uint, title, description string, forceSolution bool) error
@@ -47,8 +47,12 @@ func (m *topicService) AddTopic(
 	return
 }
 
-func (m *topicService) GetTopic(topicID uint) (res *model.Topic, err error) {
-	err = m.DB.Preload("AssignedUsers").First(&res, &model.Topic{
+func (m *topicService) GetTopic(topicID uint, preload ...string) (res *model.Topic, err error) {
+	q := m.DB.Preload("AssignedUsers")
+	for _, p := range preload {
+		q = q.Preload(p)
+	}
+	err = q.First(&res, &model.Topic{
 		Model: gorm.Model{
 			ID: topicID,
 		},

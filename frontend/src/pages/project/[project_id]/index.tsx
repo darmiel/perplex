@@ -8,6 +8,7 @@ import { toast } from "react-toastify"
 import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
+import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingList from "@/components/meeting/MeetingList"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
@@ -29,7 +30,8 @@ export default function ProjectPage() {
   const [editDescription, setEditDescription] = useState("")
 
   const router = useRouter()
-  const { project_id: projectID } = router.query
+  const { project_id: projectIDStr } = router.query
+  const projectID = Number(projectIDStr)
 
   const {
     projectGetQueryFn,
@@ -41,12 +43,12 @@ export default function ProjectPage() {
   const queryClient = useQueryClient()
 
   const projectInfoQuery = useQuery<BackendResponse<Project>>({
-    queryKey: projectGetQueryKey!(String(projectID)),
-    queryFn: projectGetQueryFn!(String(projectID)),
+    queryKey: projectGetQueryKey!(projectID),
+    queryFn: projectGetQueryFn!(projectID),
   })
 
   const updateProjectMut = useMutation<BackendResponse<never>>({
-    mutationKey: projectUpdateMutKey!(String(projectID)),
+    mutationKey: projectUpdateMutKey!(projectID),
     mutationFn: projectUpdateMutFn!(projectID, editName, editDescription),
     onError: (err) => {
       toast(
@@ -59,7 +61,7 @@ export default function ProjectPage() {
     },
     onSuccess() {
       toast(`Project #${projectID} updated`, { type: "success" })
-      queryClient.invalidateQueries(projectGetQueryKey!(String(projectID)))
+      queryClient.invalidateQueries(projectGetQueryKey!(projectID))
       setIsEdit(false)
     },
   })
@@ -120,15 +122,21 @@ export default function ProjectPage() {
                 <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
                   Meetings
                 </h1>
-                <MeetingList projectID={String(projectID)} />
+                <MeetingList projectID={projectID} />
               </div>
               <div className="w-1/2">
                 <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
                   Actions
                 </h1>
-                <ActionList projectID={Number(projectID)} />
+                <ActionList projectID={projectID} />
               </div>
             </div>
+
+            <CommentSuite
+              projectID={projectID}
+              commentType="project"
+              commentEntityID={projectID}
+            />
           </OverviewContent>
           <OverviewSide>
             <OverviewSection name="Actions">

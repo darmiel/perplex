@@ -52,8 +52,8 @@ export default function ActionCreateModal({
   topicID,
   onClose,
 }: {
-  projectID: string
-  topicID: string
+  projectID: number
+  topicID: number
   onClose: () => void
 }) {
   const [actionTitle, setActionTitle] = useState<string>("")

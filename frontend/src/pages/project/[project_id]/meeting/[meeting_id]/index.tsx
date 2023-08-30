@@ -6,15 +6,18 @@ import MeetingOverview from "@/components/meeting/MeetingOverview"
 export default function ProjectPage() {
   const router = useRouter()
 
-  const { project_id: projectID, meeting_id: meetingID } = router.query
+  const { project_id: projectIDStr, meeting_id: meetingIDStr } = router.query
   if (
-    !projectID ||
-    !meetingID ||
-    Array.isArray(projectID) ||
-    Array.isArray(meetingID)
+    !projectIDStr ||
+    !meetingIDStr ||
+    Array.isArray(projectIDStr) ||
+    Array.isArray(meetingIDStr)
   ) {
     return <div>Invalid URL</div>
   }
+
+  const projectID = Number(projectIDStr)
+  const meetingID = Number(meetingIDStr)
 
   return (
     <>

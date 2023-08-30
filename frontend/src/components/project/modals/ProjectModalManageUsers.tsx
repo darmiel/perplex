@@ -18,7 +18,7 @@ export default function ProjectModalManageUsers({
   projectID,
   onClose,
 }: {
-  projectID: string | number
+  projectID: number
   onClose?: () => void
 }) {
   const [page, setPage] = useState(1)
@@ -45,7 +45,7 @@ export default function ProjectModalManageUsers({
 
   // get project information to check which users are already in the project
   const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(String(projectID)),
+    queryKey: projectUsersQueryKey!(projectID),
     queryFn: projectUsersQueryFn!(projectID),
   })
 
@@ -54,10 +54,10 @@ export default function ProjectModalManageUsers({
     AxiosError,
     projectUserAddVars
   >({
-    mutationKey: projectUserAddMutKey!(String(projectID)),
+    mutationKey: projectUserAddMutKey!(projectID),
     mutationFn: projectUserAddMutFn!(projectID),
     onSuccess() {
-      queryClient.invalidateQueries(projectUsersQueryKey!(String(projectID)))
+      queryClient.invalidateQueries(projectUsersQueryKey!(projectID))
     },
     onError: (error, { add }) => {
       toast(

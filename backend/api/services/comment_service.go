@@ -9,9 +9,9 @@ import (
 var ErrCommentIsSolution = errors.New("cannot delete solution")
 
 type CommentService interface {
-	AddComment(authorID string, topicID uint, content string) (*model.Comment, error)
+	AddComment(authorID string, content string, extend func(comment *model.Comment)) (*model.Comment, error)
 	GetComment(commentID uint) (*model.Comment, error)
-	ListCommentsForTopic(topicID uint) ([]*model.Comment, error)
+	FindComments(query func(comment *model.Comment)) ([]*model.Comment, error)
 	EditComment(commentID uint, newContent string) error
 	DeleteComment(commentID uint) error
 	MarkCommentSolution(commentID uint) error
@@ -30,12 +30,12 @@ func NewCommentService(db *gorm.DB, topicService TopicService) CommentService {
 	}
 }
 
-func (c *commentService) AddComment(authorID string, topicID uint, content string) (res *model.Comment, err error) {
+func (c *commentService) AddComment(authorID string, content string, extend func(comment *model.Comment)) (res *model.Comment, err error) {
 	res = &model.Comment{
 		AuthorID: authorID,
 		Content:  content,
-		TopicID:  topicID,
 	}
+	extend(res)
 	err = c.DB.Create(res).Error
 	return
 }
@@ -49,10 +49,10 @@ func (c *commentService) GetComment(commentID uint) (res *model.Comment, err err
 	return
 }
 
-func (c *commentService) ListCommentsForTopic(topicID uint) (res []*model.Comment, err error) {
-	err = c.DB.Find(&res, &model.Comment{
-		TopicID: topicID,
-	}).Error
+func (c *commentService) FindComments(query func(comment *model.Comment)) (res []*model.Comment, err error) {
+	q := new(model.Comment)
+	query(q)
+	err = c.DB.Find(&res, q).Error
 	return
 }
 

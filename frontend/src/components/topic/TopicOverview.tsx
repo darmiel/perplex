@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import Head from "next/head"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import { useState } from "react"
 import {
   BsArrowLeft,
@@ -17,13 +16,13 @@ import {
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { Action, BackendResponse, CommentType, Topic } from "@/api/types"
+import { Action, BackendResponse, Comment, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import CommentSuite from "@/components/comment/CommentSuite"
 import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
-import TopicCommentList from "@/components/topic/comment/TopicCommentList"
 import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
 import BadgeHeader from "@/components/ui/BadgeHeader"
@@ -56,17 +55,15 @@ const tags = {
 
 function SectionParticipants({
   projectID,
-  meetingID,
   topicID,
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
+  projectID: number
+  topicID: number
 }) {
   const { commentListQueryFn, commentListQueryKey } = useAuth()
-  const commentListQuery = useQuery<BackendResponse<CommentType[]>>({
-    queryKey: commentListQueryKey!(projectID, meetingID, topicID),
-    queryFn: commentListQueryFn!(projectID, meetingID, topicID),
+  const commentListQuery = useQuery<BackendResponse<Comment[]>>({
+    queryKey: commentListQueryKey!(projectID, "topic", topicID),
+    queryFn: commentListQueryFn!(projectID, "topic", topicID),
   })
   if (commentListQuery.isLoading) {
     return <BarLoader color="white" />
@@ -103,9 +100,9 @@ function SectionAssigned({
   topicID,
 }: {
   topic: Topic
-  projectID: string
-  meetingID: string
-  topicID: string
+  projectID: number
+  meetingID: number
+  topicID: number
 }) {
   return (
     <div className="flex flex-col space-y-4">
@@ -135,9 +132,9 @@ export default function TopicOverview({
   meetingID,
   topicID,
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
+  projectID: number
+  meetingID: number
+  topicID: number
 }) {
   const [isEdit, setIsEdit] = useState(false)
 
@@ -155,9 +152,11 @@ export default function TopicOverview({
     topicUpdateMutKey,
     topicListQueryKey,
     topicListQueryFn,
+    commentMarkSolutionMutFn,
+    commentMarkSolutionMutKey,
+    commentListQueryKey,
     axios,
   } = useAuth()
-  const router = useRouter()
   const queryClient = useQueryClient()
 
   const topicInfoQuery = useQuery<BackendResponse<Topic>>({
@@ -231,6 +230,29 @@ export default function TopicOverview({
     queryKey: topicListQueryKey!(projectID, meetingID),
     queryFn: topicListQueryFn!(projectID, meetingID),
   })
+
+  const markSolutionMutation = useMutation<
+    BackendResponse,
+    AxiosError,
+    { mark: boolean; commentID: number }
+  >({
+    mutationKey: commentMarkSolutionMutKey!(topicID),
+    mutationFn: commentMarkSolutionMutFn!(projectID),
+    onSuccess(_, { commentID }) {
+      toast(`Comment #${commentID} marked as solution!`, { type: "success" })
+      queryClient.invalidateQueries(
+        commentListQueryKey!(projectID, "topic", topicID),
+      )
+      queryClient.invalidateQueries(
+        topicInfoQueryKey!(projectID, meetingID, topicID),
+      )
+      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
+    },
+  })
+
+  function onSolutionClick(mark: boolean, comment: Comment) {
+    markSolutionMutation.mutate({ mark, commentID: comment.ID })
+  }
 
   if (topicInfoQuery.isLoading) {
     return <div>Loading...</div>
@@ -425,10 +447,13 @@ export default function TopicOverview({
 
           <Hr className="my-4" />
 
-          <TopicCommentList
-            className="mt-4"
-            {...topicInfoProps}
-            topicSolutionCommentID={topic.solution_id}
+          <CommentSuite
+            projectID={projectID}
+            commentType="topic"
+            commentEntityID={topicID}
+            commentSolutionID={topic.solution_id}
+            onSolutionClick={onSolutionClick}
+            isSolutionMutLoading={markSolutionMutation.isLoading}
           />
         </OverviewContent>
         <OverviewSide>

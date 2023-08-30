@@ -1,4 +1,3 @@
-import { NextRouter } from "next/router"
 import { useState } from "react"
 import { BsArrowDown } from "react-icons/bs"
 
@@ -9,12 +8,10 @@ export default function MeetingTopicPage({
   projectID,
   meetingID,
   topicID,
-  router,
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
-  router: NextRouter
+  projectID: number
+  meetingID: number
+  topicID: number
 }) {
   const [showTopicList, setShowTopicList] = useState(true)
   return (
@@ -22,9 +19,9 @@ export default function MeetingTopicPage({
       {showTopicList ? (
         <div className="flex-initial w-[21rem] bg-neutral-900 p-6 border-r border-neutral-700">
           <TopicList
-            projectID={String(projectID)}
-            meetingID={String(meetingID)}
-            selectedTopicID={String(topicID)}
+            projectID={projectID}
+            meetingID={meetingID}
+            selectedTopicID={topicID}
             onCollapse={() => setShowTopicList(false)}
           />
         </div>
@@ -45,9 +42,9 @@ export default function MeetingTopicPage({
       <div className="flex-auto bg-neutral-950 p-6">
         <TopicOverview
           key={topicID}
-          projectID={String(projectID)}
-          meetingID={String(meetingID)}
-          topicID={String(topicID)}
+          projectID={projectID}
+          meetingID={meetingID}
+          topicID={topicID}
         />
       </div>
     </div>

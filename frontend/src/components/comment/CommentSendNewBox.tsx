@@ -4,48 +4,42 @@ import { useState } from "react"
 import { toast } from "react-toastify"
 
 import { sendCommentMutVars } from "@/api/functions"
-import { BackendResponse } from "@/api/types"
+import { BackendResponse, CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function TopicCommentBox({
+export default function CommentSendNewBox({
   projectID,
-  meetingID,
-  topicID,
+  commentType,
+  commentEntityID,
   className = "",
 }: {
-  projectID: string
-  meetingID: string
-  topicID: string
+  projectID: number
+  commentType: CommentEntityType
+  commentEntityID: number
   className?: string
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
-  const {
-    commentSendMutFn: sendCommentMutFn,
-    commentSendMutKey: sendCommentMutKey,
-  } = useAuth()
+  const { commentSendMutFn, commentSendMutKey, commentListQueryKey } = useAuth()
   const queryClient = useQueryClient()
+
+  const refreshComments = () =>
+    queryClient.invalidateQueries(
+      commentListQueryKey!(projectID, commentType, commentEntityID),
+    )
 
   const sendCommentMutation = useMutation<
     BackendResponse<never>,
     AxiosError,
     sendCommentMutVars
   >({
-    mutationKey: sendCommentMutKey!(projectID, meetingID, topicID),
-    mutationFn: sendCommentMutFn!(projectID, meetingID, topicID),
+    mutationKey: commentSendMutKey!(projectID, commentType, commentEntityID),
+    mutationFn: commentSendMutFn!(projectID, commentType, commentEntityID),
     onSuccess: () => {
       setCommentBoxText("")
-
-      // invalidate the comment list query to refetch the comments
-      queryClient.invalidateQueries([
-        { projectID },
-        { meetingID },
-        { topicID },
-        "comments",
-      ])
-
+      refreshComments()
       toast("Comment sent!", { type: "success" })
     },
   })
