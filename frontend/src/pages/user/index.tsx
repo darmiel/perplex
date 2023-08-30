@@ -132,13 +132,4 @@ export default function User() {
       </div>
     </div>
   )
-  //   }
-  //   return (
-  //     <span className="text-red-500">
-  //       Error: {extractErrorMessage(userNameQuery.error)}
-  //     </span>
-  //   )
-  // }
-
-  // return children
 }

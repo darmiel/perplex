@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -315,6 +316,9 @@ export default function TopicOverview({
 
   return (
     <div className="flex flex-col">
+      <Head>
+        <title>Perplex - T# {topic.title ?? "Unknown Topic"}</title>
+      </Head>
       {isEdit ? (
         <div className="flex space-x-2 mb-4">
           <AckTopicTypeCard
