@@ -30,6 +30,7 @@ import ActionSectionAssigned from "@/components/action/sections/ActionSectionAss
 import ActionSectionTags from "@/components/action/sections/ActionSectionTags"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
 import CommentSuite from "@/components/comment/CommentSuite"
+import DurationTag from "@/components/ui/DurationTag"
 
 export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
@@ -78,6 +79,9 @@ export default function ActionOverview({ action }: { action: Action }) {
 
   const isOwner = true
   const isClosed = !!action.closed_at.Valid
+  const dueDate = action.due_date?.Valid
+    ? new Date(action.due_date.Time)
+    : undefined
 
   return (
     <div className="flex flex-col">
@@ -134,12 +138,13 @@ export default function ActionOverview({ action }: { action: Action }) {
                 </Button>
               </>
             ) : (
-              action.due_date?.Valid && (
+              dueDate && (
                 <div className="w-fit px-2 py-1 text-sm flex space-x-2 items-center bg-neutral-700 rounded-md">
                   <BsCalendar />
                   <span>
-                    <RelativeDate date={new Date(action.due_date.Time)} />
+                    <RelativeDate date={dueDate} />
                   </span>
+                  <DurationTag date={dueDate} />
                 </div>
               )
             )}

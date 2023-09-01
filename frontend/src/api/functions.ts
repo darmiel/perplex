@@ -208,6 +208,12 @@ export type SuccessCallback<Data, Variables> = (
 ) => void
 
 export const functions = (axios: Axios, client: QueryClient) => {
+  /**
+   * Invalidates all queries with the given keys and calls the callback
+   * @param callback the callback to call after invalidating
+   * @param key the keys to invalidate
+   * @returns a callback that can be used as onSuccess
+   */
   function invalidateAllCallback<Data, Variables>(
     callback?: SuccessCallback<Data, Variables>,
     ...key: Array<Array<any> | ((variables: Variables) => Array<any>)>
@@ -447,6 +453,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       findQueryKey(projectID: number, meetingID: number) {
         return [{ projectID }, { meetingID }]
+      },
+
+      listUpcomingQueryFn() {
+        return async () => (await axios.get(`/user/me/upcoming-meetings`)).data
+      },
+      listUpcomingQueryKey() {
+        return ["upcoming-meetings"]
       },
     },
     topics: {
@@ -722,6 +735,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       listForProjectQueryKey(projectID: number) {
         return [{ projectID }, "actions"]
+      },
+
+      listMyForProjectQueryFn(projectID: number, openOnly: boolean = false) {
+        return async () =>
+          (
+            await axios.get(
+              `/project/${projectID}/action/me${openOnly ? "?open=yes" : ""}`,
+            )
+          ).data
+      },
+      listMyForProjectQueryKey(projectID: number, openOnly: boolean = false) {
+        return [{ projectID }, "actions", openOnly ? "my-open" : "my-all"]
       },
 
       listForTopicQueryFn(projectID: number, topicID: number) {
@@ -1054,6 +1079,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
           onError: toastError("Cannot create Meeting:"),
         })
       },
+      useListUpcoming() {
+        return useQuery<BackendResponse<Meeting[]>>({
+          queryKey: functions.meetings.listUpcomingQueryKey(),
+          queryFn: functions.meetings.listUpcomingQueryFn(),
+          staleTime: 1000 * 60 * 5,
+        })
+      },
     },
     topics: {
       useDelete(
@@ -1224,6 +1256,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           ),
           queryFn: functions.actions.listForTopicQueryFn(projectID, topicID),
           enabled: !!projectID && !!topicID,
+        })
+      },
+      useListForMe(projectID: number, openOnly: boolean) {
+        return useQuery<BackendResponse<Action[]>>({
+          queryKey: functions.actions.listMyForProjectQueryKey(
+            projectID,
+            openOnly,
+          ),
+          queryFn: functions.actions.listMyForProjectQueryFn(
+            projectID,
+            openOnly,
+          ),
+          enabled: !!projectID,
         })
       },
       useListForProject(projectID: number) {

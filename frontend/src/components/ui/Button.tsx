@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { PropsWithChildren } from "react"
 import { ClipLoader } from "react-spinners"
 
@@ -25,6 +26,7 @@ type ButtonProps = {
   disabled?: boolean
   className?: string
   raw?: boolean
+  href?: string
 } & PropsWithChildren
 
 export default function Button({
@@ -35,6 +37,7 @@ export default function Button({
   disabled,
   className = "",
   raw = false,
+  href,
   children,
 }: ButtonProps) {
   const isDisabled = disabled || isLoading
@@ -58,7 +61,11 @@ export default function Button({
     children
   )
 
-  return raw ? (
+  return href ? (
+    <Link href={href} className={classNames.join(" ")}>
+      {buttonContent}
+    </Link>
+  ) : raw ? (
     <div className={classNames.join(" ")} onClick={() => onClick?.()}>
       {buttonContent}
     </div>

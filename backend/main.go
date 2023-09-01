@@ -79,7 +79,7 @@ func main() {
 	meetingService := services.NewMeetingService(db)
 	topicService := services.NewTopicService(db)
 	commentService := services.NewCommentService(db, topicService)
-	userService := services.NewUserService(db)
+	userService := services.NewUserService(db, projectService, meetingService)
 	actionService := services.NewActionService(db)
 
 	// user middleware

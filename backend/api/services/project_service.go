@@ -73,7 +73,10 @@ func (p *projectService) FindProjectsByOwner(userID string) (res []model.Project
 
 func (p *projectService) FindProjectsByUserAccess(userID string) ([]model.Project, error) {
 	var user []model.User
-	if err := p.DB.Preload("UserProjects").Where("id = ?", userID).Find(&user).Error; err != nil {
+	if err := p.DB.
+		Preload("UserProjects").
+		Where("id = ?", userID).
+		Find(&user).Error; err != nil {
 		return nil, err
 	}
 	if len(user) <= 0 {

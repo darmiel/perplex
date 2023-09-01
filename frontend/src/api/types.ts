@@ -38,6 +38,7 @@ export type Meeting = {
   start_date: string
   creator?: User
   creator_id: string
+  project_id: number
 }
 
 export type User = {

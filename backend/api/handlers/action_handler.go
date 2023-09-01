@@ -97,10 +97,13 @@ func (a ActionHandler) CreateAction(ctx *fiber.Ctx) error {
 	return fiberResponse(ctx, "created action", action, err)
 }
 
-func (a ActionHandler) ListActionsForUser(ctx *fiber.Ctx) error {
+func (a ActionHandler) ListActionsForProjectAndUser(ctx *fiber.Ctx) error {
 	u := ctx.Locals("user").(gofiberfirebaseauth.User)
-	actions, err := a.srv.FindActionsByUser(u.UserID)
-	return fiberResponse(ctx, "actions by user", actions, err)
+	p := ctx.Locals("project").(model.Project)
+	openOnly := ctx.Query("open", "false") != "false"
+	a.logger.Infof("list actions for project %d and user %s (open only: %v q/%v)", p.ID, u.UserID, openOnly, ctx.Query("open", "false"))
+	actions, err := a.srv.FindActionsByProjectAndUser(p.ID, u.UserID, openOnly)
+	return fiberResponse(ctx, "open actions by project and user", actions, err)
 }
 
 // :action_id

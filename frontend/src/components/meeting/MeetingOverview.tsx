@@ -11,6 +11,8 @@ import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
+import { RelativeDate } from "@/components/ui/DateString"
+import DurationTag from "@/components/ui/DurationTag"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -160,9 +162,12 @@ export default function MeetingOverview({
             />
           </div>
         ) : (
-          <>
-            {date.toLocaleDateString()} - {date.toLocaleTimeString()}
-          </>
+          <span className="flex space-x-2 items-center">
+            <span>
+              <RelativeDate date={date} />
+            </span>
+            <DurationTag date={date} />
+          </span>
         )}
       </span>
 

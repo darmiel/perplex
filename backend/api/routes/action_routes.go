@@ -8,7 +8,7 @@ import (
 func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler) {
 	router.Get("/", handler.ListActionsForProject)
 	router.Post("/", handler.CreateAction)
-	router.Get("/my", handler.ListActionsForUser)
+	router.Get("/me", handler.ListActionsForProjectAndUser)
 
 	router.Use("/topic/:topic_id", handler.TopicLocalsMiddleware)
 	router.Get("/topic/:topic_id", handler.ListActionsForTopic)

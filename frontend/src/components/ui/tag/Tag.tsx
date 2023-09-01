@@ -32,12 +32,12 @@ export function TagContainer({
   }
 
   return (
-    <div
+    <span
       style={styleAttr}
       className={`${className} ${styleClassName} rounded-full text-sm px-3 py-1 flex flex-row items-center space-x-1`}
     >
       {children}
-    </div>
+    </span>
   )
 }
 

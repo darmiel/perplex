@@ -13,7 +13,7 @@ type ActionService interface {
 	FindActionsByTopic(topicID uint) ([]model.Action, error)
 	FindActionsByTag(tagID uint) ([]model.Action, error)
 	FindActionsByPriority(priorityID uint) ([]model.Action, error)
-	FindActionsByUser(userID string) ([]model.Action, error)
+	FindActionsByProjectAndUser(projectID uint, userID string, openOnly bool) ([]model.Action, error)
 	CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint, creatorID string) (*model.Action, error)
 	DeleteAction(actionID uint) error
 	EditAction(actionID uint, title, description string, dueDate sql.NullTime, priorityID uint) error
@@ -109,11 +109,16 @@ func (a *actionService) FindActionsByTopic(topicID uint) ([]model.Action, error)
 	return actions, nil
 }
 
-func (a *actionService) FindActionsByUser(userID string) ([]model.Action, error) {
+func (a *actionService) FindActionsByProjectAndUser(projectID uint, userID string, openOnly bool) ([]model.Action, error) {
 	var actions []model.Action
-	if err := a.preload().
-		Joins("AssignedUsers").
-		Where("user_id = ?", userID).
+	q := a.preload().
+		Joins("JOIN action_user_assignments ON action_user_assignments.action_id = actions.id").
+		Where("action_user_assignments.user_id = ?", userID).
+		Where("project_id = ?", projectID)
+	if openOnly {
+		q = q.Where("closed_at IS NULL")
+	}
+	if err := q.
 		Find(&actions).Error; err != nil {
 		return nil, err
 	}

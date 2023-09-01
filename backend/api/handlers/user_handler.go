@@ -65,3 +65,9 @@ func (h UserHandler) List(ctx *fiber.Ctx) error {
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("users found", users))
 }
+
+func (h UserHandler) UpcomingMeetings(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("upcoming meetings",
+		h.srv.ListUpcomingMeetings(u.UserID)))
+}
