@@ -89,7 +89,7 @@ func (u userService) ListUpcomingMeetings(userID string) (res []*model.Meeting) 
 		}
 	}
 	// remove all meetings from the past
-	now := time.Now()
+	now := time.Now().Add(-2 * time.Hour)
 	for _, m := range meetings {
 		if m.StartDate.After(now) {
 			res = append(res, m)
