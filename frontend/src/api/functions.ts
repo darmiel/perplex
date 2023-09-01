@@ -448,7 +448,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
     },
     topicUpdateMutKey(projectID: number, meetingID: number, topicID: number) {
       return [
-        ...this.topicFindQueryKey(projectID, meetingID, topicID),
+        ...functions.topicFindQueryKey(projectID, meetingID, topicID),
         "topic-update-mut",
       ]
     },
@@ -483,7 +483,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
     },
     topicDeleteMutKey(projectID: number, meetingID: number) {
       return [
-        ...this.meetingInfoQueryKey(projectID, meetingID),
+        ...functions.meetingInfoQueryKey(projectID, meetingID),
         "topic-delete-mut",
       ]
     },
@@ -685,7 +685,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
       topicID: number,
     ) {
       return [
-        ...this.topicFindQueryKey(projectID, meetingID, topicID),
+        ...functions.topicFindQueryKey(projectID, meetingID, topicID),
         "actions",
       ]
     },
@@ -699,8 +699,8 @@ export const functions = (axios: Axios, client: QueryClient) => {
     },
     useActionFindQuery(projectID: number, actionID: number) {
       return useQuery<BackendResponse<Action>>({
-        queryKey: this.actionFindQueryKey(projectID, actionID),
-        queryFn: this.actionFindQueryFn(projectID, actionID),
+        queryKey: functions.actionFindQueryKey(projectID, actionID),
+        queryFn: functions.actionFindQueryFn(projectID, actionID),
         enabled: !!projectID && !!actionID,
       })
     },
@@ -740,7 +740,8 @@ export const functions = (axios: Axios, client: QueryClient) => {
     actionLinkUserMutKey(projectID: number) {
       return [{ projectID }, "action-link-user-mut"]
     },
-  }
+  } as const
+
   const hooks = {
     useProjectCreateMut(callback: SuccessCallback<Project, projectCreateVars>) {
       return useMutation<
@@ -1074,6 +1075,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
         onError: toastError("Cannot mark Solution:"),
       })
     },
-  }
+  } as const
+
   return { ...functions, ...hooks }
 }
