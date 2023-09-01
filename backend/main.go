@@ -13,6 +13,7 @@ import (
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"os"
@@ -33,8 +34,16 @@ func main() {
 		return
 	}
 
-	// database
-	db, err := gorm.Open(sqlite.Open("dmp_develop.db"))
+	// database setup
+	var db *gorm.DB
+	if sqlitePath, ok := os.LookupEnv("SQLITE_PATH"); ok {
+		db, err = gorm.Open(sqlite.Open(sqlitePath))
+	} else if postgresDSN, ok := os.LookupEnv("POSTGRES_DSN"); ok {
+		db, err = gorm.Open(postgres.Open(postgresDSN))
+	} else {
+		sugar.Fatalln("no database specified")
+		return
+	}
 	if err != nil {
 		sugar.With(err).Fatalln("cannot open database")
 		return
