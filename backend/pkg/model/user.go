@@ -40,18 +40,18 @@ type Comment struct {
 	// Content is the comment content as markdown
 	Content string `json:"content"`
 	// TopicID is the ID of the topic the comment belongs to
-	TopicID uint `json:"topic_id"`
+	TopicID *uint `json:"topic_id"`
 	// MeetingID is the ID of the meeting the comment belongs to
-	MeetingID uint `json:"meeting_id"`
+	MeetingID *uint `json:"meeting_id"`
 	// ProjectID is the ID of the project the comment belongs to
-	ProjectID uint `json:"project_id"`
+	ProjectID *uint `json:"project_id"`
 	// ActionID is the ID of the action the comment belongs to
-	ActionID uint `json:"action_id"`
+	ActionID *uint `json:"action_id"`
 }
 
 // CheckProjectOwnership checks if the comment belongs to the project
 func (c Comment) CheckProjectOwnership(projectID uint) bool {
-	return c.ProjectID == projectID
+	return c.ProjectID != nil && *c.ProjectID == projectID
 }
 
 // Topic represents a TO|DO-Point for the meeting
@@ -140,6 +140,8 @@ type Project struct {
 	Actions []Action `json:"actions,omitempty"`
 	// Comments for the project
 	Comments []Comment `json:"comments,omitempty"`
+	// AIEnabled is true if the OpenAI API is enabled for the project
+	AIEnabled bool `json:"ai_enabled"`
 }
 
 func (p Project) CheckProjectOwnership(projectID uint) bool {

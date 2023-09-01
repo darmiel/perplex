@@ -7,6 +7,7 @@ import (
 )
 
 var ErrCommentIsSolution = errors.New("cannot delete solution")
+var ErrCommentInvalid = errors.New("invalid comment")
 
 type CommentService interface {
 	AddComment(authorID string, content string, extend func(comment *model.Comment)) (*model.Comment, error)
@@ -76,13 +77,15 @@ func (c *commentService) DeleteComment(commentID uint) error {
 		return err
 	}
 	// get topic of comment
-	topic, err := c.topicService.GetTopic(comment.TopicID)
-	if err != nil {
-		return err
-	}
-	// check if comment is solution
-	if topic.SolutionID == commentID {
-		return ErrCommentIsSolution
+	if comment.TopicID != nil {
+		topic, err := c.topicService.GetTopic(*comment.TopicID)
+		if err != nil {
+			return err
+		}
+		// check if comment is solution
+		if topic.SolutionID == commentID {
+			return ErrCommentIsSolution
+		}
 	}
 	return c.DB.Delete(&model.Comment{
 		Model: gorm.Model{
@@ -98,7 +101,10 @@ func (c *commentService) toggleCommentSolution(commentID uint, status bool) erro
 		return err
 	}
 	// find corresponding topic
-	topic, err := c.topicService.GetTopic(comment.TopicID)
+	if comment.TopicID == nil {
+		return ErrCommentInvalid
+	}
+	topic, err := c.topicService.GetTopic(*comment.TopicID)
 	if err != nil {
 		return err
 	}

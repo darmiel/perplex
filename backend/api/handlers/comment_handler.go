@@ -61,16 +61,16 @@ func NewCommentHandler(
 	}
 	h.commentTypesListTransform = map[string]func(targetID uint, comment *model.Comment){
 		"topic": func(targetID uint, comment *model.Comment) {
-			comment.TopicID = targetID
+			comment.TopicID = &targetID
 		},
 		"action": func(targetID uint, comment *model.Comment) {
-			comment.ActionID = targetID
+			comment.ActionID = &targetID
 		},
 		"meeting": func(targetID uint, comment *model.Comment) {
-			comment.MeetingID = targetID
+			comment.MeetingID = &targetID
 		},
 		"project": func(targetID uint, comment *model.Comment) {
-			comment.ProjectID = targetID
+			comment.ProjectID = &targetID
 		},
 	}
 	return h
@@ -141,7 +141,7 @@ func (h *CommentHandler) addTopicComment(ctx *fiber.Ctx, targetID, content strin
 		func(entityID uint, projectID uint) (*model.Topic, error) {
 			return h.topicSrv.GetTopic(entityID, "Meeting")
 		}, func(comment *model.Comment, entity *model.Topic) {
-			comment.TopicID = entity.ID
+			comment.TopicID = &entity.ID
 		})
 }
 
@@ -151,7 +151,7 @@ func (h *CommentHandler) addMeetingComment(ctx *fiber.Ctx, targetID, content str
 			return h.meetSrv.GetMeeting(entityID)
 		},
 		func(comment *model.Comment, entity *model.Meeting) {
-			comment.MeetingID = entity.ID
+			comment.MeetingID = &entity.ID
 		})
 }
 
@@ -161,7 +161,7 @@ func (h *CommentHandler) addActionComment(ctx *fiber.Ctx, targetID, content stri
 			return h.actionSrv.FindAction(entityID)
 		},
 		func(comment *model.Comment, entity *model.Action) {
-			comment.ActionID = entity.ID
+			comment.ActionID = &entity.ID
 		})
 }
 
@@ -171,7 +171,7 @@ func (h *CommentHandler) addProjectComment(ctx *fiber.Ctx, targetID, content str
 			return h.projectSrv.FindProject(entityID)
 		},
 		func(comment *model.Comment, entity *model.Project) {
-			comment.ProjectID = entity.ID
+			comment.ProjectID = &entity.ID
 		})
 }
 
