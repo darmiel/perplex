@@ -217,10 +217,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
   }
 
   const functions = {
-    // ======================
-    // Project
-    // ======================
-    project: {
+    projects: {
       deleteMutFn() {
         return async ({ projectID }: projectDeleteVars) =>
           (await axios.delete(`/project/${projectID}/delete`)).data
@@ -228,176 +225,167 @@ export const functions = (axios: Axios, client: QueryClient) => {
       deleteMutKey() {
         return ["project-delete-mut"]
       },
-    },
-    projectListQueryFn() {
-      return async () => (await axios.get("/project")).data
-    },
-    projectListQueryKey() {
-      return ["projects"]
-    },
+      listQueryFn() {
+        return async () => (await axios.get("/project")).data
+      },
+      listQueryKey() {
+        return ["projects"]
+      },
 
-    projectGetQueryFn(projectID: number) {
-      return async () => (await axios.get(`/project/${projectID}`)).data
-    },
-    projectGetQueryKey(projectID: number) {
-      return [{ projectID }]
-    },
+      getQueryFn(projectID: number) {
+        return async () => (await axios.get(`/project/${projectID}`)).data
+      },
+      getQueryKey(projectID: number) {
+        return [{ projectID }]
+      },
 
-    projectUsersQueryFn(projectID: number) {
-      return async () => (await axios.get(`/project/${projectID}/users`)).data
-    },
-    projectUsersQueryKey(projectID: number) {
-      return [{ projectID }, "users"]
-    },
+      usersQueryFn(projectID: number) {
+        return async () => (await axios.get(`/project/${projectID}/users`)).data
+      },
+      usersQueryKey(projectID: number) {
+        return [{ projectID }, "users"]
+      },
 
-    projectUserAddMutFn(projectID: number) {
-      return async ({ userID, link }: projectUserLinkVars) =>
-        (
-          await axios[link ? "post" : "delete"](
-            `/project/${projectID}/user/${userID}`,
-          )
-        ).data
-    },
-    projectUserAddMutKey(projectID: number) {
-      return [{ projectID }, "user-add-mut"]
-    },
+      userAddMutFn(projectID: number) {
+        return async ({ userID, link }: projectUserLinkVars) =>
+          (
+            await axios[link ? "post" : "delete"](
+              `/project/${projectID}/user/${userID}`,
+            )
+          ).data
+      },
+      userAddMutKey(projectID: number) {
+        return [{ projectID }, "user-add-mut"]
+      },
 
-    projectUpdateMutFn() {
-      return async ({ projectID, name, description }: projectEditVars) =>
-        (
-          await axios.put(`/project/${projectID}`, {
-            name,
-            description,
-          })
-        ).data
-    },
-    projectUpdateMutKey() {
-      return ["project-update-mut"]
-    },
+      updateMutFn() {
+        return async ({ projectID, name, description }: projectEditVars) =>
+          (
+            await axios.put(`/project/${projectID}`, {
+              name,
+              description,
+            })
+          ).data
+      },
+      updateMutKey() {
+        return ["project-update-mut"]
+      },
 
-    projectCreateMutFn() {
-      return async ({ name, description }: projectCreateVars) =>
-        (
-          await axios.post(`/project`, {
-            name,
-            description,
-          })
-        ).data
-    },
-    projectCreateMutKey() {
-      return ["project-create-mut"]
-    },
+      createMutFn() {
+        return async ({ name, description }: projectCreateVars) =>
+          (
+            await axios.post(`/project`, {
+              name,
+              description,
+            })
+          ).data
+      },
+      createMutKey() {
+        return ["project-create-mut"]
+      },
 
-    projectLeaveMutFn() {
-      return async ({ projectID }: projectLeaveVars) =>
-        (await axios.delete(`/project/${projectID}/leave`)).data
+      leaveMutFn() {
+        return async ({ projectID }: projectLeaveVars) =>
+          (await axios.delete(`/project/${projectID}/leave`)).data
+      },
+      leaveMutKey() {
+        return ["project-leave-mut"]
+      },
     },
-    projectLeaveMutKey() {
-      return ["project-leave-mut"]
-    },
+    tags: {
+      listQueryFn(projectID: number) {
+        return async () => (await axios.get(`/project/${projectID}/tag`)).data
+      },
+      listQueryKey(projectID: number) {
+        return [{ projectID }, "tags"]
+      },
 
-    // ======================
-    // Project Tags
-    // ======================
+      createMutFn(projectID: number) {
+        return async ({ title, color }: tagCreateVars) =>
+          (
+            await axios.post(`/project/${projectID}/tag`, {
+              title,
+              color,
+            })
+          ).data
+      },
+      createMutKey(projectID: number) {
+        return [{ projectID }, "tag-create-mut"]
+      },
 
-    tagsListQueryFn(projectID: number) {
-      return async () => (await axios.get(`/project/${projectID}/tag`)).data
-    },
-    tagsListQueryKey(projectID: number) {
-      return [{ projectID }, "tags"]
-    },
+      editMutFn(projectID: number) {
+        return async ({ tagID, editTitle, editColor }: tagEditVars) =>
+          (
+            await axios!.put(`/project/${projectID}/tag/${tagID}`, {
+              title: editTitle,
+              color: editColor,
+            })
+          ).data
+      },
+      editMutKey(projectID: number) {
+        return [{ projectID }, "tag-edit-mut"]
+      },
 
-    tagCreateMutFn(projectID: number) {
-      return async ({ title, color }: tagCreateVars) =>
-        (
-          await axios.post(`/project/${projectID}/tag`, {
-            title,
-            color,
-          })
-        ).data
+      deleteMutFn(projectID: number) {
+        return async ({ tagID }: tagDeleteVars) =>
+          (await axios.delete(`/project/${projectID}/tag/${tagID}`)).data
+      },
+      deleteMutKey(projectID: number) {
+        return [{ projectID }, "tag-delete-mut"]
+      },
     },
-    tagCreateMutKey(projectID: number) {
-      return [{ projectID }, "tag-create-mut"]
-    },
+    priorities: {
+      listQueryFn(projectID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/priority`)).data
+      },
+      listQueryKey(projectID: number) {
+        return [{ projectID }, "priorities"]
+      },
 
-    tagEditMutFn(projectID: number) {
-      return async ({ tagID, editTitle, editColor }: tagEditVars) =>
-        (
-          await axios!.put(`/project/${projectID}/tag/${tagID}`, {
-            title: editTitle,
-            color: editColor,
-          })
-        ).data
-    },
-    tagEditMutKey(projectID: number) {
-      return [{ projectID }, "tag-edit-mut"]
-    },
+      createMutFn(projectID: number) {
+        return async ({ title, color, weight }: priorityCreateVars) =>
+          (
+            await axios.post(`/project/${projectID}/priority`, {
+              title,
+              color,
+              weight,
+            })
+          ).data
+      },
+      createMutKey(projectID: number) {
+        return [{ projectID }, "priority-create-mut"]
+      },
 
-    tagDeleteMutFn(projectID: number) {
-      return async ({ tagID }: tagDeleteVars) =>
-        (await axios.delete(`/project/${projectID}/tag/${tagID}`)).data
-    },
-    tagDeleteMutKey(projectID: number) {
-      return [{ projectID }, "tag-delete-mut"]
-    },
+      editMutFn(projectID: number) {
+        return async ({
+          priorityID,
+          editTitle,
+          editColor,
+          editWeight,
+        }: priorityEditVars) =>
+          (
+            await axios.put(`/project/${projectID}/priority/${priorityID}`, {
+              title: editTitle,
+              color: editColor,
+              weight: editWeight,
+            })
+          ).data
+      },
+      editMutKey(projectID: number) {
+        return [{ projectID }, "priority-edit-mut"]
+      },
 
-    // ======================
-    // Project Priorities
-    // ======================
-    prioritiesQueryFn(projectID: number) {
-      return async () =>
-        (await axios.get(`/project/${projectID}/priority`)).data
+      deleteMutFn(projectID: number) {
+        return async ({ priorityID }: priorityDeleteVars) =>
+          (await axios.delete(`/project/${projectID}/priority/${priorityID}`))
+            .data
+      },
+      deleteMutKey(projectID: number) {
+        return [{ projectID }, "priority-delete-mut"]
+      },
     },
-    prioritiesQueryKey(projectID: number) {
-      return [{ projectID }, "priorities"]
-    },
-
-    priorityCreateMutFn(projectID: number) {
-      return async ({ title, color, weight }: priorityCreateVars) =>
-        (
-          await axios.post(`/project/${projectID}/priority`, {
-            title,
-            color,
-            weight,
-          })
-        ).data
-    },
-    priorityCreateMutKey(projectID: number) {
-      return [{ projectID }, "priority-create-mut"]
-    },
-
-    priorityEditMutFn(projectID: number) {
-      return async ({
-        priorityID,
-        editTitle,
-        editColor,
-        editWeight,
-      }: priorityEditVars) =>
-        (
-          await axios.put(`/project/${projectID}/priority/${priorityID}`, {
-            title: editTitle,
-            color: editColor,
-            weight: editWeight,
-          })
-        ).data
-    },
-    priorityEditMutKey(projectID: number) {
-      return [{ projectID }, "priority-edit-mut"]
-    },
-
-    priorityDeleteMutFn(projectID: number) {
-      return async ({ priorityID }: priorityDeleteVars) =>
-        (await axios.delete(`/project/${projectID}/priority/${priorityID}`))
-          .data
-    },
-    priorityDeleteMutKey(projectID: number) {
-      return [{ projectID }, "priority-delete-mut"]
-    },
-
-    // ======================
-    // Meeting
-    // ======================
-    meeting: {
+    meetings: {
       listQueryFn(projectID: number) {
         return async () =>
           (await axios.get(`/project/${projectID}/meeting`)).data
@@ -456,328 +444,339 @@ export const functions = (axios: Axios, client: QueryClient) => {
         return [{ projectID }, { meetingID }]
       },
     },
-    // ======================
-    // Topic
-    // ======================
-    topicListQueryFn(projectID: number, meetingID: number) {
-      return async () =>
-        (await axios.get(`/project/${projectID}/meeting/${meetingID}/topic`))
-          .data
-    },
-    topicListQueryKey(projectID: number, meetingID: number) {
-      return [{ projectID }, { meetingID }, "topics"]
-    },
+    topics: {
+      listQueryFn(projectID: number, meetingID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/meeting/${meetingID}/topic`))
+            .data
+      },
+      listQueryKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "topics"]
+      },
 
-    topicFindQueryFn(projectID: number, meetingID: number, topicID: number) {
-      return async () =>
-        (
-          await axios.get(
-            `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-          )
-        ).data
-    },
-    topicFindQueryKey(projectID: number, meetingID: number, topicID: number) {
-      return [{ projectID }, { meetingID }, { topicID }]
-    },
+      findQueryFn(projectID: number, meetingID: number, topicID: number) {
+        return async () =>
+          (
+            await axios.get(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
+            )
+          ).data
+      },
+      findQueryKey(projectID: number, meetingID: number, topicID: number) {
+        return [{ projectID }, { meetingID }, { topicID }]
+      },
 
-    topicStatusMutFn(projectID: number, meetingID: number) {
-      return async ({ topicID, close }: topicStatusVars) =>
-        (
-          await axios[close ? "post" : "delete"](
-            `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/status`,
-          )
-        ).data
-    },
-    topicStatusMutKey(projectID: number, meetingID: number) {
-      return [{ projectID }, { meetingID }, "status-assign-mut"]
-    },
+      statusMutFn(projectID: number, meetingID: number) {
+        return async ({ topicID, close }: topicStatusVars) =>
+          (
+            await axios[close ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/status`,
+            )
+          ).data
+      },
+      statusMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "status-assign-mut"]
+      },
 
-    topicUpdateMutFn(projectID: number, meetingID: number, topicID: number) {
-      return async ({ title, description, force_solution }: topicUpdateVars) =>
-        (
-          await axios.put(
-            `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-            {
-              title: title,
-              description: description,
-              force_solution: force_solution,
-            },
-          )
-        ).data
-    },
-    topicUpdateMutKey(projectID: number, meetingID: number, topicID: number) {
-      return [
-        ...functions.topicFindQueryKey(projectID, meetingID, topicID),
-        "topic-update-mut",
-      ]
-    },
+      updateMutFn(projectID: number, meetingID: number, topicID: number) {
+        return async ({
+          title,
+          description,
+          force_solution,
+        }: topicUpdateVars) =>
+          (
+            await axios.put(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
+              {
+                title: title,
+                description: description,
+                force_solution: force_solution,
+              },
+            )
+          ).data
+      },
+      updateMutKey(projectID: number, meetingID: number, topicID: number) {
+        return [
+          ...functions.topics.findQueryKey(projectID, meetingID, topicID),
+          "topic-update-mut",
+        ]
+      },
 
-    topicCreateMutFn(projectID: number, meetingID: number) {
-      return async ({ title, description, force_solution }: topicCreateVars) =>
-        (
-          await axios.post(`/project/${projectID}/meeting/${meetingID}/topic`, {
-            title,
-            description,
-            force_solution,
-          })
-        ).data
-    },
-    topicCreateMutKey(projectID: number, meetingID: number) {
-      return [{ projectID }, { meetingID }, "topic-create-mut"]
-    },
+      createMutFn(projectID: number, meetingID: number) {
+        return async ({
+          title,
+          description,
+          force_solution,
+        }: topicCreateVars) =>
+          (
+            await axios.post(
+              `/project/${projectID}/meeting/${meetingID}/topic`,
+              {
+                title,
+                description,
+                force_solution,
+              },
+            )
+          ).data
+      },
+      createMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "topic-create-mut"]
+      },
 
-    topicDeleteMutFn(projectID: number, meetingID: number) {
-      return async ({ topicID }: topicDeleteVars) =>
-        (
-          await axios!.delete(
-            `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-          )
-        ).data
-    },
-    topicDeleteMutKey(projectID: number, meetingID: number) {
-      return [
-        ...functions.meeting.findQueryKey(projectID, meetingID),
-        "topic-delete-mut",
-      ]
-    },
+      deleteMutFn(projectID: number, meetingID: number) {
+        return async ({ topicID }: topicDeleteVars) =>
+          (
+            await axios!.delete(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
+            )
+          ).data
+      },
+      deleteMutKey(projectID: number, meetingID: number) {
+        return [
+          ...functions.meetings.findQueryKey(projectID, meetingID),
+          "topic-delete-mut",
+        ]
+      },
 
-    topicAssignMutFn(projectID: number, meetingID: number) {
-      return async ({ userIDs, topicID }: topicAssignUsersVars) =>
-        (
-          await axios.post(
-            `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
-            {
-              assigned_users: userIDs,
-            },
-          )
-        ).data
+      assignMutFn(projectID: number, meetingID: number) {
+        return async ({ userIDs, topicID }: topicAssignUsersVars) =>
+          (
+            await axios.post(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
+              {
+                assigned_users: userIDs,
+              },
+            )
+          ).data
+      },
+      assignMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "topic-assign-mut"]
+      },
     },
-    topicAssignMutKey(projectID: number, meetingID: number) {
-      return [{ projectID }, { meetingID }, "topic-assign-mut"]
-    },
+    comments: {
+      listQueryFn(
+        projectID: number,
+        entityType: CommentEntityType,
+        entityID: number,
+      ) {
+        return async () =>
+          (
+            await axios.get(
+              `/project/${projectID}/comment/${entityType}/${entityID}`,
+            )
+          ).data
+      },
+      listQueryKey(
+        projectID: number,
+        entityType: CommentEntityType,
+        entityID: number,
+      ) {
+        return [{ projectID }, "comments", entityType, entityID]
+      },
 
-    // ======================
-    // Comment
-    // ======================
-    commentListQueryFn(
-      projectID: number,
-      entityType: CommentEntityType,
-      entityID: number,
-    ) {
-      return async () =>
-        (
-          await axios.get(
-            `/project/${projectID}/comment/${entityType}/${entityID}`,
-          )
-        ).data
-    },
-    commentListQueryKey(
-      projectID: number,
-      entityType: CommentEntityType,
-      entityID: number,
-    ) {
-      return [{ projectID }, "comments", entityType, entityID]
-    },
+      sendMutFn(
+        projectID: number,
+        entityType: CommentEntityType,
+        entityID: number,
+      ) {
+        return async ({ comment }: sendCommentVars) =>
+          (
+            await axios.post(
+              `/project/${projectID}/comment/${entityType}/${entityID}`,
+              comment,
+            )
+          ).data
+      },
+      sendMutKey(
+        projectID: number,
+        entityType: CommentEntityType,
+        entityID: number,
+      ) {
+        return [
+          { projectID },
+          "comments",
+          entityType,
+          entityID,
+          "comment-send-mut",
+        ]
+      },
 
-    commentSendMutFn(
-      projectID: number,
-      entityType: CommentEntityType,
-      entityID: number,
-    ) {
-      return async ({ comment }: sendCommentVars) =>
-        (
-          await axios.post(
-            `/project/${projectID}/comment/${entityType}/${entityID}`,
-            comment,
-          )
-        ).data
-    },
-    commentSendMutKey(
-      projectID: number,
-      entityType: CommentEntityType,
-      entityID: number,
-    ) {
-      return [
-        { projectID },
-        "comments",
-        entityType,
-        entityID,
-        "comment-send-mut",
-      ]
-    },
+      deleteMutFn(projectID: number) {
+        return async ({ commentID }: commentDeleteVars) =>
+          (await axios.delete(`/project/${projectID}/comment/${commentID}`))
+            .data
+      },
+      deleteMutKey() {
+        return ["comment-delete-mut"]
+      },
 
-    commentDeleteMutFn(projectID: number) {
-      return async ({ commentID }: commentDeleteVars) =>
-        (await axios.delete(`/project/${projectID}/comment/${commentID}`)).data
-    },
-    commentDeleteMutKey() {
-      return ["comment-delete-mut"]
-    },
+      editMutFn(projectID: number) {
+        return async ({ commentID, content }: commentEditVars) =>
+          (
+            await axios.put(
+              `/project/${projectID}/comment/${commentID}`,
+              content,
+            )
+          ).data
+      },
+      editMutKey() {
+        return ["comment-edit-mut"]
+      },
 
-    commentEditMutFn(projectID: number) {
-      return async ({ commentID, content }: commentEditVars) =>
-        (await axios.put(`/project/${projectID}/comment/${commentID}`, content))
-          .data
+      markSolutionMutFn(projectID: number) {
+        return async ({
+          mark,
+          commentID,
+        }: {
+          mark: boolean
+          commentID: number
+        }) =>
+          (
+            await axios[mark ? "post" : "delete"](
+              `/project/${projectID}/comment/solution/${commentID}`,
+            )
+          ).data
+      },
+      markSolutionMutKey(topicID: number) {
+        return [{ topicID }, "solution-mut"]
+      },
     },
-    commentEditMutKey() {
-      return ["comment-edit-mut"]
-    },
+    users: {
+      resolveQueryFn(userID: string) {
+        return async () => (await axios.get(`/user/resolve/${userID}`)).data
+      },
+      resolveQueryKey(userID: string) {
+        return [{ userID }]
+      },
 
-    commentMarkSolutionMutFn(projectID: number) {
-      return async ({
-        mark,
-        commentID,
-      }: {
-        mark: boolean
-        commentID: number
-      }) =>
-        (
-          await axios[mark ? "post" : "delete"](
-            `/project/${projectID}/comment/solution/${commentID}`,
-          )
-        ).data
-    },
-    commentMarkSolutionMutKey(topicID: number) {
-      return [{ topicID }, "solution-mut"]
-    },
+      changeNameMutFn() {
+        return async ({ newName }: userChangeNameVars) =>
+          (await axios.put(`/user/me`, { new_name: newName })).data
+      },
+      changeNameMutKey() {
+        return ["user-change-name-mut"]
+      },
 
-    // ======================
-    // User
-    // ======================
-    userResolveQueryFn(userID: string) {
-      return async () => (await axios.get(`/user/resolve/${userID}`)).data
+      listQueryFn(query: string, page: number) {
+        return async () =>
+          (
+            await axios.get(
+              `/user?query=${encodeURIComponent(query)}&page=${page}`,
+            )
+          ).data
+      },
+      listQueryKey(query: string, page: number) {
+        return ["users", page, { query }]
+      },
     },
-    userResolveQueryKey(userID: string) {
-      return [{ userID }]
-    },
+    actions: {
+      createMutFn(projectID: number) {
+        return async ({
+          title,
+          description,
+          due_date,
+          priority_id,
+        }: actionCreateVars) =>
+          (
+            await axios.post(`/project/${projectID}/action`, {
+              title,
+              description,
+              due_date: due_date ? new Date(due_date) : null,
+              priority_id,
+            })
+          ).data
+      },
+      createMutKey(projectID: number) {
+        return [{ projectID }, "action-create-mut"]
+      },
 
-    userChangeNameMutFn() {
-      return async ({ newName }: userChangeNameVars) =>
-        (await axios.put(`/user/me`, { new_name: newName })).data
-    },
-    userChangeNameMutKey() {
-      return ["user-change-name-mut"]
-    },
+      editMutFn(projectID: number) {
+        return async ({
+          actionID,
+          title,
+          description,
+          due_date,
+          priority_id,
+        }: actionEditVars) =>
+          (
+            await axios.put(`/project/${projectID}/action/${actionID}`, {
+              title,
+              description,
+              due_date: due_date ? new Date(due_date) : null,
+              priority_id,
+            })
+          ).data
+      },
+      editMutKey(projectID: number) {
+        return [{ projectID }, "action-edit-mut"]
+      },
 
-    userListQueryFn(query: string, page: number) {
-      return async () =>
-        (
-          await axios.get(
-            `/user?query=${encodeURIComponent(query)}&page=${page}`,
-          )
-        ).data
-    },
-    userListQueryKey(query: string, page: number) {
-      return ["users", page, { query }]
-    },
+      listForProjectQueryFn(projectID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/action`)).data
+      },
+      listForProjectQueryKey(projectID: number) {
+        return [{ projectID }, "actions"]
+      },
 
-    // ======================
-    // Action
-    // ======================
-    actionCreateMutFn(projectID: number) {
-      return async ({
-        title,
-        description,
-        due_date,
-        priority_id,
-      }: actionCreateVars) =>
-        (
-          await axios.post(`/project/${projectID}/action`, {
-            title,
-            description,
-            due_date: due_date ? new Date(due_date) : null,
-            priority_id,
-          })
-        ).data
-    },
-    actionCreateMutKey(projectID: number) {
-      return [{ projectID }, "action-create-mut"]
-    },
+      listForTopicQueryFn(projectID: number, topicID: number) {
+        return async () =>
+          (await axios!.get(`/project/${projectID}/action/topic/${topicID}`))
+            .data
+      },
+      listForTopicQueryKey(
+        projectID: number,
+        meetingID: number,
+        topicID: number,
+      ) {
+        return [
+          ...functions.topics.findQueryKey(projectID, meetingID, topicID),
+          "actions",
+        ]
+      },
 
-    actionEditMutFn(projectID: number) {
-      return async ({
-        actionID,
-        title,
-        description,
-        due_date,
-        priority_id,
-      }: actionEditVars) =>
-        (
-          await axios.put(`/project/${projectID}/action/${actionID}`, {
-            title,
-            description,
-            due_date: due_date ? new Date(due_date) : null,
-            priority_id,
-          })
-        ).data
-    },
-    actionEditMutKey(projectID: number) {
-      return [{ projectID }, "action-edit-mut"]
-    },
+      findQueryFn(projectID: number, actionID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/action/${actionID}`)).data
+      },
+      findQueryKey(projectID: number, actionID: number) {
+        return [{ projectID }, { actionID }]
+      },
+      linkTopicMutFn(projectID: number) {
+        return async ({ link, topicID, actionID }: actionLinkVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/action/${actionID}/topic/${topicID}`,
+            )
+          ).data
+      },
+      linkTopicMutKey(projectID: number) {
+        return [{ projectID }, "action-link-topic-mut"]
+      },
 
-    actionListForProjectQueryFn(projectID: number) {
-      return async () => (await axios.get(`/project/${projectID}/action`)).data
-    },
-    actionListForProjectQueryKey(projectID: number) {
-      return [{ projectID }, "actions"]
-    },
+      linkTagMutFn(projectID: number) {
+        return async ({ actionID, tagID, link }: actionLinkTagVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/action/${actionID}/tag/${tagID}`,
+            )
+          ).data
+      },
+      linkTagMutKey(projectID: number) {
+        return [{ projectID }, "action-link-tag-mut"]
+      },
 
-    actionListForTopicQueryFn(projectID: number, topicID: number) {
-      return async () =>
-        (await axios!.get(`/project/${projectID}/action/topic/${topicID}`)).data
-    },
-    actionListForTopicQueryKey(
-      projectID: number,
-      meetingID: number,
-      topicID: number,
-    ) {
-      return [
-        ...functions.topicFindQueryKey(projectID, meetingID, topicID),
-        "actions",
-      ]
-    },
-
-    actionFindQueryFn(projectID: number, actionID: number) {
-      return async () =>
-        (await axios.get(`/project/${projectID}/action/${actionID}`)).data
-    },
-    actionFindQueryKey(projectID: number, actionID: number) {
-      return [{ projectID }, { actionID }]
-    },
-    actionLinkTopicMutFn(projectID: number) {
-      return async ({ link, topicID, actionID }: actionLinkVars) =>
-        (
-          await axios![link ? "post" : "delete"](
-            `/project/${projectID}/action/${actionID}/topic/${topicID}`,
-          )
-        ).data
-    },
-    actionLinkTopicMutKey(projectID: number) {
-      return [{ projectID }, "action-link-topic-mut"]
-    },
-
-    actionLinkTagMutFn(projectID: number) {
-      return async ({ actionID, tagID, link }: actionLinkTagVars) =>
-        (
-          await axios![link ? "post" : "delete"](
-            `/project/${projectID}/action/${actionID}/tag/${tagID}`,
-          )
-        ).data
-    },
-    actionLinkTagMutKey(projectID: number) {
-      return [{ projectID }, "action-link-tag-mut"]
-    },
-
-    actionLinkUserMutFn(projectID: number) {
-      return async ({ actionID, userID, link }: actionLinkUserVars) =>
-        (
-          await axios![link ? "post" : "delete"](
-            `/project/${projectID}/action/${actionID}/user/${userID}`,
-          )
-        ).data
-    },
-    actionLinkUserMutKey(projectID: number) {
-      return [{ projectID }, "action-link-user-mut"]
+      linkUserMutFn(projectID: number) {
+        return async ({ actionID, userID, link }: actionLinkUserVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/action/${actionID}/user/${userID}`,
+            )
+          ).data
+      },
+      linkUserMutKey(projectID: number) {
+        return [{ projectID }, "action-link-user-mut"]
+      },
     },
   } as const
 
@@ -789,19 +788,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           projectCreateVars
         >({
-          mutationKey: functions.projectCreateMutKey(),
-          mutationFn: functions.projectCreateMutFn(),
+          mutationKey: functions.projects.createMutKey(),
+          mutationFn: functions.projects.createMutFn(),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.projectListQueryKey(),
+            functions.projects.listQueryKey(),
           ),
           onError: toastError("Cannot create Project:"),
         })
       },
       useUserList(projectID: number) {
         return useQuery<BackendResponse<User[]>>({
-          queryKey: functions.projectUsersQueryKey(projectID),
-          queryFn: functions.projectUsersQueryFn(projectID),
+          queryKey: functions.projects.usersQueryKey(projectID),
+          queryFn: functions.projects.usersQueryFn(projectID),
           enabled: !!projectID,
         })
       },
@@ -810,11 +809,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, projectUserLinkVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, projectUserLinkVars>({
-          mutationKey: functions.projectUserAddMutKey(projectID),
-          mutationFn: functions.projectUserAddMutFn(projectID),
+          mutationKey: functions.projects.userAddMutKey(projectID),
+          mutationFn: functions.projects.userAddMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.projectUsersQueryKey(projectID),
+            functions.projects.usersQueryKey(projectID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "add" : "remove"} User:`,
@@ -823,47 +822,47 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useLeave(callback: SuccessCallback<never, projectLeaveVars>) {
         return useMutation<BackendResponse, AxiosError, projectLeaveVars>({
-          mutationKey: functions.projectLeaveMutKey(),
-          mutationFn: functions.projectLeaveMutFn(),
+          mutationKey: functions.projects.leaveMutKey(),
+          mutationFn: functions.projects.leaveMutFn(),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.projectListQueryKey(),
+            functions.projects.listQueryKey(),
           ),
           onError: toastError("Cannot leave Project:"),
         })
       },
       useList() {
         return useQuery<BackendResponse<Project[]>>({
-          queryKey: functions.projectListQueryKey(),
-          queryFn: functions.projectListQueryFn(),
+          queryKey: functions.projects.listQueryKey(),
+          queryFn: functions.projects.listQueryFn(),
         })
       },
       useFind(projectID: number) {
         return useQuery<BackendResponse<Project>>({
-          queryKey: functions.projectGetQueryKey(projectID),
-          queryFn: functions.projectGetQueryFn(projectID),
+          queryKey: functions.projects.getQueryKey(projectID),
+          queryFn: functions.projects.getQueryFn(projectID),
           enabled: !!projectID,
         })
       },
       useEdit(callback: SuccessCallback<never, projectEditVars>) {
         return useMutation<BackendResponse, AxiosError, projectEditVars>({
-          mutationKey: functions.projectUpdateMutKey(),
-          mutationFn: functions.projectUpdateMutFn(),
+          mutationKey: functions.projects.updateMutKey(),
+          mutationFn: functions.projects.updateMutFn(),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.projectListQueryKey(),
-            ({ projectID }) => functions.projectGetQueryKey(projectID),
+            functions.projects.listQueryKey(),
+            ({ projectID }) => functions.projects.getQueryKey(projectID),
           ),
           onError: toastError("Cannot update Project:"),
         })
       },
       useDelete(callback: SuccessCallback<never, projectDeleteVars>) {
         return useMutation<BackendResponse, AxiosError, projectDeleteVars>({
-          mutationKey: functions.project.deleteMutKey(),
-          mutationFn: functions.project.deleteMutFn(),
+          mutationKey: functions.projects.deleteMutKey(),
+          mutationFn: functions.projects.deleteMutFn(),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.projectListQueryKey(),
+            functions.projects.listQueryKey(),
           ),
           onError: toastError("Cannot delete Project:"),
         })
@@ -872,8 +871,8 @@ export const functions = (axios: Axios, client: QueryClient) => {
     tags: {
       useList(projectID: number) {
         return useQuery<BackendResponse<Tag[]>>({
-          queryKey: functions.tagsListQueryKey(projectID),
-          queryFn: functions.tagsListQueryFn(projectID),
+          queryKey: functions.tags.listQueryKey(projectID),
+          queryFn: functions.tags.listQueryFn(projectID),
           enabled: !!projectID,
         })
       },
@@ -882,22 +881,22 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, tagDeleteVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, tagDeleteVars>({
-          mutationKey: functions.tagDeleteMutKey(projectID),
-          mutationFn: functions.tagDeleteMutFn(projectID),
+          mutationKey: functions.tags.deleteMutKey(projectID),
+          mutationFn: functions.tags.deleteMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.tagsListQueryKey(projectID),
+            functions.tags.listQueryKey(projectID),
           ),
           onError: toastError("Cannot delete Tag:"),
         })
       },
       useEdit(projectID: number, callback: SuccessCallback<Tag, tagEditVars>) {
         return useMutation<BackendResponse<Tag>, AxiosError, tagEditVars>({
-          mutationKey: functions.tagEditMutKey(projectID),
-          mutationFn: functions.tagEditMutFn(projectID),
+          mutationKey: functions.tags.editMutKey(projectID),
+          mutationFn: functions.tags.editMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.tagsListQueryKey(projectID),
+            functions.tags.listQueryKey(projectID),
           ),
           onError: toastError("Cannot edit Tag:"),
         })
@@ -907,11 +906,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<Tag, tagCreateVars>,
       ) {
         return useMutation<BackendResponse<Tag>, AxiosError, tagCreateVars>({
-          mutationKey: functions.tagCreateMutKey(projectID),
-          mutationFn: functions.tagCreateMutFn(projectID),
+          mutationKey: functions.tags.createMutKey(projectID),
+          mutationFn: functions.tags.createMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.tagsListQueryKey(projectID),
+            functions.tags.listQueryKey(projectID),
           ),
           onError: toastError("Cannot create Tag:"),
         })
@@ -923,11 +922,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, priorityDeleteVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, priorityDeleteVars>({
-          mutationKey: functions.priorityDeleteMutKey(projectID),
-          mutationFn: functions.priorityDeleteMutFn(projectID),
+          mutationKey: functions.priorities.deleteMutKey(projectID),
+          mutationFn: functions.priorities.deleteMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.prioritiesQueryKey(projectID),
+            functions.priorities.listQueryKey(projectID),
           ),
           onError: toastError("Cannot delete Priority:"),
         })
@@ -937,11 +936,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, priorityEditVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, priorityEditVars>({
-          mutationKey: functions.priorityEditMutKey(projectID),
-          mutationFn: functions.priorityEditMutFn(projectID),
+          mutationKey: functions.priorities.editMutKey(projectID),
+          mutationFn: functions.priorities.editMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.prioritiesQueryKey(projectID),
+            functions.priorities.listQueryKey(projectID),
           ),
           onError: toastError("Cannot edit Priority:"),
         })
@@ -955,19 +954,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           priorityCreateVars
         >({
-          mutationKey: functions.priorityCreateMutKey(projectID),
-          mutationFn: functions.priorityCreateMutFn(projectID),
+          mutationKey: functions.priorities.createMutKey(projectID),
+          mutationFn: functions.priorities.createMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.prioritiesQueryKey(projectID),
+            functions.priorities.listQueryKey(projectID),
           ),
           onError: toastError("Cannot create Priority:"),
         })
       },
       useList(projectID: number) {
         return useQuery<BackendResponse<Priority[]>>({
-          queryKey: functions.prioritiesQueryKey(projectID),
-          queryFn: functions.prioritiesQueryFn(projectID),
+          queryKey: functions.priorities.listQueryKey(projectID),
+          queryFn: functions.priorities.listQueryFn(projectID),
           enabled: !!projectID,
         })
       },
@@ -975,8 +974,8 @@ export const functions = (axios: Axios, client: QueryClient) => {
     meetings: {
       useFind(projectID: number, meetingID: number) {
         return useQuery<BackendResponse<Meeting>>({
-          queryKey: functions.meeting.findQueryKey(projectID, meetingID),
-          queryFn: functions.meeting.findQueryFn(projectID, meetingID),
+          queryKey: functions.meetings.findQueryKey(projectID, meetingID),
+          queryFn: functions.meetings.findQueryFn(projectID, meetingID),
           enabled: !!projectID && !!meetingID,
         })
       },
@@ -985,13 +984,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, meetingUpdateVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, meetingUpdateVars>({
-          mutationKey: functions.meeting.editMutKey(projectID),
-          mutationFn: functions.meeting.editMutFn(projectID),
+          mutationKey: functions.meetings.editMutKey(projectID),
+          mutationFn: functions.meetings.editMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
             ({ meetingID }) =>
-              functions.meeting.findQueryKey(projectID, meetingID),
-            functions.meeting.listQueryKey(projectID),
+              functions.meetings.findQueryKey(projectID, meetingID),
+            functions.meetings.listQueryKey(projectID),
           ),
           onError: toastError("Cannot edit Meeting:"),
         })
@@ -1001,19 +1000,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, meetingDeleteVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, meetingDeleteVars>({
-          mutationKey: functions.meeting.deleteMutKey(projectID),
-          mutationFn: functions.meeting.deleteMutFn(projectID),
+          mutationKey: functions.meetings.deleteMutKey(projectID),
+          mutationFn: functions.meetings.deleteMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.meeting.listQueryKey(projectID),
+            functions.meetings.listQueryKey(projectID),
           ),
           onError: toastError("Cannot delete Meeting:"),
         })
       },
       useList(projectID: number) {
         return useQuery<BackendResponse<Meeting[]>>({
-          queryKey: functions.meeting.listQueryKey(projectID),
-          queryFn: functions.meeting.listQueryFn(projectID),
+          queryKey: functions.meetings.listQueryKey(projectID),
+          queryFn: functions.meetings.listQueryFn(projectID),
           enabled: !!projectID,
         })
       },
@@ -1026,11 +1025,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           meetingCreateVars
         >({
-          mutationKey: functions.meeting.createMutKey(projectID),
-          mutationFn: functions.meeting.createMutFn(projectID),
+          mutationKey: functions.meetings.createMutKey(projectID),
+          mutationFn: functions.meetings.createMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.meeting.listQueryKey(projectID),
+            functions.meetings.listQueryKey(projectID),
           ),
           onError: toastError("Cannot create Meeting:"),
         })
@@ -1043,13 +1042,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, topicDeleteVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, topicDeleteVars>({
-          mutationKey: functions.topicDeleteMutKey(projectID, meetingID),
-          mutationFn: functions.topicDeleteMutFn(projectID, meetingID),
+          mutationKey: functions.topics.deleteMutKey(projectID, meetingID),
+          mutationFn: functions.topics.deleteMutFn(projectID, meetingID),
           onSuccess: invalidateAllCallback(
             callback,
             ({ topicID }) =>
-              functions.topicFindQueryKey(projectID, meetingID, topicID),
-            functions.topicListQueryKey(projectID, meetingID),
+              functions.topics.findQueryKey(projectID, meetingID, topicID),
+            functions.topics.listQueryKey(projectID, meetingID),
           ),
           onError: toastError("Cannot delete Topic:"),
         })
@@ -1061,31 +1060,39 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, topicUpdateVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, topicUpdateVars>({
-          mutationKey: functions.topicUpdateMutKey(
+          mutationKey: functions.topics.updateMutKey(
             projectID,
             meetingID,
             topicID,
           ),
-          mutationFn: functions.topicUpdateMutFn(projectID, meetingID, topicID),
+          mutationFn: functions.topics.updateMutFn(
+            projectID,
+            meetingID,
+            topicID,
+          ),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.topicFindQueryKey(projectID, meetingID, topicID),
-            functions.topicListQueryKey(projectID, meetingID),
+            functions.topics.findQueryKey(projectID, meetingID, topicID),
+            functions.topics.listQueryKey(projectID, meetingID),
           ),
           onError: toastError("Cannot update Topic:"),
         })
       },
       useFind(projectID: number, meetingID: number, topicID: number) {
         return useQuery<BackendResponse<Topic>>({
-          queryKey: functions.topicFindQueryKey(projectID, meetingID, topicID),
-          queryFn: functions.topicFindQueryFn(projectID, meetingID, topicID),
+          queryKey: functions.topics.findQueryKey(
+            projectID,
+            meetingID,
+            topicID,
+          ),
+          queryFn: functions.topics.findQueryFn(projectID, meetingID, topicID),
           enabled: !!projectID && !!topicID,
         })
       },
       useList(projectID: number, meetingID: number) {
         return useQuery<BackendResponse<Topic[]>>({
-          queryKey: functions.topicListQueryKey(projectID, meetingID),
-          queryFn: functions.topicListQueryFn(projectID, meetingID),
+          queryKey: functions.topics.listQueryKey(projectID, meetingID),
+          queryFn: functions.topics.listQueryFn(projectID, meetingID),
           enabled: !!projectID && !!meetingID,
         })
       },
@@ -1095,13 +1102,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, topicAssignUsersVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, topicAssignUsersVars>({
-          mutationKey: functions.topicAssignMutKey(projectID, meetingID),
-          mutationFn: functions.topicAssignMutFn(projectID, meetingID),
+          mutationKey: functions.topics.assignMutKey(projectID, meetingID),
+          mutationFn: functions.topics.assignMutFn(projectID, meetingID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.topicListQueryKey(projectID, meetingID),
+            functions.topics.listQueryKey(projectID, meetingID),
             ({ topicID }) =>
-              functions.topicFindQueryKey(projectID, meetingID, topicID),
+              functions.topics.findQueryKey(projectID, meetingID, topicID),
           ),
           onError: toastError("Cannot assign Users:"),
         })
@@ -1113,11 +1120,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
       ) {
         return useMutation<BackendResponse<Topic>, AxiosError, topicCreateVars>(
           {
-            mutationKey: functions.topicCreateMutKey(projectID, meetingID),
-            mutationFn: functions.topicCreateMutFn(projectID, meetingID),
+            mutationKey: functions.topics.createMutKey(projectID, meetingID),
+            mutationFn: functions.topics.createMutFn(projectID, meetingID),
             onSuccess: invalidateAllCallback(
               callback,
-              functions.topicListQueryKey(projectID, meetingID),
+              functions.topics.listQueryKey(projectID, meetingID),
             ),
             onError: toastError("Cannot create Topic:"),
           },
@@ -1129,13 +1136,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, topicStatusVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, topicStatusVars>({
-          mutationKey: functions.topicStatusMutKey(projectID, meetingID),
-          mutationFn: functions.topicStatusMutFn(projectID, meetingID),
+          mutationKey: functions.topics.statusMutKey(projectID, meetingID),
+          mutationFn: functions.topics.statusMutFn(projectID, meetingID),
           onSuccess: invalidateAllCallback(
             callback,
             ({ topicID }) =>
-              functions.topicFindQueryKey(projectID, meetingID, topicID),
-            functions.topicListQueryKey(projectID, meetingID),
+              functions.topics.findQueryKey(projectID, meetingID, topicID),
+            functions.topics.listQueryKey(projectID, meetingID),
           ),
           onError: toastError("Cannot change Topic status:"),
         })
@@ -1144,12 +1151,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
     actions: {
       useLinkUser(projectID: number) {
         return useMutation<BackendResponse, AxiosError, actionLinkUserVars>({
-          mutationKey: functions.actionLinkUserMutKey(projectID),
-          mutationFn: functions.actionLinkUserMutFn(projectID),
+          mutationKey: functions.actions.linkUserMutKey(projectID),
+          mutationFn: functions.actions.linkUserMutFn(projectID),
           onSuccess: invalidateAllCallback(
             undefined,
-            ({ actionID }) => functions.actionFindQueryKey(projectID, actionID),
-            functions.actionListForProjectQueryKey!(projectID),
+            ({ actionID }) =>
+              functions.actions.findQueryKey(projectID, actionID),
+            functions.actions.listForProjectQueryKey!(projectID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} User:`,
@@ -1158,12 +1166,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useLinkTag(projectID: number) {
         return useMutation<BackendResponse, AxiosError, actionLinkTagVars>({
-          mutationKey: functions.actionLinkTagMutKey(projectID),
-          mutationFn: functions.actionLinkTagMutFn(projectID),
+          mutationKey: functions.actions.linkTagMutKey(projectID),
+          mutationFn: functions.actions.linkTagMutFn(projectID),
           onSuccess: invalidateAllCallback(
             undefined,
-            ({ actionID }) => functions.actionFindQueryKey(projectID, actionID),
-            functions.actionListForProjectQueryKey!(projectID),
+            ({ actionID }) =>
+              functions.actions.findQueryKey(projectID, actionID),
+            functions.actions.listForProjectQueryKey!(projectID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,
@@ -1172,13 +1181,14 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useLinkTopic(projectID: number) {
         return useMutation<BackendResponse, AxiosError, actionLinkVars>({
-          mutationKey: functions.actionLinkTopicMutKey(projectID),
-          mutationFn: functions.actionLinkTopicMutFn(projectID),
+          mutationKey: functions.actions.linkTopicMutKey(projectID),
+          mutationFn: functions.actions.linkTopicMutFn(projectID),
           onSuccess: invalidateAllCallback(
             undefined,
-            ({ actionID }) => functions.actionFindQueryKey(projectID, actionID),
+            ({ actionID }) =>
+              functions.actions.findQueryKey(projectID, actionID),
             ({ meetingID, topicID }) =>
-              functions.topicFindQueryKey(projectID, meetingID, topicID),
+              functions.topics.findQueryKey(projectID, meetingID, topicID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} Action:`,
@@ -1187,19 +1197,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useListForTopic(projectID: number, meetingID: number, topicID: number) {
         return useQuery<BackendResponse<Action[]>>({
-          queryKey: functions.actionListForTopicQueryKey(
+          queryKey: functions.actions.listForTopicQueryKey(
             projectID,
             meetingID,
             topicID,
           ),
-          queryFn: functions.actionListForTopicQueryFn(projectID, topicID),
+          queryFn: functions.actions.listForTopicQueryFn(projectID, topicID),
           enabled: !!projectID && !!topicID,
         })
       },
       useListForProject(projectID: number) {
         return useQuery<BackendResponse<Action[]>>({
-          queryKey: functions.actionListForProjectQueryKey(projectID),
-          queryFn: functions.actionListForProjectQueryFn(projectID),
+          queryKey: functions.actions.listForProjectQueryKey(projectID),
+          queryFn: functions.actions.listForProjectQueryFn(projectID),
           enabled: !!projectID,
         })
       },
@@ -1208,12 +1218,13 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, actionEditVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, actionEditVars>({
-          mutationKey: functions.actionEditMutKey(projectID),
-          mutationFn: functions.actionEditMutFn(projectID),
+          mutationKey: functions.actions.editMutKey(projectID),
+          mutationFn: functions.actions.editMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            ({ actionID }) => functions.actionFindQueryKey(projectID, actionID),
-            functions.actionListForProjectQueryKey(projectID),
+            ({ actionID }) =>
+              functions.actions.findQueryKey(projectID, actionID),
+            functions.actions.listForProjectQueryKey(projectID),
           ),
           onError: toastError("Cannot edit Action:"),
         })
@@ -1227,19 +1238,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           actionCreateVars
         >({
-          mutationKey: functions.actionCreateMutKey(projectID),
-          mutationFn: functions.actionCreateMutFn(projectID),
+          mutationKey: functions.actions.createMutKey(projectID),
+          mutationFn: functions.actions.createMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.actionListForProjectQueryKey(projectID),
+            functions.actions.listForProjectQueryKey(projectID),
           ),
           onError: toastError("Cannot create Action:"),
         })
       },
       useFind(projectID: number, actionID: number) {
         return useQuery<BackendResponse<Action>>({
-          queryKey: functions.actionFindQueryKey(projectID, actionID),
-          queryFn: functions.actionFindQueryFn(projectID, actionID),
+          queryKey: functions.actions.findQueryKey(projectID, actionID),
+          queryFn: functions.actions.findQueryFn(projectID, actionID),
           enabled: !!projectID && !!actionID,
         })
       },
@@ -1251,12 +1262,12 @@ export const functions = (axios: Axios, client: QueryClient) => {
         commentEntityID: number,
       ) {
         return useQuery<BackendResponse<Comment[]>>({
-          queryKey: functions.commentListQueryKey(
+          queryKey: functions.comments.listQueryKey(
             projectID,
             commentType,
             commentEntityID,
           ),
-          queryFn: functions.commentListQueryFn(
+          queryFn: functions.comments.listQueryFn(
             projectID,
             commentType,
             commentEntityID,
@@ -1274,12 +1285,12 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           commentMarkSolutionVars
         >({
-          mutationKey: functions.commentMarkSolutionMutKey(topicID),
-          mutationFn: functions.commentMarkSolutionMutFn(projectID),
+          mutationKey: functions.comments.markSolutionMutKey(topicID),
+          mutationFn: functions.comments.markSolutionMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.commentListQueryKey(projectID, "topic", topicID),
-            functions.topicFindQueryKey(projectID, meetingID, topicID),
+            functions.comments.listQueryKey(projectID, "topic", topicID),
+            functions.topics.findQueryKey(projectID, meetingID, topicID),
           ),
           onError: toastError("Cannot mark Solution:"),
         })
@@ -1295,19 +1306,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           AxiosError,
           sendCommentVars
         >({
-          mutationKey: functions.commentSendMutKey(
+          mutationKey: functions.comments.sendMutKey(
             projectID,
             commentType,
             commentEntityID,
           ),
-          mutationFn: functions.commentSendMutFn(
+          mutationFn: functions.comments.sendMutFn(
             projectID,
             commentType,
             commentEntityID,
           ),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.commentListQueryKey(
+            functions.comments.listQueryKey(
               projectID,
               commentType,
               commentEntityID,
@@ -1323,11 +1334,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, commentDeleteVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, commentDeleteVars>({
-          mutationKey: functions.commentDeleteMutKey(),
-          mutationFn: functions.commentDeleteMutFn(projectID),
+          mutationKey: functions.comments.deleteMutKey(),
+          mutationFn: functions.comments.deleteMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.commentListQueryKey(
+            functions.comments.listQueryKey(
               projectID,
               commentType,
               commentEntityID,
@@ -1343,11 +1354,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, commentEditVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, commentEditVars>({
-          mutationKey: functions.commentEditMutKey(),
-          mutationFn: functions.commentEditMutFn(projectID),
+          mutationKey: functions.comments.editMutKey(),
+          mutationFn: functions.comments.editMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.commentListQueryKey(
+            functions.comments.listQueryKey(
               projectID,
               commentType,
               commentEntityID,
@@ -1360,16 +1371,16 @@ export const functions = (axios: Axios, client: QueryClient) => {
     users: {
       useList(query: string, page: number, keepPreviousData: boolean = false) {
         return useQuery<BackendResponse<User[]>, AxiosError>({
-          queryKey: functions.userListQueryKey(query, page),
-          queryFn: functions.userListQueryFn(query, page),
+          queryKey: functions.users.listQueryKey(query, page),
+          queryFn: functions.users.listQueryFn(query, page),
           keepPreviousData,
         })
       },
       useResolve(userID: string, callback?: (name: string) => void) {
         return useQuery<BackendResponse<string>, AxiosError>({
           enabled: !!userID,
-          queryKey: functions.userResolveQueryKey(userID),
-          queryFn: functions.userResolveQueryFn(userID),
+          queryKey: functions.users.resolveQueryKey(userID),
+          queryFn: functions.users.resolveQueryFn(userID),
           onSuccess(data) {
             callback?.(data.data)
           },
@@ -1380,11 +1391,11 @@ export const functions = (axios: Axios, client: QueryClient) => {
         callback: SuccessCallback<never, userChangeNameVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, userChangeNameVars>({
-          mutationKey: functions.userChangeNameMutKey(),
-          mutationFn: functions.userChangeNameMutFn(),
+          mutationKey: functions.users.changeNameMutKey(),
+          mutationFn: functions.users.changeNameMutFn(),
           onSuccess: invalidateAllCallback(
             callback,
-            functions.userResolveQueryKey(userID),
+            functions.users.resolveQueryKey(userID),
           ),
           onError: toastError("Cannot change User name:"),
         })
