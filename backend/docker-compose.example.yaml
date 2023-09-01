@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  perplex-db:
+    image: postgres
+    restart: on-failure
+    container_name: perplex-db
+    environment:
+      POSTGRES_USER: perplex-user
+      POSTGRES_PASSWORD: changeme123
+      POSTGRES_DB: perplex-db
+    volumes:
+      - perplex-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perplex-user -d perplex-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  perplex-api:
+    container_name: perplex-api-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      perplex-db:
+        condition: service_healthy
+    environment:
+      POSTGRES_DSN: "host=perplex-db user=perplex-user password=changeme123 dbname=perplex-db port=5432 sslmode=disable TimeZone=Europe/Berlin"
+    ports:
+      - "8080:8080"
+
+volumes:
+  perplex-db-data:
