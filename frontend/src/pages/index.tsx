@@ -231,7 +231,7 @@ function DashboardMeeting() {
     )
   }
   const upcomingMeetings = upcomingMeetingsQuery.data.data
-  if (upcomingMeetings.length === 0) {
+  if (!upcomingMeetings?.length) {
     return <>No upcoming meetings</>
   }
   return (
