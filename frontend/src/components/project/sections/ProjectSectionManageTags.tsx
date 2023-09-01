@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { BsTag } from "react-icons/bs"
 
-import { BackendResponse, Tag } from "@/api/types"
 import ProjectModalManageTags from "@/components/project/modals/ProjectModalManageTags"
 import Button from "@/components/ui/Button"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
@@ -19,11 +17,8 @@ export default function ProjectSectionManageTags({
 }) {
   const [showTagControl, setShowTagControl] = useState(false)
 
-  const { axios } = useAuth()
-  const projectTagsQuery = useQuery<BackendResponse<Tag[]>>({
-    queryKey: [{ projectID }, "tags"],
-    queryFn: async () => (await axios!.get(`/project/${projectID}/tag`)).data,
-  })
+  const { useTagsListQuery } = useAuth()
+  const projectTagsQuery = useTagsListQuery!(projectID)
 
   return (
     <>

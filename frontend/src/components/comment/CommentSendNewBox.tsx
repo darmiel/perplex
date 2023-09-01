@@ -3,7 +3,7 @@ import { AxiosError } from "axios"
 import { useState } from "react"
 import { toast } from "react-toastify"
 
-import { sendCommentMutVars } from "@/api/functions"
+import { sendCommentVars } from "@/api/functions"
 import { BackendResponse, CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
@@ -33,7 +33,7 @@ export default function CommentSendNewBox({
   const sendCommentMutation = useMutation<
     BackendResponse<never>,
     AxiosError,
-    sendCommentMutVars
+    sendCommentVars
   >({
     mutationKey: commentSendMutKey!(projectID, commentType, commentEntityID),
     mutationFn: commentSendMutFn!(projectID, commentType, commentEntityID),

@@ -1,11 +1,8 @@
-import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsArrowLeft, BsListTask } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
-import { Action, BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionListItem from "@/components/action/ActionListItem"
 import Button from "@/components/ui/Button"
@@ -28,22 +25,18 @@ export default function ActionList({
   className?: string
 }) {
   const [showCreateAction, setShowCreateAction] = useState(false)
-  const { axios } = useAuth()
 
-  const router = useRouter()
+  const { useActionListForProjectQuery } = useAuth()
+  const { data, error, isLoading, isError } =
+    useActionListForProjectQuery!(projectID)
 
-  const listActionQuery = useQuery<BackendResponse<Action[]>>({
-    queryKey: [{ projectID: String(projectID) }, "actions"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/action`)).data,
-  })
-  if (listActionQuery.isLoading) {
+  if (isLoading) {
     return <BarLoader color="white" />
   }
-  if (listActionQuery.isError) {
+  if (isError) {
     return (
       <div>
-        Error: <pre>{extractErrorMessage(listActionQuery.error)}</pre>
+        Error: <pre>{extractErrorMessage(error)}</pre>
       </div>
     )
   }
@@ -69,7 +62,7 @@ export default function ActionList({
       <Hr className="mt-4 mb-6 border-gray-700" />
 
       <div className="flex flex-col space-y-4">
-        {listActionQuery.data.data.map((action) => (
+        {data.data.map((action) => (
           <Link
             href={`/project/${projectID}/action/${action.ID}`}
             key={action.ID}

@@ -1,11 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { BsPeople, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
-import { toast } from "react-toastify"
 import Popup from "reactjs-popup"
 
-import { Action, BackendResponse, User } from "@/api/types"
+import { Action } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import UserAvatar from "@/components/user/UserAvatar"
@@ -14,47 +11,13 @@ import { useAuth } from "@/contexts/AuthContext"
 export default function ActionSectionAssigned({ action }: { action: Action }) {
   const {
     user: loggedUser,
-    axios,
-    projectUsersQueryFn,
-    projectUsersQueryKey,
+    useProjectUsersQuery,
+    useActionLinkUserMut,
   } = useAuth()
-  const queryClient = useQueryClient()
 
   // get project information to check which users are already in the project
-  const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(action.project_id),
-    queryFn: projectUsersQueryFn!(action.project_id),
-  })
-
-  const assignMut = useMutation<
-    BackendResponse<never>,
-    AxiosError,
-    { assign: boolean; userID: string }
-  >({
-    mutationKey: [{ actionID: action.ID }, "assign-user-mut"],
-    mutationFn: async ({ assign, userID }) =>
-      (
-        await axios![assign ? "post" : "delete"](
-          `/project/${action.project_id}/action/${action.ID}/user/${userID}`,
-        )
-      ).data,
-    onSuccess: (_, { assign }) => {
-      queryClient.invalidateQueries([{ actionID: String(action.ID) }])
-      queryClient.invalidateQueries([
-        { projectID: String(action.project_id) },
-        "actions",
-      ])
-    },
-    onError(err, { assign }) {
-      toast(
-        <>
-          <strong>Failed to {assign ? "assign" : "unassign"} User</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  const projectUsersQuery = useProjectUsersQuery!(action.project_id)
+  const assignMut = useActionLinkUserMut!(action.project_id)
 
   return (
     <div className="flex flex-col space-y-2">
@@ -74,7 +37,11 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
             className="cursor-pointer"
             onClick={() => {
               !assignMut.isLoading &&
-                assignMut.mutate({ assign: false, userID: user.id })
+                assignMut.mutate({
+                  link: false,
+                  userID: user.id,
+                  actionID: action.ID,
+                })
             }}
           >
             {assignMut.isLoading && assignMut.variables?.userID === user.id ? (
@@ -113,7 +80,11 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
                 key={user.id}
                 className="w-full"
                 onClick={() =>
-                  assignMut.mutate({ assign: true, userID: user.id })
+                  assignMut.mutate({
+                    link: true,
+                    userID: user.id,
+                    actionID: action.ID,
+                  })
                 }
                 disabled={
                   assignMut.isLoading ||

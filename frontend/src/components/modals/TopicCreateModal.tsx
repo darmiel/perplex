@@ -99,14 +99,14 @@ export default function CreateTopic({
   const [topicAssigned, setTopicAssigned] = useState<string[]>([])
 
   const {
-    createTopicMutFn,
-    createTopicMutKey,
-    assignTopicMutFn,
-    assignTopicMutKey,
+    topicCreateMutFn: createTopicMutFn,
+    topicCreateMutKey: createTopicMutKey,
+    topicAssignMutFn: assignTopicMutFn,
+    topicAssignMutKey: assignTopicMutKey,
     projectUsersQueryFn: projectInfoQueryFn,
     projectUsersQueryKey: projectInfoQueryKey,
     topicListQueryKey,
-    topicInfoQueryKey,
+    topicFindQueryKey: topicInfoQueryKey,
   } = useAuth()
   const queryClient = useQueryClient()
 

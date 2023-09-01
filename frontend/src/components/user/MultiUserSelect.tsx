@@ -31,8 +31,8 @@ export default function MultiUserSelect({
   const {
     projectUsersQueryFn: projectInfoQueryFn,
     projectUsersQueryKey: projectInfoQueryKey,
-    assignTopicMutFn,
-    assignTopicMutKey,
+    topicAssignMutFn: assignTopicMutFn,
+    topicAssignMutKey: assignTopicMutKey,
   } = useAuth()
   const queryClient = useQueryClient()
   const projectInfoQuery = useQuery<BackendResponse<User[]>>({

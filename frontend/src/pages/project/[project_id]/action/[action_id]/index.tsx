@@ -1,8 +1,5 @@
-import { useQuery } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useRouter } from "next/router"
 
-import { Action, BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
 import ActionOverview from "@/components/action/ActionOverview"
@@ -12,15 +9,11 @@ export default function ActionPage() {
   const router = useRouter()
   const { project_id: projectID, action_id: actionID } = router.query
 
-  const { axios } = useAuth()
-
-  const findActionQuery = useQuery<BackendResponse<Action>, AxiosError>({
-    queryKey: [{ actionID }],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/action/${actionID}`)).data,
-    enabled: !!projectID && !!actionID,
-  })
-
+  const { useActionFindQuery } = useAuth()
+  const findActionQuery = useActionFindQuery!(
+    Number(projectID),
+    Number(actionID),
+  )
   if (
     !projectID ||
     !actionID ||

@@ -1,13 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
-import { toast } from "react-toastify"
 
 import { projectUserAddVars } from "@/api/functions"
 import { BackendResponse, User } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
-import useDebounce from "@/components/Debounce"
+import { toastError } from "@/api/util"
+import { useDebounceCallback } from "@/components/Debounce"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
@@ -34,7 +33,6 @@ export default function ProjectModalManageUsers({
     projectUserAddMutFn,
     projectUserAddMutKey,
   } = useAuth()
-  const debounce = useDebounce(userNameSearch, 100)
   const queryClient = useQueryClient()
 
   const listUsersQuery = useQuery<BackendResponse<User[]>, AxiosError>({
@@ -59,26 +57,17 @@ export default function ProjectModalManageUsers({
     onSuccess() {
       queryClient.invalidateQueries(projectUsersQueryKey!(projectID))
     },
-    onError: (error, { add }) => {
-      toast(
-        <>
-          <strong>Cannot {add ? "add" : "remove"} user from project</strong>
-          <pre>{extractErrorMessage(error)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+    onError: toastError(
+      ({ add }) => `Cannot ${add ? "add" : "remove"} User from Project`,
+    ),
   })
 
-  useEffect(() => {
+  // user search
+  useDebounceCallback(userNameSearch, 100, (userNameSearch) => {
     setPage(1)
     setQuery(userNameSearch)
     queryClient.invalidateQueries(["users", page])
-  }, [debounce])
-
-  function removeUser(userID: string) {}
-
-  function addUser(userID: string) {}
+  })
 
   return (
     <ModalContainer

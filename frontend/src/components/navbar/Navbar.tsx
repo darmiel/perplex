@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { BsGithub } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 
+import PerplexLogo from "@/../public/perplex.svg"
 import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import UserAvatar from "@/components/user/UserAvatar"
@@ -29,14 +31,9 @@ export default function Navbar() {
       <div className="h-full px-3 py-4 overflow-y-auto bg-black flex flex-col justify-between">
         <div>
           <div className="flex justify-center w-full mt-4">
-            <h1
-              style={{
-                writingMode: "vertical-rl",
-              }}
-              className="font-bold text-3xl  text-primary-600 -rotate-180"
-            >
-              <Link href="/">Perplex</Link>
-            </h1>
+            <Link href="/">
+              <Image src={PerplexLogo} alt="Perplex Logo" />
+            </Link>
           </div>
 
           <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">

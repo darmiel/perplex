@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query"
 import axiosDefault, { Axios } from "axios"
 import { GithubAuthProvider, signInWithPopup, User } from "firebase/auth"
 import { createContext, useContext, useEffect, useState } from "react"
@@ -18,6 +19,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [value, setValue] = useState<ContextValue>()
+  const queryClient = useQueryClient()
 
   const signin = () => {
     const provider = new GithubAuthProvider()
@@ -37,7 +39,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         setValue({
           user,
           axios,
-          ...functions(axios),
+          ...functions(axios, queryClient),
         })
       } else {
         setValue(undefined)

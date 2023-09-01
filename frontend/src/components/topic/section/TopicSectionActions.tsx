@@ -1,10 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import Link from "next/link"
-import { toast } from "react-toastify"
 
-import { Action, BackendResponse, Topic } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
+import { Action, Topic } from "@/api/types"
 import Hr from "@/components/ui/Hr"
 import Removable from "@/components/ui/Removable"
 import { PriorityTag, TagContainer } from "@/components/ui/tag/Tag"
@@ -21,34 +17,8 @@ export default function TopicSectionActions({
   topic: Topic
   actions: Action[]
 }) {
-  const { axios } = useAuth()
-  const queryClient = useQueryClient()
-
-  const unlinkActionMut = useMutation<
-    BackendResponse,
-    AxiosError,
-    { link: boolean; actionID: number }
-  >({
-    mutationKey: [{ topicID: String(topic.ID) }, "link-action-mut"],
-    mutationFn: async ({ link, actionID }) =>
-      (
-        await axios![link ? "post" : "delete"](
-          `/project/${projectID}/action/${actionID}/topic/${topic.ID}`,
-        )
-      ).data,
-    onSuccess: (_, { actionID }) => {
-      queryClient.invalidateQueries([{ actionID: String(actionID) }])
-    },
-    onError: (error, { link }) => {
-      toast(
-        <>
-          <strong>Cannot {link ? "link" : "unlink"} Action:</strong>
-          <pre>{extractErrorMessage(error)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  const { useActionLinkTopicMut } = useAuth()
+  const unlinkActionMut = useActionLinkTopicMut!(projectID)
 
   return (
     <>
@@ -64,6 +34,8 @@ export default function TopicSectionActions({
                   unlinkActionMut.mutate({
                     link: false,
                     actionID: action.ID,
+                    meetingID: topic.meeting_id,
+                    topicID: topic.ID,
                   })
                 }
                 loading={unlinkActionMut.isLoading}

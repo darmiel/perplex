@@ -1,10 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Tag } from "@/api/types"
+import { Tag } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
@@ -15,7 +13,7 @@ export default function ProjectModalManageTags({
   projectID,
   onClose,
 }: {
-  projectID: string | number
+  projectID: number
   onClose?: () => void
 }) {
   const [tagNameSearch, setTagNameSearch] = useState("")
@@ -23,97 +21,35 @@ export default function ProjectModalManageTags({
   // actions
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const [editMode, setEditMode] = useState<number | null>(null)
-  const [editName, setEditName] = useState("")
+  const [editTitle, setEditTitle] = useState("")
   const [editColor, setEditColor] = useState("")
 
   const [createName, setCreateName] = useState("")
   const [createColor, setCreateColor] = useState("")
 
-  const { axios } = useAuth()
-  const queryClient = useQueryClient()
+  const { useTagsListQuery, useTagCreateMut, useTagEditMut, useTagDeleteMut } =
+    useAuth()
 
-  const projectTagsQuery = useQuery<BackendResponse<Tag[]>>({
-    queryKey: [{ projectID }, "tags"],
-    queryFn: async () => (await axios!.get(`/project/${projectID}/tag`)).data,
+  const projectTagsQuery = useTagsListQuery!(projectID)
+
+  const removeTagMut = useTagDeleteMut!(projectID, (_, { tagID }) => {
+    toast(`Tag #${tagID} removed from Project #${projectID}`, {
+      type: "success",
+    })
+    setConfirmDelete(null)
   })
 
-  const removeTagMut = useMutation<BackendResponse, AxiosError, number>({
-    mutationFn: async (tagID) =>
-      (await axios!.delete(`/project/${projectID}/tag/${tagID}`)).data,
-    onSuccess(_, tagID) {
-      toast(`Tag #${tagID} removed from Project #${projectID}`, {
-        type: "success",
-      })
-      queryClient.invalidateQueries([{ projectID }, "tags"])
-      setConfirmDelete(null)
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to remove Tag from Project</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+  const editTagMut = useTagEditMut!(projectID, (_, { tagID }) => {
+    toast(`Tag #${tagID} edited`, {
+      type: "success",
+    })
+    setEditMode(null)
   })
 
-  const editTagMut = useMutation<BackendResponse, AxiosError, number>({
-    mutationFn: async (tagID) =>
-      (
-        await axios!.put(`/project/${projectID}/tag/${tagID}`, {
-          title: editName,
-          color: editColor,
-        })
-      ).data,
-    onSuccess(_, tagID) {
-      toast(`Tag #${tagID} edited`, {
-        type: "success",
-      })
-      queryClient.invalidateQueries([{ projectID }, "tags"])
-      setEditMode(null)
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to edit Tag</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
-
-  const createTagMut = useMutation<BackendResponse<Tag>, AxiosError>({
-    mutationFn: async () =>
-      (
-        await axios!.post(`/project/${projectID}/tag`, {
-          title: createName,
-          color: createColor,
-        })
-      ).data,
-    onSuccess(data) {
-      toast(
-        <>
-          Tag <strong>{createName}</strong> (#{data.data.ID}) created
-        </>,
-        {
-          type: "success",
-        },
-      )
-      queryClient.invalidateQueries([{ projectID }, "tags"])
-      setCreateName("")
-      setCreateColor("")
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to create Tag</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+  const createTagMut = useTagCreateMut!(projectID, ({ data }) => {
+    toast(<>Tag (#{data.ID}) created</>, {
+      type: "success",
+    })
   })
 
   if (projectTagsQuery.isLoading) {
@@ -134,18 +70,24 @@ export default function ProjectModalManageTags({
       setConfirmDelete(tag.ID)
       return
     }
-    removeTagMut.mutate(tag.ID)
+    removeTagMut.mutate({
+      tagID: tag.ID,
+    })
   }
 
   function editTag(tag: Tag) {
     setConfirmDelete(null)
     if (editMode !== tag.ID) {
-      setEditName(tag.title)
+      setEditTitle(tag.title)
       setEditColor(tag.color)
       setEditMode(tag.ID)
       return
     }
-    editTagMut.mutate(tag.ID)
+    editTagMut.mutate({
+      tagID: tag.ID,
+      editTitle,
+      editColor,
+    })
   }
 
   return (
@@ -193,8 +135,8 @@ export default function ProjectModalManageTags({
                       type="text"
                       className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
                       placeholder="My awesome Tag"
-                      onChange={(event) => setEditName(event.target.value)}
-                      value={editName}
+                      onChange={(event) => setEditTitle(event.target.value)}
+                      value={editTitle}
                     />
                     <input
                       type="text"
@@ -269,7 +211,12 @@ export default function ProjectModalManageTags({
           className="w-1/2 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
         />
         <Button
-          onClick={() => createTagMut.mutate()}
+          onClick={() =>
+            createTagMut.mutate({
+              title: createName,
+              color: createColor,
+            })
+          }
           isLoading={createTagMut.isLoading}
         >
           Create

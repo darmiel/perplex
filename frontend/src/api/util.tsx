@@ -1,4 +1,5 @@
 import { AxiosError } from "axios"
+import { toast } from "react-toastify"
 
 import { BackendResponse } from "@/api/types"
 
@@ -29,4 +30,21 @@ export function extractErrorMessage(error: unknown): string {
     }
   }
   return JSON.stringify(error)
+}
+
+export function toastError<Variables>(
+  message: string | ((variables: Variables) => string),
+) {
+  return (err: AxiosError, variables: Variables) => {
+    const title = typeof message === "string" ? message : message(variables)
+    const body = extractErrorMessage(err)
+
+    toast(
+      <>
+        <strong>{title}</strong>
+        <pre>{body}</pre>
+      </>,
+      { type: "error" },
+    )
+  }
 }

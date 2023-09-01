@@ -7,9 +7,11 @@ import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 export default function TopicSectionCreateAction({
   projectID,
+  meetingID,
   topicID,
 }: {
   projectID: number
+  meetingID: number
   topicID: number
 }) {
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -37,6 +39,7 @@ export default function TopicSectionCreateAction({
         <ActionCreateModal
           onClose={() => setShowCreateModal(false)}
           projectID={projectID}
+          meetingID={meetingID}
           topicID={topicID}
         />
       </ModalPopup>

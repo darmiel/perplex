@@ -1,5 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
+import { useQuery } from "@tanstack/react-query"
 import Head from "next/head"
 import Link from "next/link"
 import { useState } from "react"
@@ -16,7 +15,7 @@ import {
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { Action, BackendResponse, Comment, Topic } from "@/api/types"
+import { BackendResponse, Comment, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import {
@@ -146,126 +145,67 @@ export default function TopicOverview({
   const [wasDeleted, setWasDeleted] = useState(false)
 
   const {
-    topicInfoQueryFn,
-    topicInfoQueryKey,
-    topicUpdateMutFn,
-    topicUpdateMutKey,
-    topicListQueryKey,
-    topicListQueryFn,
-    commentMarkSolutionMutFn,
-    commentMarkSolutionMutKey,
-    commentListQueryKey,
-    axios,
+    useActionListForTopicQuery,
+    useTopicFindQuery,
+    useTopicUpdateMut,
+    useTopicDeleteMut,
+    useTopicListQuery,
+    useCommentMarkSolutionMut,
   } = useAuth()
-  const queryClient = useQueryClient()
 
-  const topicInfoQuery = useQuery<BackendResponse<Topic>>({
-    queryKey: topicInfoQueryKey!(projectID, meetingID, topicID),
-    queryFn: topicInfoQueryFn!(projectID, meetingID, topicID),
-  })
+  const findTopicQuery = useTopicFindQuery!(projectID, meetingID, topicID)
 
-  const listActionsQuery = useQuery<BackendResponse<Action[]>, AxiosError>({
-    queryKey: [{ topicID }, "actions"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/action/topic/${topicID}`)).data,
-  })
+  const listTopicsForActionsQuery = useActionListForTopicQuery!(
+    projectID,
+    meetingID,
+    topicID,
+  )
 
-  const topicUpdateMutation = useMutation<BackendResponse<never>, AxiosError>({
-    mutationFn: topicUpdateMutFn!(
-      projectID,
-      meetingID,
-      topicID,
-      editTitle,
-      editDescription,
-      editForceSolution,
-    ),
-    mutationKey: topicUpdateMutKey!(projectID, meetingID, topicID),
-    onError: (err) => {
-      toast(
-        <>
-          <strong>Failed to update topic</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-    onSuccess: () => {
+  const topicUpdateMutation = useTopicUpdateMut!(
+    projectID,
+    meetingID,
+    topicID,
+    () => {
       toast(`Topic #${topicID} updated`, { type: "success" })
-      queryClient.invalidateQueries(
-        topicInfoQueryKey!(projectID, meetingID, topicID),
-      )
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
       setIsEdit(false)
     },
-  })
+  )
 
-  const topicDeleteMutation = useMutation<BackendResponse<never>, AxiosError>({
-    mutationFn: async () =>
-      (
-        await axios!.delete(
-          `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
-        )
-      ).data,
-    onError: (err) => {
-      toast(
-        <>
-          <strong>Failed to delete Topic</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-    onSuccess: () => {
-      toast(`Topic #${meetingID} deleted`, { type: "success" })
-      queryClient.invalidateQueries(
-        topicInfoQueryKey!(projectID, meetingID, topicID),
-      )
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
+  const topicDeleteMutation = useTopicDeleteMut!(
+    projectID,
+    meetingID,
+    (_, { topicID }) => {
+      toast(`Topic #${topicID} deleted`, { type: "success" })
       setConfirmDelete(false)
       setWasDeleted(true)
     },
-  })
+  )
 
-  const topicListQuery = useQuery<BackendResponse<Topic[]>>({
-    queryKey: topicListQueryKey!(projectID, meetingID),
-    queryFn: topicListQueryFn!(projectID, meetingID),
-  })
+  const topicListQuery = useTopicListQuery!(projectID, meetingID)
 
-  const markSolutionMutation = useMutation<
-    BackendResponse,
-    AxiosError,
-    { mark: boolean; commentID: number }
-  >({
-    mutationKey: commentMarkSolutionMutKey!(topicID),
-    mutationFn: commentMarkSolutionMutFn!(projectID),
-    onSuccess(_, { commentID }) {
-      toast(`Comment #${commentID} marked as solution!`, { type: "success" })
-      queryClient.invalidateQueries(
-        commentListQueryKey!(projectID, "topic", topicID),
+  const markSolutionMutation = useCommentMarkSolutionMut!(
+    projectID,
+    topicID,
+    (_, { mark, commentID }) => {
+      toast(
+        `Comment #${commentID} ${mark ? "marked" : "unmarked"} as solution!`,
+        { type: "success" },
       )
-      queryClient.invalidateQueries(
-        topicInfoQueryKey!(projectID, meetingID, topicID),
-      )
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
     },
-  })
+  )
 
-  function onSolutionClick(mark: boolean, comment: Comment) {
-    markSolutionMutation.mutate({ mark, commentID: comment.ID })
-  }
-
-  if (topicInfoQuery.isLoading) {
+  if (findTopicQuery.isLoading) {
     return <div>Loading...</div>
   }
-  if (topicInfoQuery.isError) {
+  if (findTopicQuery.isError) {
     return (
       <div>
-        Error: <pre>{extractErrorMessage(topicInfoQuery.error)}</pre>
+        Error: <pre>{extractErrorMessage(findTopicQuery.error)}</pre>
       </div>
     )
   }
 
-  const topic = topicInfoQuery.data.data
+  const topic = findTopicQuery.data.data
 
   const topicInfoProps = {
     projectID,
@@ -276,7 +216,9 @@ export default function TopicOverview({
   const tag = topic.closed_at.Valid ? tags.close : tags.open
   const dateCreated = new Date(topic.CreatedAt)
 
-  function enterEdit() {
+  // event handlers
+
+  function onEditClick() {
     setEditTitle(topic.title)
     setEditDescription(topic.description)
     setEditForceSolution(topic.force_solution || false)
@@ -284,15 +226,25 @@ export default function TopicOverview({
     setIsEdit(true)
   }
 
-  function deleteTopic() {
+  function onDeleteTopicClick() {
     if (!confirmDelete) {
       setConfirmDelete(true)
       return
     }
     setConfirmDelete(false)
-    topicDeleteMutation.mutate()
+    topicDeleteMutation.mutate({
+      topicID: topicID,
+    })
   }
 
+  function onSolutionClick(mark: boolean, comment: Comment) {
+    markSolutionMutation.mutate({
+      mark,
+      commentID: comment.ID,
+    })
+  }
+
+  // next / previous topic buttons
   let nextTopicURL: string | undefined
   let prevTopicURL: string | undefined
 
@@ -425,20 +377,20 @@ export default function TopicOverview({
             )}
           </div>
 
-          {!!listActionsQuery.data?.data.length && (
+          {!!listTopicsForActionsQuery.data?.data.length && (
             <>
               <Hr className="my-4" />
 
               <div className="mb-2">
                 <BadgeHeader
                   title="Linked Actions"
-                  badge={listActionsQuery.data?.data.length || 0}
+                  badge={listTopicsForActionsQuery.data?.data.length || 0}
                 />
               </div>
 
               <TopicSectionActions
                 key={topic.ID}
-                actions={listActionsQuery.data?.data ?? []}
+                actions={listTopicsForActionsQuery.data?.data ?? []}
                 projectID={projectID}
                 topic={topic}
               />
@@ -463,7 +415,7 @@ export default function TopicOverview({
                 <Button
                   className="w-full text-sm"
                   icon={<BsPen />}
-                  onClick={() => enterEdit()}
+                  onClick={() => onEditClick()}
                 >
                   Edit
                 </Button>
@@ -474,7 +426,7 @@ export default function TopicOverview({
                       : "w-full text-red-500"
                   }
                   icon={<BsTrash />}
-                  onClick={deleteTopic}
+                  onClick={onDeleteTopicClick}
                   isLoading={topicDeleteMutation.isLoading}
                 >
                   {confirmDelete ? "Confirm" : "Delete"}
@@ -485,7 +437,13 @@ export default function TopicOverview({
                 <Button
                   className="w-1/2 text-sm"
                   style="primary"
-                  onClick={() => topicUpdateMutation.mutate()}
+                  onClick={() =>
+                    topicUpdateMutation.mutate({
+                      title: editTitle,
+                      description: editDescription,
+                      force_solution: editForceSolution,
+                    })
+                  }
                   isLoading={topicUpdateMutation.isLoading}
                 >
                   Save
@@ -511,9 +469,13 @@ export default function TopicOverview({
           </OverviewSection>
           <OverviewSection
             name="Actions"
-            badge={listActionsQuery.data?.data.length}
+            badge={listTopicsForActionsQuery.data?.data.length}
           >
-            <TopicSectionCreateAction projectID={projectID} topicID={topicID} />
+            <TopicSectionCreateAction
+              projectID={projectID}
+              meetingID={meetingID}
+              topicID={topicID}
+            />
           </OverviewSection>
         </OverviewSide>
       </OverviewContainer>

@@ -1,5 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import Head from "next/head"
 import Link from "next/link"
 import { forwardRef, useState } from "react"
@@ -8,7 +6,6 @@ import { BsPen, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
@@ -38,72 +35,27 @@ export default function MeetingOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
-  const {
-    meetingListQueryKey,
-    meetingInfoQueryFn,
-    meetingInfoQueryKey,
-    meetingUpdateMutFn,
-    meetingUpdateMutKey,
-    axios,
-  } = useAuth()
-  const queryClient = useQueryClient()
+  const { useMeetingInfoQuery, useMeetingDeleteMut, useMeetingEditMut } =
+    useAuth()
 
-  const meetingInfoQuery = useQuery<BackendResponse<Meeting>>({
-    queryKey: meetingInfoQueryKey!(projectID, meetingID),
-    queryFn: meetingInfoQueryFn!(projectID, meetingID),
-  })
+  const meetingInfoQuery = useMeetingInfoQuery!(projectID, meetingID)
 
-  const meetingDeleteMutation = useMutation<BackendResponse<never>, AxiosError>(
-    {
-      mutationFn: async () =>
-        (await axios!.delete(`/project/${projectID}/meeting/${meetingID}`))
-          .data,
-      onError: (err) => {
-        toast(
-          <>
-            <strong>Failed to delete Meeting</strong>
-            <pre>{extractErrorMessage(err)}</pre>
-          </>,
-          { type: "error" },
-        )
-      },
-      onSuccess: () => {
-        toast(`Meeting #${meetingID} deleted`, { type: "success" })
-        queryClient.invalidateQueries(
-          meetingInfoQueryKey!(projectID, meetingID),
-        )
-        queryClient.invalidateQueries(meetingListQueryKey!(projectID))
-        setConfirmDelete(false)
-        setWasDeleted(true)
-      },
+  const meetingDeleteMutation = useMeetingDeleteMut!(
+    projectID,
+    (_, { meetingID }) => {
+      toast(`Meeting #${meetingID} deleted`, { type: "success" })
+      setConfirmDelete(false)
+      setWasDeleted(true)
     },
   )
 
-  const meetingUpdateMutation = useMutation<BackendResponse, AxiosError>({
-    mutationFn: meetingUpdateMutFn!(
-      projectID,
-      meetingID,
-      editTitle,
-      editDescription,
-      new Date(editStartDate),
-    ),
-    mutationKey: meetingUpdateMutKey!(projectID, meetingID),
-    onError: (err) => {
-      toast(
-        <>
-          <strong>Failed to update meeting</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-    onSuccess: () => {
+  const meetingUpdateMutation = useMeetingEditMut!(
+    projectID,
+    (_, { meetingID }) => {
       toast(`Meeting #${meetingID} updated`, { type: "success" })
-      queryClient.invalidateQueries(meetingInfoQueryKey!(projectID, meetingID))
-      queryClient.invalidateQueries(meetingListQueryKey!(projectID))
       setIsEdit(false)
     },
-  })
+  )
 
   if (meetingInfoQuery.isLoading) {
     return <BarLoader color="white" />
@@ -136,7 +88,9 @@ export default function MeetingOverview({
       return
     }
     setConfirmDelete(false)
-    meetingDeleteMutation.mutate()
+    meetingDeleteMutation.mutate({
+      meetingID: meetingID,
+    })
   }
 
   // I really tried to type this, but it's just too much work
@@ -267,7 +221,14 @@ export default function MeetingOverview({
                   className="w-1/2 text-sm"
                   style="primary"
                   isLoading={meetingUpdateMutation.isLoading}
-                  onClick={() => meetingUpdateMutation.mutate()}
+                  onClick={() =>
+                    meetingUpdateMutation.mutate({
+                      meetingID,
+                      title: editTitle,
+                      description: editDescription,
+                      date: new Date(editStartDate),
+                    })
+                  }
                 >
                   Save
                 </Button>

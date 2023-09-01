@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { BsTriangle } from "react-icons/bs"
 
-import { BackendResponse, Priority } from "@/api/types"
 import ProjectModalManagePriorities from "@/components/project/modals/ProjectModalManagePriorities"
 import Button from "@/components/ui/Button"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
@@ -19,12 +17,8 @@ export default function ProjectSectionManagePriorities({
 }) {
   const [showPriorityControl, setShowPriorityControl] = useState(false)
 
-  const { axios } = useAuth()
-  const projectPrioritiesQuery = useQuery<BackendResponse<Priority[]>>({
-    queryKey: [{ projectID }, "priorities"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/priority`)).data,
-  })
+  const { usePrioritiesQuery } = useAuth()
+  const projectPrioritiesQuery = usePrioritiesQuery!(projectID)
 
   return (
     <>

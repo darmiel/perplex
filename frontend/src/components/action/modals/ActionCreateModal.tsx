@@ -1,10 +1,4 @@
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query"
-import { AxiosError } from "axios"
+import { UseMutationResult } from "@tanstack/react-query"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import {
@@ -17,7 +11,6 @@ import {
 import { BarLoader, ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { Action, BackendResponse, Priority, Tag, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
@@ -49,166 +42,70 @@ function getIconForMutation<A, B, C, D>(
 
 export default function ActionCreateModal({
   projectID,
+  meetingID,
   topicID,
   onClose,
 }: {
   projectID: number
+  meetingID: number
   topicID: number
   onClose: () => void
 }) {
   const [actionTitle, setActionTitle] = useState<string>("")
   const [actionDescription, setActionDescription] = useState<string>("")
   const [actionDueDate, setActionDueDate] = useState<string>("")
-  const [actionPriorityID, setActionPriorityID] = useState<number | null>(null)
+  const [actionPriorityID, setActionPriorityID] = useState<number>(0)
   const [actionUserAssigned, setActionUserAssigned] = useState<string[]>([])
-  const [actionTagAssigned, setActionTagsAssigned] = useState<string[]>([])
+  const [actionTagAssigned, setActionTagsAssigned] = useState<number[]>([])
 
-  const { axios, projectUsersQueryFn, projectUsersQueryKey } = useAuth()
-  const queryClient = useQueryClient()
+  const {
+    useActionCreateMut,
+    useActionLinkTopicMut,
+    useActionLinkUserMut,
+    useActionLinkTagMut,
+    useProjectUsersQuery,
+    useTagsListQuery,
+    usePrioritiesQuery,
+  } = useAuth()
+  const linkTopicToActionMut = useActionLinkTopicMut!(projectID)
+  const linkUserToActionMut = useActionLinkUserMut!(projectID)
+  const linkTagToActionMut = useActionLinkTagMut!(projectID)
+  const usersQuery = useProjectUsersQuery!(projectID)
+  const tagsQuery = useTagsListQuery!(projectID)
+  const prioritiesQuery = usePrioritiesQuery!(projectID)
 
-  const createActionMutation = useMutation<
-    BackendResponse<Action>,
-    AxiosError<BackendResponse>
-  >({
-    mutationKey: [{ projectID }, "create-action-mut"],
-    mutationFn: async () =>
-      (
-        await axios!.post(`/project/${projectID}/action`, {
-          title: actionTitle,
-          description: actionDescription,
-          due_date: actionDueDate ? new Date(actionDueDate) : null,
-          priority_id: actionPriorityID || 0,
-        })
-      ).data,
-    onSuccess: (data: BackendResponse<Action>) => {
-      toast(`Action #${data.data.ID} Created`, { type: "success" })
-      queryClient.invalidateQueries([{ projectID }, "actions"])
+  const createActionMutation = useActionCreateMut!(projectID, ({ data }) => {
+    toast(`Action #${data.ID} Created`, { type: "success" })
 
-      // clear form
-      setActionTitle("")
-      setActionDescription("")
+    // clear form
+    setActionTitle("")
+    setActionDescription("")
 
-      // link topic
-      linkActionMut.mutate({ actionID: data.data.ID })
+    // link topic
+    linkTopicToActionMut.mutate({
+      link: true,
+      actionID: data.ID,
+      topicID,
+      meetingID,
+    })
 
-      // assign users
-      for (const userID of actionUserAssigned) {
-        assignUserMut.mutate({ actionID: data.data.ID, userID })
-      }
+    // assign users
+    for (const userID of actionUserAssigned) {
+      linkUserToActionMut.mutate({
+        link: true,
+        actionID: data.ID,
+        userID,
+      })
+    }
 
-      // assign tags
-      for (const tagID of actionTagAssigned) {
-        assignTagMut.mutate({ actionID: String(data.data.ID), tagID })
-      }
-    },
-  })
-
-  const linkActionMut = useMutation<
-    BackendResponse,
-    AxiosError,
-    { actionID: number }
-  >({
-    mutationKey: [{ topicID: String(topicID) }, "link-action-mut"],
-    mutationFn: async ({ actionID }) =>
-      (
-        await axios!.post(
-          `/project/${projectID}/action/${actionID}/topic/${topicID}`,
-        )
-      ).data,
-    onSuccess: (_, { actionID }) => {
-      toast(`Topic #${topicID} linked to #${actionID}`, { type: "success" })
-      queryClient.invalidateQueries([{ actionID: String(actionID) }])
-      queryClient.invalidateQueries([
-        { projectID: String(projectID) },
-        "actions",
-      ])
-      queryClient.invalidateQueries([{ topicID }, "actions"])
-    },
-    onError: (error) => {
-      toast(
-        <>
-          <strong>Cannot link Topic to Action:</strong>
-          <pre>{extractErrorMessage(error)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
-
-  const assignUserMut = useMutation<
-    BackendResponse<never>,
-    AxiosError,
-    { actionID: number; userID: string }
-  >({
-    mutationKey: [{ actionID: "unknown" }, "assign-user-mut"],
-    mutationFn: async ({ actionID, userID }) =>
-      (
-        await axios!.post(
-          `/project/${projectID}/action/${actionID}/user/${userID}`,
-        )
-      ).data,
-    onSuccess: (_, { actionID }) => {
-      queryClient.invalidateQueries([{ actionID: String(actionID) }])
-      queryClient.invalidateQueries([
-        { projectID: String(projectID) },
-        "actions",
-      ])
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to assign User</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
-
-  const assignTagMut = useMutation<
-    BackendResponse<never>,
-    AxiosError,
-    { actionID: string; tagID: string }
-  >({
-    mutationKey: [{ actionID: "unknown" }, "assign-tag-mut"],
-    mutationFn: async ({ actionID, tagID }) =>
-      (
-        await axios!.post(
-          `/project/${projectID}/action/${actionID}/tag/${tagID}`,
-        )
-      ).data,
-    onSuccess: (_, { actionID }) => {
-      queryClient.invalidateQueries([{ actionID }])
-      queryClient.invalidateQueries([{ projectID: projectID }, "actions"])
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to assign Tag</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
-
-  // users in project
-  const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(projectID),
-    queryFn: projectUsersQueryFn!(projectID),
-  })
-
-  // get tags for the project
-  const projectTagsQuery = useQuery<BackendResponse<Tag[]>>({
-    queryKey: [{ projectID }, "tags"],
-    queryFn: async () => (await axios!.get(`/project/${projectID}/tag`)).data,
-  })
-
-  // get priorities for the project
-  const projectPrioritiesQuery = useQuery<BackendResponse<Priority[]>>({
-    queryKey: [{ projectID }, "priorities"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/priority`)).data,
+    // assign tags
+    for (const tagID of actionTagAssigned) {
+      linkTagToActionMut.mutate({
+        link: true,
+        actionID: data.ID,
+        tagID,
+      })
+    }
   })
 
   function addUser(userID: string) {
@@ -220,11 +117,11 @@ export default function ActionCreateModal({
   }
 
   function addTag(tagID: number) {
-    setActionTagsAssigned((old) => [...old, String(tagID)])
+    setActionTagsAssigned((old) => [...old, tagID])
   }
 
   function removeTag(tagID: number) {
-    setActionTagsAssigned((old) => old.filter((t) => t !== String(tagID)))
+    setActionTagsAssigned((old) => old.filter((t) => t !== tagID))
   }
 
   // I really tried to type this, but it's just too much work
@@ -289,7 +186,7 @@ export default function ActionCreateModal({
                 onChange={(e) => setActionPriorityID(Number(e.target.value))}
               >
                 <option value="0">No Priority</option>
-                {projectPrioritiesQuery.data?.data.map((priority) => (
+                {prioritiesQuery.data?.data.map((priority) => (
                   <option key={priority.ID} value={priority.ID}>
                     {priority.title}
                   </option>
@@ -324,17 +221,17 @@ export default function ActionCreateModal({
           <div className="space-y-2 max-w-md">
             <span className="text-neutral-400">Assign Tags</span>
             <div className="flex flex-row space-x-4 max-w-xl">
-              {projectTagsQuery.isLoading ? (
+              {tagsQuery.isLoading ? (
                 <BarLoader color="white" />
               ) : (
                 <TagList>
-                  {projectTagsQuery.data?.data.map((tag, key) => (
+                  {tagsQuery.data?.data.map((tag, key) => (
                     <CheckableCardContainer
                       key={key}
                       htmlStyle={{
                         borderColor: tag.color ?? "gray",
                       }}
-                      checked={actionTagAssigned.includes(String(tag.ID))}
+                      checked={actionTagAssigned.includes(tag.ID)}
                       onToggle={(toggled) =>
                         toggled ? addTag(tag.ID) : removeTag(tag.ID)
                       }
@@ -351,11 +248,11 @@ export default function ActionCreateModal({
           <div className="space-y-2 max-w-md">
             <span className="text-neutral-400">Assign Users</span>
             <div className="flex flex-row space-x-4 max-w-xl">
-              {projectUsersQuery.isLoading ? (
+              {usersQuery.isLoading ? (
                 <BarLoader color="white" />
               ) : (
                 <TagList>
-                  {projectUsersQuery.data?.data.map((user, key) => (
+                  {usersQuery.data?.data.map((user, key) => (
                     <CheckableCardContainer
                       key={key}
                       checked={actionUserAssigned.includes(user.id)}
@@ -384,22 +281,22 @@ export default function ActionCreateModal({
           <BsArrowRight />
         </li>
         <li className="flex items-center space-x-2">
-          {getIconForMutation(linkActionMut)}
-          <span>Project Linking</span>
+          {getIconForMutation(linkTopicToActionMut)}
+          <span>Topic Linking</span>
         </li>
         <li>
           <BsArrowRight />
         </li>
         <li className="flex items-center space-x-2">
-          {getIconForMutation(assignTagMut)}
-          <span>Tags Assignment</span>
+          {getIconForMutation(linkTagToActionMut)}
+          <span>Tag Linking</span>
         </li>
         <li>
           <BsArrowRight />
         </li>
         <li className="flex items-center space-x-2">
-          {getIconForMutation(assignUserMut)}
-          <span>User Assignment</span>
+          {getIconForMutation(linkUserToActionMut)}
+          <span>User Linking</span>
         </li>
       </ol>
 
@@ -420,11 +317,18 @@ export default function ActionCreateModal({
           style="secondary"
           isLoading={
             createActionMutation.isLoading ||
-            linkActionMut.isLoading ||
-            assignTagMut.isLoading ||
-            assignUserMut.isLoading
+            linkTopicToActionMut.isLoading ||
+            linkTagToActionMut.isLoading ||
+            linkUserToActionMut.isLoading
           }
-          onClick={() => createActionMutation.mutate()}
+          onClick={() =>
+            createActionMutation.mutate({
+              title: actionTitle,
+              description: actionDescription,
+              due_date: actionDueDate,
+              priority_id: actionPriorityID,
+            })
+          }
         >
           Create
         </Button>

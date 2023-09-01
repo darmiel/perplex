@@ -15,3 +15,15 @@ export default function useDebounce<T>(value: T, delay: number) {
 
   return debouncedValue
 }
+
+export function useDebounceCallback<T>(
+  value: T,
+  delay: number,
+  callback: (value: T) => void,
+) {
+  const debouncedValue = useDebounce(value, delay)
+
+  useEffect(() => {
+    callback(debouncedValue)
+  }, [debouncedValue, callback])
+}

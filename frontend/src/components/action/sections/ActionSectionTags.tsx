@@ -1,55 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { BsTag, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
-import { toast } from "react-toastify"
 import Popup from "reactjs-popup"
 
-import { Action, BackendResponse, Tag } from "@/api/types"
+import { Action } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { TagFromType } from "@/components/ui/tag/Tag"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionSectionTags({ action }: { action: Action }) {
-  const { axios } = useAuth()
-  const queryClient = useQueryClient()
+  const { useTagsListQuery, useActionLinkTagMut } = useAuth()
 
   // get tags for the project
-  const projectTagsQuery = useQuery<BackendResponse<Tag[]>>({
-    queryKey: [{ projectID: action.project_id }, "tags"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${action.project_id}/tag`)).data,
-  })
+  const projectTagsQuery = useTagsListQuery!(action.project_id)
 
-  const assignMut = useMutation<
-    BackendResponse<never>,
-    AxiosError,
-    { assign: boolean; tagID: number }
-  >({
-    mutationKey: [{ actionID: action.ID }, "assign-tag-mut"],
-    mutationFn: async ({ assign, tagID }) =>
-      (
-        await axios![assign ? "post" : "delete"](
-          `/project/${action.project_id}/action/${action.ID}/tag/${tagID}`,
-        )
-      ).data,
-    onSuccess: (_, { assign }) => {
-      queryClient.invalidateQueries([{ actionID: String(action.ID) }])
-      queryClient.invalidateQueries([
-        { projectID: String(action.project_id) },
-        "actions",
-      ])
-    },
-    onError(err, { assign }) {
-      toast(
-        <>
-          <strong>Failed to {assign ? "assign" : "unassign"} Tag</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  const assignMut = useActionLinkTagMut!(action.project_id)
 
   const displayTagsToAdd =
     projectTagsQuery.data?.data.filter(
@@ -65,7 +29,11 @@ export default function ActionSectionTags({ action }: { action: Action }) {
             className="cursor-pointer"
             onClick={() => {
               !assignMut.isLoading &&
-                assignMut.mutate({ assign: false, tagID: tag.ID })
+                assignMut.mutate({
+                  link: false,
+                  actionID: action.ID,
+                  tagID: tag.ID,
+                })
             }}
           >
             {assignMut.isLoading && assignMut.variables?.tagID === tag.ID ? (
@@ -104,7 +72,11 @@ export default function ActionSectionTags({ action }: { action: Action }) {
                 key={tag.ID}
                 className="w-full"
                 onClick={() =>
-                  assignMut.mutate({ assign: true, tagID: tag.ID })
+                  assignMut.mutate({
+                    link: true,
+                    actionID: action.ID,
+                    tagID: tag.ID,
+                  })
                 }
                 disabled={
                   assignMut.isLoading ||

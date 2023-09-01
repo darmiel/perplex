@@ -37,48 +37,16 @@ function ModalList({
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const [confirmLeave, setConfirmLeave] = useState<number | null>(null)
 
-  const { user, axios, projectListQueryKey } = useAuth()
-  const queryClient = useQueryClient()
+  const { user, useProjectCreateMut, useProjectLeaveMut } = useAuth()
 
-  const leaveProjectMutation = useMutation<BackendResponse, AxiosError, number>(
-    {
-      mutationFn: async (projectID) =>
-        (await axios!.delete(`/project/${projectID}/leave`)).data,
-      onSuccess(_, projectID) {
-        toast(`Left Project #${projectID}`, { type: "success" })
-        queryClient.invalidateQueries(projectListQueryKey!())
-      },
-    },
-  )
+  const leaveProjectMutation = useProjectLeaveMut!((_, { projectID }) => {
+    toast(`Left Project #${projectID}`, { type: "success" })
+  })
 
-  const createProjectMutation = useMutation<
-    BackendResponse<Project>,
-    AxiosError
-  >({
-    mutationFn: async () =>
-      (
-        await axios!.post(`/project`, {
-          name: createName,
-          description: createDescription,
-        })
-      ).data,
-    onSuccess({ data: project }) {
-      toast(`Project #${project.ID} created`, {
-        type: "success",
-      })
-      queryClient.invalidateQueries(projectListQueryKey!())
-      setCreateName("")
-      setCreateDescription("")
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to create Project</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+  const createProjectMutation = useProjectCreateMut!(({ data }) => {
+    toast(`Project #${data.ID} created`, { type: "success" })
+    setCreateName("")
+    setCreateDescription("")
   })
 
   function leaveProject(project: Project) {
@@ -87,7 +55,9 @@ function ModalList({
       return
     }
     setConfirmLeave(null)
-    leaveProjectMutation.mutate(project.ID)
+    leaveProjectMutation.mutate({
+      projectID: project.ID,
+    })
   }
 
   function showDeleteConfirmation(project: Project) {
@@ -224,7 +194,12 @@ function ModalList({
                 <Button
                   style="primary"
                   disabled={!createName}
-                  onClick={() => createProjectMutation.mutate()}
+                  onClick={() =>
+                    createProjectMutation.mutate({
+                      name: createName,
+                      description: createDescription,
+                    })
+                  }
                   isLoading={createProjectMutation.isLoading}
                 >
                   <div className="flex items-center space-x-2">

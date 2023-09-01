@@ -1,10 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Priority } from "@/api/types"
+import { Priority } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
@@ -15,7 +13,7 @@ export default function ProjectModalManagePriorities({
   projectID,
   onClose,
 }: {
-  projectID: string | number
+  projectID: number
   onClose?: () => void
 }) {
   const [priorityNameSearch, setPriorityNameSearch] = useState("")
@@ -23,7 +21,7 @@ export default function ProjectModalManagePriorities({
   // actions
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const [editMode, setEditMode] = useState<number | null>(null)
-  const [editName, setEditName] = useState("")
+  const [editTitle, setEditTitle] = useState("")
   const [editColor, setEditColor] = useState("")
   const [editWeight, setEditWeight] = useState(0)
 
@@ -31,106 +29,52 @@ export default function ProjectModalManagePriorities({
   const [createColor, setCreateColor] = useState("")
   const [createWeight, setCreateWeight] = useState(0)
 
-  const { axios } = useAuth()
-  const queryClient = useQueryClient()
+  const {
+    usePrioritiesQuery,
+    usePriorityCreateMut,
+    usePriorityEditMut,
+    usePriorityDeleteMut,
+  } = useAuth()
 
-  const projectPrioritiesQuery = useQuery<BackendResponse<Priority[]>>({
-    queryKey: [{ projectID }, "priorities"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${projectID}/priority`)).data,
-  })
+  const listPrioritiesQuery = usePrioritiesQuery!(projectID)
 
-  const removePriorityMut = useMutation<BackendResponse, AxiosError, number>({
-    mutationFn: async (priorityID) =>
-      (await axios!.delete(`/project/${projectID}/priority/${priorityID}`))
-        .data,
-    onSuccess(_, tagID) {
-      toast(`Priority #${tagID} removed from Project #${projectID}`, {
+  const removePriorityMut = usePriorityDeleteMut!(
+    projectID,
+    (_, { priorityID }) => {
+      toast(`Priority #${priorityID} removed from Project #${projectID}`, {
         type: "success",
       })
-      queryClient.invalidateQueries([{ projectID }, "priorities"])
       setConfirmDelete(null)
     },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to remove Priority from Project</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  )
 
-  const editPriorityMut = useMutation<BackendResponse, AxiosError, number>({
-    mutationFn: async (priorityID) =>
-      (
-        await axios!.put(`/project/${projectID}/priority/${priorityID}`, {
-          title: editName,
-          color: editColor,
-          weight: editWeight,
-        })
-      ).data,
-    onSuccess(_, priorityID) {
+  const editPriorityMut = usePriorityEditMut!(
+    projectID,
+    (_, { priorityID }) => {
       toast(`Priority #${priorityID} edited`, {
         type: "success",
       })
-      queryClient.invalidateQueries([{ projectID }, "priorities"])
       setEditMode(null)
     },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to edit Priority</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+  )
+
+  const createPriorityMut = usePriorityCreateMut!(projectID, ({ data }) => {
+    toast(<>Priority #{data.ID} created</>, {
+      type: "success",
+    })
+    setCreateName("")
+    setCreateColor("")
+    setCreateWeight(0)
   })
 
-  const createPriorityMut = useMutation<BackendResponse<Priority>, AxiosError>({
-    mutationFn: async () =>
-      (
-        await axios!.post(`/project/${projectID}/priority`, {
-          title: createName,
-          color: createColor,
-          weight: createWeight,
-        })
-      ).data,
-    onSuccess(data) {
-      toast(
-        <>
-          Priority <strong>{createName}</strong> (#{data.data.ID}) created
-        </>,
-        {
-          type: "success",
-        },
-      )
-      queryClient.invalidateQueries([{ projectID }, "priorities"])
-      setCreateName("")
-      setCreateColor("")
-      setCreateWeight(0)
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to create Priority</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
-
-  if (projectPrioritiesQuery.isLoading) {
+  if (listPrioritiesQuery.isLoading) {
     return <>Loading Priorities...</>
   }
-  if (projectPrioritiesQuery.isError) {
+  if (listPrioritiesQuery.isError) {
     return (
       <>
         <strong>Error loading Priorities:</strong>
-        <pre>{extractErrorMessage(projectPrioritiesQuery.error)}</pre>
+        <pre>{extractErrorMessage(listPrioritiesQuery.error)}</pre>
       </>
     )
   }
@@ -141,19 +85,26 @@ export default function ProjectModalManagePriorities({
       setConfirmDelete(priority.ID)
       return
     }
-    removePriorityMut.mutate(priority.ID)
+    removePriorityMut.mutate({
+      priorityID: priority.ID,
+    })
   }
 
   function editPriority(priority: Priority) {
     setConfirmDelete(null)
     if (editMode !== priority.ID) {
-      setEditName(priority.title)
+      setEditTitle(priority.title)
       setEditColor(priority.color)
       setEditWeight(priority.weight)
       setEditMode(priority.ID)
       return
     }
-    editPriorityMut.mutate(priority.ID)
+    editPriorityMut.mutate({
+      priorityID: priority.ID,
+      editTitle,
+      editColor,
+      editWeight,
+    })
   }
 
   return (
@@ -178,7 +129,7 @@ export default function ProjectModalManagePriorities({
       <Hr />
 
       <div className="flex flex-col space-y-4">
-        {projectPrioritiesQuery.data.data
+        {listPrioritiesQuery.data.data
           // filter priorities by name (lower case search)
           .filter(
             (tag) =>
@@ -203,8 +154,8 @@ export default function ProjectModalManagePriorities({
                       type="text"
                       className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
                       placeholder="My awesome Priority"
-                      onChange={(event) => setEditName(event.target.value)}
-                      value={editName}
+                      onChange={(event) => setEditTitle(event.target.value)}
+                      value={editTitle}
                     />
                     <input
                       type="text"
@@ -296,7 +247,13 @@ export default function ProjectModalManagePriorities({
           className="w-1/4 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
         />
         <Button
-          onClick={() => createPriorityMut.mutate()}
+          onClick={() =>
+            createPriorityMut.mutate({
+              title: createName,
+              color: createColor,
+              weight: createWeight,
+            })
+          }
           isLoading={createPriorityMut.isLoading}
         >
           Create

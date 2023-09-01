@@ -1,5 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
+import { useQueryClient } from "@tanstack/react-query"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import {
@@ -9,7 +8,7 @@ import {
   BsPen,
 } from "react-icons/bs"
 
-import { Action, BackendResponse, Priority } from "@/api/types"
+import { Action } from "@/api/types"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
@@ -27,7 +26,6 @@ import "react-datepicker/dist/react-datepicker.css"
 import Head from "next/head"
 import { toast } from "react-toastify"
 
-import { extractErrorMessage } from "@/api/util"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
 import ActionSectionTags from "@/components/action/sections/ActionSectionTags"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
@@ -51,49 +49,22 @@ export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
   const [editDescription, setEditDescription] = useState("")
   const [editDueDate, setEditDueDate] = useState<string>("")
-  const [editPriorityID, setEditPriorityID] = useState<number | null>(null)
+  const [editPriorityID, setEditPriorityID] = useState<number>(0)
 
   const [isEdit, setIsEdit] = useState(false)
 
-  const { axios } = useAuth()
+  const { usePrioritiesQuery, useActionEditMut } = useAuth()
   const queryClient = useQueryClient()
 
-  const projectPrioritiesQuery = useQuery<BackendResponse<Priority[]>>({
-    queryKey: [{ projectID: action.project_id }, "priorities"],
-    queryFn: async () =>
-      (await axios!.get(`/project/${action.project_id}/priority`)).data,
-  })
+  const projectPrioritiesQuery = usePrioritiesQuery!(action.project_id)
 
-  const actionUpdateMut = useMutation<BackendResponse<never>, AxiosError>({
-    mutationKey: [{ actionID: action.ID }, "update-mut"],
-    mutationFn: async () =>
-      (
-        await axios!.put(`/project/${action.project_id}/action/${action.ID}`, {
-          title: editTitle,
-          description: editDescription,
-          due_date: editDueDate ? new Date(editDueDate) : null,
-          priority_id: editPriorityID,
-        })
-      ).data,
-    onSuccess: () => {
-      toast(`Action ${action.ID} updated`, { type: "success" })
-      queryClient.invalidateQueries([{ actionID: String(action.ID) }])
-      queryClient.invalidateQueries([
-        { projectID: String(action.project_id) },
-        "actions",
-      ])
+  const actionEditMut = useActionEditMut!(
+    action.project_id,
+    (_, { actionID }) => {
+      toast(`Action ${actionID} updated`, { type: "success" })
       setIsEdit(false)
     },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to update action</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  )
 
   function enterEdit() {
     setEditTitle(action.title)
@@ -229,8 +200,16 @@ export default function ActionOverview({ action }: { action: Action }) {
                 <Button
                   className="w-1/2 text-sm"
                   style="primary"
-                  isLoading={actionUpdateMut.isLoading}
-                  onClick={() => actionUpdateMut.mutate()}
+                  isLoading={actionEditMut.isLoading}
+                  onClick={() =>
+                    actionEditMut.mutate({
+                      actionID: action.ID,
+                      title: editTitle,
+                      description: editDescription,
+                      due_date: editDueDate,
+                      priority_id: editPriorityID,
+                    })
+                  }
                 >
                   Save
                 </Button>
