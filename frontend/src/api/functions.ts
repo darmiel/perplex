@@ -189,6 +189,11 @@ export type actionLinkUserVars = {
   link: boolean
 }
 
+export type actionStatusVars = {
+  actionID: number
+  closed: boolean
+}
+
 // ======================
 // User Types
 // ======================
@@ -742,6 +747,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
       findQueryKey(projectID: number, actionID: number) {
         return [{ projectID }, { actionID }]
       },
+
       linkTopicMutFn(projectID: number) {
         return async ({ link, topicID, actionID }: actionLinkVars) =>
           (
@@ -776,6 +782,20 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       linkUserMutKey(projectID: number) {
         return [{ projectID }, "action-link-user-mut"]
+      },
+
+      statusMutFn(projectID: number) {
+        return async ({ actionID, closed }: actionStatusVars) =>
+          (
+            await axios.post(
+              `/project/${projectID}/action/${actionID}/${
+                closed ? "close" : "open"
+              }`,
+            )
+          ).data.data
+      },
+      statusMutKey(projectID: number) {
+        return [{ projectID }, "action-status-mut"]
       },
     },
   } as const
@@ -1252,6 +1272,22 @@ export const functions = (axios: Axios, client: QueryClient) => {
           queryKey: functions.actions.findQueryKey(projectID, actionID),
           queryFn: functions.actions.findQueryFn(projectID, actionID),
           enabled: !!projectID && !!actionID,
+        })
+      },
+      useStatus(
+        projectID: number,
+        callback: SuccessCallback<never, actionStatusVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, actionStatusVars>({
+          mutationKey: functions.actions.statusMutKey(projectID),
+          mutationFn: functions.actions.statusMutFn(projectID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            ({ actionID }) =>
+              functions.actions.findQueryKey(projectID, actionID),
+            functions.actions.listForProjectQueryKey(projectID),
+          ),
+          onError: toastError("Cannot change Action status:"),
         })
       },
     },

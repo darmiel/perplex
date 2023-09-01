@@ -1,6 +1,7 @@
 import { BsCalendar } from "react-icons/bs"
 
 import { Action } from "@/api/types"
+import ActionTag from "@/components/action/ActionTag"
 import DateString from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
 import { TagContainer } from "@/components/ui/tag/Tag"
@@ -50,13 +51,7 @@ export default function ActionListItem({
       </div>
       <div className="flex items-center space-x-2">
         <div>
-          <TagContainer
-            style="color"
-            color={action.closed_at.Valid ? "red" : "#16a34a"}
-            className="text-xs"
-          >
-            {action.closed_at.Valid ? "Closed" : "Open"}
-          </TagContainer>
+          <ActionTag action={action} className="text-xs" />
         </div>
         <div>
           <TruncateTitle truncate={20} className="text-neutral-50">

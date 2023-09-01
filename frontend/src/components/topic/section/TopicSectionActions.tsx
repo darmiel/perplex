@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { Action, Topic } from "@/api/types"
+import ActionTag from "@/components/action/ActionTag"
 import Hr from "@/components/ui/Hr"
 import Removable from "@/components/ui/Removable"
 import { PriorityTag, TagContainer } from "@/components/ui/tag/Tag"
@@ -43,13 +44,7 @@ export default function TopicSectionActions({
                 <div className="flex flex-col space-y-1">
                   <div className="flex items-center text-neutral-400 space-x-2">
                     <div>
-                      <TagContainer
-                        style="color"
-                        color={action.closed_at.Valid ? "#ef4444" : "#22c55e"}
-                        className="text-xs"
-                      >
-                        {action.closed_at.Valid ? "Closed" : "Open"}
-                      </TagContainer>
+                      <ActionTag action={action} />
                     </div>
                     <div className="flex flex-col">
                       <TruncateTitle truncate={30} className="text-sm">

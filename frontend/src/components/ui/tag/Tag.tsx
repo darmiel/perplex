@@ -23,7 +23,6 @@ export function TagContainer({
   const styleClassName = tagStyles[style]
   let styleAttr = htmlStyle
 
-  console.log(style)
   if (color) {
     if (style === "color-border") {
       styleAttr = { ...styleAttr, borderColor: color }
@@ -31,7 +30,6 @@ export function TagContainer({
       styleAttr = { ...styleAttr, backgroundColor: color }
     }
   }
-  console.log(styleAttr)
 
   return (
     <div

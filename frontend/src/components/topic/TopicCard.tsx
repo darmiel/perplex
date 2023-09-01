@@ -55,7 +55,7 @@ export default function TopicCard({
         }
         onToggle={(toggled) =>
           toggleTopicMutation.mutate({
-            close: !toggled,
+            close: toggled,
             topicID: topic.ID,
           })
         }

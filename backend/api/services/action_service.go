@@ -247,7 +247,7 @@ func (a *actionService) UnlinkTag(actionID, tagID uint) error {
 }
 
 func (a *actionService) CloseAction(id uint) error {
-	return a.DB.Where(&model.Action{
+	return a.DB.Model(&model.Action{
 		Model: gorm.Model{
 			ID: id,
 		},
@@ -257,7 +257,7 @@ func (a *actionService) CloseAction(id uint) error {
 }
 
 func (a *actionService) OpenAction(id uint) error {
-	return a.DB.Where(&model.Action{
+	return a.DB.Model(&model.Action{
 		Model: gorm.Model{
 			ID: id,
 		},

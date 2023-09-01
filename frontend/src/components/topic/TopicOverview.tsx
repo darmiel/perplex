@@ -4,8 +4,6 @@ import { useState } from "react"
 import {
   BsArrowLeft,
   BsArrowRight,
-  BsBookmarkStar,
-  BsBookmarkStarFill,
   BsCheck,
   BsPen,
   BsPeople,
@@ -23,6 +21,7 @@ import {
 } from "@/components/modals/TopicCreateModal"
 import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
+import TopicTag from "@/components/topic/TopicTag"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
@@ -31,25 +30,11 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import Tag from "@/components/ui/tag/Tag"
 import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import MultiUserSelect from "@/components/user/MultiUserSelect"
 import UserTag from "@/components/user/UserTag"
 import { useAuth } from "@/contexts/AuthContext"
-
-const tags = {
-  open: {
-    icon: <BsBookmarkStar />,
-    text: "Open",
-    className: "bg-green-600 text-white",
-  },
-  close: {
-    icon: <BsBookmarkStarFill />,
-    text: "Closed",
-    className: "bg-red-600 text-white",
-  },
-}
 
 function SectionParticipants({
   projectID,
@@ -204,7 +189,6 @@ export default function TopicOverview({
     topicID,
   }
 
-  const tag = topic.closed_at.Valid ? tags.close : tags.open
   const dateCreated = new Date(topic.CreatedAt)
 
   // event handlers
@@ -305,12 +289,7 @@ export default function TopicOverview({
         creatorID={topic.creator_id}
         title={topic.title}
         titleID={topic.ID}
-        tag={
-          <Tag className={tag.className}>
-            <div>{tag.icon}</div>
-            <div>{tag.text}</div>
-          </Tag>
-        }
+        tag={<TopicTag topic={topic} />}
         injectHeader={
           !isEdit && (
             <div className="ml-2 flex items-center space-x-2">

@@ -1,9 +1,8 @@
-import { useQueryClient } from "@tanstack/react-query"
 import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import {
-  BsBookmarkStar,
   BsBookmarkStarFill,
+  BsBookmarkX,
   BsCalendar,
   BsPen,
 } from "react-icons/bs"
@@ -17,7 +16,7 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import Tag, { PriorityTag } from "@/components/ui/tag/Tag"
+import { PriorityTag } from "@/components/ui/tag/Tag"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -26,24 +25,11 @@ import "react-datepicker/dist/react-datepicker.css"
 import Head from "next/head"
 import { toast } from "react-toastify"
 
+import ActionTag from "@/components/action/ActionTag"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
 import ActionSectionTags from "@/components/action/sections/ActionSectionTags"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
 import CommentSuite from "@/components/comment/CommentSuite"
-
-// TODO: remove duplicate
-const tags = {
-  open: {
-    icon: <BsBookmarkStar />,
-    text: "Open",
-    className: "bg-green-600 text-white",
-  },
-  close: {
-    icon: <BsBookmarkStarFill />,
-    text: "Closed",
-    className: "bg-red-600 text-white",
-  },
-}
 
 export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
@@ -54,7 +40,6 @@ export default function ActionOverview({ action }: { action: Action }) {
   const [isEdit, setIsEdit] = useState(false)
 
   const { priorities, actions } = useAuth()
-  const queryClient = useQueryClient()
 
   const projectPrioritiesQuery = priorities!.useList(action.project_id)
 
@@ -65,6 +50,8 @@ export default function ActionOverview({ action }: { action: Action }) {
       setIsEdit(false)
     },
   )
+
+  const actionStatusMut = actions!.useStatus(action.project_id, () => {})
 
   function enterEdit() {
     setEditTitle(action.title)
@@ -90,7 +77,7 @@ export default function ActionOverview({ action }: { action: Action }) {
   ))
 
   const isOwner = true
-  const tag = tags[action.closed_at.Valid ? "close" : "open"]
+  const isClosed = !!action.closed_at.Valid
 
   return (
     <div className="flex flex-col">
@@ -104,12 +91,7 @@ export default function ActionOverview({ action }: { action: Action }) {
         createdAt={new Date(action.CreatedAt)}
         setEditTitle={setEditTitle}
         isEdit={isEdit}
-        tag={
-          <Tag className={tag.className}>
-            <div>{tag.icon}</div>
-            <div>{tag.text}</div>
-          </Tag>
-        }
+        tag={<ActionTag action={action} />}
       />
 
       <OverviewContainer>
@@ -187,14 +169,30 @@ export default function ActionOverview({ action }: { action: Action }) {
         <OverviewSide className="w-3/12">
           <OverviewSection name="Actions">
             {!isEdit ? (
-              <Button
-                className="w-full text-sm"
-                icon={<BsPen />}
-                onClick={() => enterEdit()}
-                disabled={!isOwner}
-              >
-                Edit Action
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  className="w-full text-sm"
+                  icon={<BsPen />}
+                  onClick={() => enterEdit()}
+                  disabled={!isOwner}
+                >
+                  Edit
+                </Button>
+                <Button
+                  className="w-full text-sm"
+                  style={isClosed ? "secondary" : "primary"}
+                  icon={isClosed ? <BsBookmarkX /> : <BsBookmarkStarFill />}
+                  onClick={() =>
+                    actionStatusMut.mutate({
+                      actionID: action.ID,
+                      closed: !isClosed,
+                    })
+                  }
+                  isLoading={actionStatusMut.isLoading}
+                >
+                  {!isClosed ? "Close" : "Reopen"}
+                </Button>
+              </div>
             ) : (
               <div className="flex space-x-2">
                 <Button
