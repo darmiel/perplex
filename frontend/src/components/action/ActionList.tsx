@@ -5,9 +5,9 @@ import { BarLoader } from "react-spinners"
 
 import { extractErrorMessage } from "@/api/util"
 import ActionListItem from "@/components/action/ActionListItem"
+import ActionCreateModal from "@/components/action/modals/ActionCreateModal"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -77,9 +77,10 @@ export default function ActionList({
 
       {/* Create Meeting Popup */}
       <ModalPopup open={showCreateAction} setOpen={setShowCreateAction}>
-        <ModalContainer title="Create Action">
-          <span>Work in Progress</span>
-        </ModalContainer>
+        <ActionCreateModal
+          projectID={projectID}
+          onClose={() => setShowCreateAction(false)}
+        />
       </ModalPopup>
     </>
   )

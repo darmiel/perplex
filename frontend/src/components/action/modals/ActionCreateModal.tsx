@@ -47,8 +47,8 @@ export default function ActionCreateModal({
   onClose,
 }: {
   projectID: number
-  meetingID: number
-  topicID: number
+  meetingID?: number
+  topicID?: number
   onClose: () => void
 }) {
   const [actionTitle, setActionTitle] = useState<string>("")
@@ -66,6 +66,8 @@ export default function ActionCreateModal({
   const tagsQuery = tags!.useList(projectID)
   const prioritiesQuery = priorities!.useList(projectID)
 
+  const linkTopic = !!topicID && !!meetingID
+
   const createActionMutation = actions!.useCreate(projectID, ({ data }) => {
     toast(`Action #${data.ID} Created`, { type: "success" })
 
@@ -74,12 +76,14 @@ export default function ActionCreateModal({
     setActionDescription("")
 
     // link topic
-    linkTopicToActionMut.mutate({
-      link: true,
-      actionID: data.ID,
-      topicID,
-      meetingID,
-    })
+    if (linkTopic) {
+      linkTopicToActionMut.mutate({
+        link: true,
+        actionID: data.ID,
+        topicID,
+        meetingID,
+      })
+    }
 
     // assign users
     for (const userID of actionUserAssigned) {
@@ -132,7 +136,9 @@ export default function ActionCreateModal({
   ))
 
   return (
-    <ModalContainer title={`Create Action for Topic ${topicID}`}>
+    <ModalContainer
+      title={`Create Action${topicID ? ` for Topic ${topicID}` : ""}`}
+    >
       <div className="flex space-x-10">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -272,23 +278,29 @@ export default function ActionCreateModal({
         <li>
           <BsArrowRight />
         </li>
-        <li className="flex items-center space-x-2">
-          {getIconForMutation(linkTopicToActionMut)}
-          <span>Topic Linking</span>
-        </li>
-        <li>
-          <BsArrowRight />
-        </li>
+        <>
+          <li className="flex items-center space-x-2">
+            {getIconForMutation(linkTopicToActionMut)}
+            <span>Topic Linking {!linkTopic && "(skip)"}</span>
+          </li>
+          <li>
+            <BsArrowRight />
+          </li>
+        </>
         <li className="flex items-center space-x-2">
           {getIconForMutation(linkTagToActionMut)}
-          <span>Tag Linking</span>
+          <span>
+            Tag Linking {actionTagAssigned.length === 0 ? "(skip)" : ""}
+          </span>
         </li>
         <li>
           <BsArrowRight />
         </li>
         <li className="flex items-center space-x-2">
           {getIconForMutation(linkUserToActionMut)}
-          <span>User Linking</span>
+          <span>
+            User Linking {actionUserAssigned.length === 0 ? "(skip)" : ""}
+          </span>
         </li>
       </ol>
 
