@@ -1,13 +1,11 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import Head from "next/head"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { BsGear, BsPersonWorkspace } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
-import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import BadgeHeader from "@/components/ui/BadgeHeader"
@@ -40,16 +38,24 @@ const greetings = [
   "Aloha, ", // Hawaiian
   "Hej, ", // Swedish
   "Shalom, ", // Hebrew
+  "Halo, ", // Indonesian
+  "Marhaba, ", // Arabic
+  "Hoi, ", // Dutch
+  "Ahoj, ", // Czech
+  "Kamusta, ", // Filipino
+  "Hei, ", // Norwegian
+  "Salve, ", // Latin
+  "Sveiki, ", // Latvian
+  "Salamu, ", // Swahili
+  "Dia duit, ", // Irish
 ]
 
 function ProjectList() {
   const [showManageProjects, setShowManageProjects] = useState(false)
 
-  const { projectListQueryFn, projectListQueryKey } = useAuth()
-  const projectListQuery = useQuery<BackendResponse<Project[]>>({
-    queryKey: projectListQueryKey!(),
-    queryFn: projectListQueryFn!(),
-  })
+  const { projects: projectsDB } = useAuth()
+  const projectListQuery = projectsDB!.useList()
+
   if (projectListQuery.isLoading) {
     return <BarLoader />
   }

@@ -8,12 +8,12 @@ import { TagFromType } from "@/components/ui/tag/Tag"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionSectionTags({ action }: { action: Action }) {
-  const { useTagsListQuery, useActionLinkTagMut } = useAuth()
+  const { actions, tags } = useAuth()
 
   // get tags for the project
-  const projectTagsQuery = useTagsListQuery!(action.project_id)
+  const projectTagsQuery = tags!.useList(action.project_id)
 
-  const assignMut = useActionLinkTagMut!(action.project_id)
+  const assignMut = actions!.useLinkTag(action.project_id)
 
   const displayTagsToAdd =
     projectTagsQuery.data?.data.filter(

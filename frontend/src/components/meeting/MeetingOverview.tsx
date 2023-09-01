@@ -35,12 +35,11 @@ export default function MeetingOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
-  const { useMeetingInfoQuery, useMeetingDeleteMut, useMeetingEditMut } =
-    useAuth()
+  const { meetings } = useAuth()
 
-  const meetingInfoQuery = useMeetingInfoQuery!(projectID, meetingID)
+  const meetingInfoQuery = meetings!.useFind(projectID, meetingID)
 
-  const meetingDeleteMutation = useMeetingDeleteMut!(
+  const meetingDeleteMutation = meetings!.useDelete(
     projectID,
     (_, { meetingID }) => {
       toast(`Meeting #${meetingID} deleted`, { type: "success" })
@@ -49,10 +48,10 @@ export default function MeetingOverview({
     },
   )
 
-  const meetingUpdateMutation = useMeetingEditMut!(
+  const meetingUpdateMutation = meetings!.useEdit(
     projectID,
     (_, { meetingID }) => {
-      toast(`Meeting #${meetingID} updated`, { type: "success" })
+      toast(`Meeting #${meetingID} edited`, { type: "success" })
       setIsEdit(false)
     },
   )

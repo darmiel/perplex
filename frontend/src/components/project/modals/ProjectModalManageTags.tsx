@@ -27,26 +27,25 @@ export default function ProjectModalManageTags({
   const [createName, setCreateName] = useState("")
   const [createColor, setCreateColor] = useState("")
 
-  const { useTagsListQuery, useTagCreateMut, useTagEditMut, useTagDeleteMut } =
-    useAuth()
+  const { tags } = useAuth()
 
-  const projectTagsQuery = useTagsListQuery!(projectID)
+  const projectTagsQuery = tags!.useList(projectID)
 
-  const removeTagMut = useTagDeleteMut!(projectID, (_, { tagID }) => {
+  const removeTagMut = tags!.useDelete(projectID, (_, { tagID }) => {
     toast(`Tag #${tagID} removed from Project #${projectID}`, {
       type: "success",
     })
     setConfirmDelete(null)
   })
 
-  const editTagMut = useTagEditMut!(projectID, (_, { tagID }) => {
+  const editTagMut = tags!.useEdit(projectID, (_, { tagID }) => {
     toast(`Tag #${tagID} edited`, {
       type: "success",
     })
     setEditMode(null)
   })
 
-  const createTagMut = useTagCreateMut!(projectID, ({ data }) => {
+  const createTagMut = tags!.useCreate(projectID, ({ data }) => {
     toast(<>Tag (#{data.ID}) created</>, {
       type: "success",
     })

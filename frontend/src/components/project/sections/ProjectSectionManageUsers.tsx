@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { BsPerson } from "react-icons/bs"
 
-import { BackendResponse, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ProjectModalManageUsers from "@/components/project/modals/ProjectModalManageUsers"
 import Button from "@/components/ui/Button"
@@ -19,12 +17,8 @@ export default function ProjectSectionManageUsers({
 }) {
   const [showUserControl, setShowUserControl] = useState(false)
 
-  const { projectUsersQueryFn, projectUsersQueryKey } = useAuth()
-
-  const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(projectID),
-    queryFn: projectUsersQueryFn!(projectID),
-  })
+  const { projects } = useAuth()
+  const projectUsersQuery = projects!.useUserList(projectID)
 
   if (projectUsersQuery.isLoading) {
     return <>Loading Users...</>

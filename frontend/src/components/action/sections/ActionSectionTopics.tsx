@@ -6,9 +6,9 @@ import { TruncateTitle } from "@/components/ui/text/TruncateText"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionSectionTopics({ action }: { action: Action }) {
-  const { useActionLinkTopicMut } = useAuth()
+  const { actions } = useAuth()
 
-  const linkTopicMut = useActionLinkTopicMut!(action.project_id)
+  const linkTopicMut = actions!.useLinkTopic(action.project_id)
 
   return (
     <>

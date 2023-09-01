@@ -1,5 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import {
   BsArrowLeft,
@@ -11,7 +9,7 @@ import {
 } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Project } from "@/api/types"
+import { Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
@@ -37,13 +35,13 @@ function ModalList({
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
   const [confirmLeave, setConfirmLeave] = useState<number | null>(null)
 
-  const { user, useProjectCreateMut, useProjectLeaveMut } = useAuth()
+  const { user, projects: project } = useAuth()
 
-  const leaveProjectMutation = useProjectLeaveMut!((_, { projectID }) => {
+  const leaveProjectMutation = project!.useLeave((_, { projectID }) => {
     toast(`Left Project #${projectID}`, { type: "success" })
   })
 
-  const createProjectMutation = useProjectCreateMut!(({ data }) => {
+  const createProjectMutation = project!.useCreate(({ data }) => {
     toast(`Project #${data.ID} created`, { type: "success" })
     setCreateName("")
     setCreateDescription("")
@@ -240,28 +238,12 @@ function ModalDelete({
 }) {
   const [confirmDeleteText, setConfirmDeleteText] = useState("")
 
-  const queryClient = useQueryClient()
-  const { axios, projectListQueryKey } = useAuth()
-
-  const deleteProjectMutation = useMutation<BackendResponse, AxiosError>({
-    mutationFn: async () =>
-      (await axios!.delete(`/project/${project.ID}/delete`)).data,
-    onSuccess(_) {
-      toast(`Project #${project.ID} deleted`, {
-        type: "success",
-      })
-      queryClient.invalidateQueries(projectListQueryKey!())
-      onDelete()
-    },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to delete Project</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
+  const { projects: projectDB } = useAuth()
+  const deleteProjectMutation = projectDB!.useDelete((_, { projectID }) => {
+    toast(`Project #${projectID} deleted`, {
+      type: "success",
+    })
+    onDelete()
   })
 
   const triggerReady = confirmDeleteText.trim() === project.name.trim()
@@ -320,7 +302,11 @@ function ModalDelete({
             icon={<BsTrash />}
             className={triggerReady ? "w-fit bg-red-500" : "w-fit"}
             isLoading={deleteProjectMutation.isLoading}
-            onClick={() => deleteProjectMutation.mutate()}
+            onClick={() =>
+              deleteProjectMutation.mutate({
+                projectID: project.ID,
+              })
+            }
           >
             Delete
           </Button>
@@ -337,11 +323,8 @@ export default function ProjectModalManageProjects({
 }) {
   const [deleteConfirm, setDeleteConfirm] = useState<Project | null>()
 
-  const { projectListQueryFn, projectListQueryKey } = useAuth()
-  const projectListQuery = useQuery<BackendResponse<Project[]>>({
-    queryKey: projectListQueryKey!(),
-    queryFn: projectListQueryFn!(),
-  })
+  const { projects: project } = useAuth()
+  const projectListQuery = project!.useList()
 
   if (projectListQuery.isLoading) {
     return <>Loading Projects...</>

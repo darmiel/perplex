@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import Head from "next/head"
 import Link from "next/link"
 import { useState } from "react"
@@ -15,7 +14,7 @@ import {
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Comment, Topic } from "@/api/types"
+import { Comment, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import {
@@ -59,11 +58,9 @@ function SectionParticipants({
   projectID: number
   topicID: number
 }) {
-  const { commentListQueryFn, commentListQueryKey } = useAuth()
-  const commentListQuery = useQuery<BackendResponse<Comment[]>>({
-    queryKey: commentListQueryKey!(projectID, "topic", topicID),
-    queryFn: commentListQueryFn!(projectID, "topic", topicID),
-  })
+  const { comments } = useAuth()
+  const commentListQuery = comments!.useList(projectID, "topic", topicID)
+
   if (commentListQuery.isLoading) {
     return <BarLoader color="white" />
   }
@@ -144,24 +141,17 @@ export default function TopicOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
-  const {
-    useActionListForTopicQuery,
-    useTopicFindQuery,
-    useTopicUpdateMut,
-    useTopicDeleteMut,
-    useTopicListQuery,
-    useCommentMarkSolutionMut,
-  } = useAuth()
+  const { actions, topics, comments } = useAuth()
 
-  const findTopicQuery = useTopicFindQuery!(projectID, meetingID, topicID)
+  const findTopicQuery = topics!.useFind(projectID, meetingID, topicID)
 
-  const listTopicsForActionsQuery = useActionListForTopicQuery!(
+  const listTopicsForActionsQuery = actions!.useListForTopic(
     projectID,
     meetingID,
     topicID,
   )
 
-  const topicUpdateMutation = useTopicUpdateMut!(
+  const topicUpdateMutation = topics!.useEdit(
     projectID,
     meetingID,
     topicID,
@@ -171,7 +161,7 @@ export default function TopicOverview({
     },
   )
 
-  const topicDeleteMutation = useTopicDeleteMut!(
+  const topicDeleteMutation = topics!.useDelete(
     projectID,
     meetingID,
     (_, { topicID }) => {
@@ -181,10 +171,11 @@ export default function TopicOverview({
     },
   )
 
-  const topicListQuery = useTopicListQuery!(projectID, meetingID)
+  const topicListQuery = topics!.useList(projectID, meetingID)
 
-  const markSolutionMutation = useCommentMarkSolutionMut!(
+  const markSolutionMutation = comments!.useMarkSolution(
     projectID,
+    meetingID,
     topicID,
     (_, { mark, commentID }) => {
       toast(

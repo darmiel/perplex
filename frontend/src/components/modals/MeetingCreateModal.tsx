@@ -1,5 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { forwardRef, useState } from "react"
 import DatePicker from "react-datepicker"
 
@@ -8,7 +6,6 @@ import "react-datepicker/dist/react-datepicker.css"
 import { BsTriangle } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
@@ -23,36 +20,32 @@ export default function CreateMeeting({
 }) {
   const [meetingTitle, setMeetingTitle] = useState<string>("")
   const [meetingDescription, setMeetingDescription] = useState<string>("")
-  const [meetingDate, setMeetingDate] = useState<Date | null>(new Date())
+  const [meetingDate, setMeetingDate] = useState<Date>(new Date())
 
-  const { meetingCreateMutFn, meetingCreateMutKey, meetingListQueryKey } =
-    useAuth()
-  const queryClient = useQueryClient()
+  const { meetings: meeting } = useAuth()
 
-  const createMeetingMutation = useMutation<
-    BackendResponse<Meeting>,
-    AxiosError,
-    boolean
-  >({
-    mutationKey: meetingCreateMutKey!(projectID),
-    mutationFn: meetingCreateMutFn!(
-      projectID,
-      meetingTitle,
-      meetingDescription,
-      meetingDate!,
-    ),
-    onSuccess(response, shouldClose: boolean) {
-      toast(`Meeting #${response.data.ID} Created`, { type: `success` })
-      queryClient.invalidateQueries(meetingListQueryKey!(projectID))
+  const createMeetingMutation = meeting!.useCreate(
+    projectID,
+    ({ data }, { __should_close }) => {
+      toast(`Meeting #${data.ID} Created`, { type: `success` })
 
       // clear form
       setMeetingTitle("")
       setMeetingDescription("")
       setMeetingDate(new Date())
 
-      shouldClose && onClose?.(response.data.ID)
+      __should_close && onClose?.(data.ID)
     },
-  })
+  )
+
+  function create(shouldClose: boolean) {
+    createMeetingMutation.mutate({
+      title: meetingTitle,
+      description: meetingDescription,
+      date: meetingDate,
+      __should_close: shouldClose,
+    })
+  }
 
   // I really tried to type this, but it's just too much work
   // and I don't have the time to do it
@@ -106,7 +99,7 @@ export default function CreateMeeting({
         <div>
           <DatePicker
             selected={meetingDate}
-            onChange={(date) => setMeetingDate(date)}
+            onChange={(date) => date && setMeetingDate(date)}
             timeInputLabel="Time:"
             dateFormat="MM/dd/yyyy h:mm aa"
             customInput={<PickerCustomInput />}
@@ -129,7 +122,7 @@ export default function CreateMeeting({
         <Button
           style="secondary"
           isLoading={createMeetingMutation.isLoading}
-          onClick={() => createMeetingMutation.mutate(true)}
+          onClick={() => create(true)}
         >
           Save and Close
         </Button>
@@ -137,7 +130,7 @@ export default function CreateMeeting({
         <Button
           style="primary"
           isLoading={createMeetingMutation.isLoading}
-          onClick={() => createMeetingMutation.mutate(false)}
+          onClick={() => create(false)}
         >
           Save and Create New
         </Button>

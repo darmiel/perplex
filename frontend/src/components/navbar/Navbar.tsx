@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
@@ -6,21 +5,17 @@ import { BsGithub } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 
 import PerplexLogo from "@/../public/perplex.svg"
-import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function Navbar() {
-  const { user, projectListQueryFn, projectListQueryKey } = useAuth()
+  const { user, projects } = useAuth()
 
   const router = useRouter()
   const { project_id: projectID } = router.query
 
-  const projectListQuery = useQuery<BackendResponse<Project[]>>({
-    queryKey: projectListQueryKey!(),
-    queryFn: projectListQueryFn!(),
-  })
+  const projectListQuery = projects!.useList()
 
   return (
     <aside

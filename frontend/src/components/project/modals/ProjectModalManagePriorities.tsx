@@ -29,16 +29,11 @@ export default function ProjectModalManagePriorities({
   const [createColor, setCreateColor] = useState("")
   const [createWeight, setCreateWeight] = useState(0)
 
-  const {
-    usePrioritiesQuery,
-    usePriorityCreateMut,
-    usePriorityEditMut,
-    usePriorityDeleteMut,
-  } = useAuth()
+  const { priorities } = useAuth()
 
-  const listPrioritiesQuery = usePrioritiesQuery!(projectID)
+  const listPrioritiesQuery = priorities!.useList(projectID)
 
-  const removePriorityMut = usePriorityDeleteMut!(
+  const removePriorityMut = priorities!.useDelete(
     projectID,
     (_, { priorityID }) => {
       toast(`Priority #${priorityID} removed from Project #${projectID}`, {
@@ -48,7 +43,7 @@ export default function ProjectModalManagePriorities({
     },
   )
 
-  const editPriorityMut = usePriorityEditMut!(
+  const editPriorityMut = priorities!.useEdit(
     projectID,
     (_, { priorityID }) => {
       toast(`Priority #${priorityID} edited`, {
@@ -58,7 +53,7 @@ export default function ProjectModalManagePriorities({
     },
   )
 
-  const createPriorityMut = usePriorityCreateMut!(projectID, ({ data }) => {
+  const createPriorityMut = priorities!.useCreate(projectID, ({ data }) => {
     toast(<>Priority #{data.ID} created</>, {
       type: "success",
     })

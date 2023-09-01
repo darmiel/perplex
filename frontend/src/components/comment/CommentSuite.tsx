@@ -1,7 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
 import { BarLoader } from "react-spinners"
 
-import { BackendResponse, Comment, CommentEntityType } from "@/api/types"
+import { Comment, CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentList from "@/components/comment/CommentList"
 import CommentSendNewBox from "@/components/comment/CommentSendNewBox"
@@ -24,12 +23,13 @@ export default function CommentSuite({
   onSolutionClick?: (mark: boolean, comment: Comment) => void
   isSolutionMutLoading?: boolean
 }) {
-  const { commentListQueryFn, commentListQueryKey } = useAuth()
+  const { comments: comment } = useAuth()
 
-  const listCommentQuery = useQuery<BackendResponse<Comment[]>>({
-    queryKey: commentListQueryKey!(projectID, commentType, commentEntityID),
-    queryFn: commentListQueryFn!(projectID, commentType, commentEntityID),
-  })
+  const listCommentQuery = comment!.useList(
+    projectID,
+    commentType,
+    commentEntityID,
+  )
   if (listCommentQuery.isLoading) {
     return <BarLoader color="white" />
   }

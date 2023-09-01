@@ -17,8 +17,8 @@ export default function ProjectSectionManagePriorities({
 }) {
   const [showPriorityControl, setShowPriorityControl] = useState(false)
 
-  const { usePrioritiesQuery } = useAuth()
-  const projectPrioritiesQuery = usePrioritiesQuery!(projectID)
+  const { priorities } = useAuth()
+  const projectPrioritiesQuery = priorities!.useList(projectID)
 
   return (
     <>

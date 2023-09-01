@@ -1,12 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
 import { GoDiscussionClosed } from "react-icons/go"
 import { BarLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Topic, User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
@@ -98,69 +95,34 @@ export default function CreateTopic({
   const [topicType, setTopicType] = useState<TopicType>("acknowledge")
   const [topicAssigned, setTopicAssigned] = useState<string[]>([])
 
-  const {
-    topicCreateMutFn: createTopicMutFn,
-    topicCreateMutKey: createTopicMutKey,
-    topicAssignMutFn: assignTopicMutFn,
-    topicAssignMutKey: assignTopicMutKey,
-    projectUsersQueryFn: projectInfoQueryFn,
-    projectUsersQueryKey: projectInfoQueryKey,
-    topicListQueryKey,
-    topicFindQueryKey: topicInfoQueryKey,
-  } = useAuth()
-  const queryClient = useQueryClient()
+  const { topics: topic, projects: project } = useAuth()
 
-  const assignMutation = useMutation<
-    BackendResponse,
-    AxiosError,
-    { userIDs: string[]; topicID: number }
-  >({
-    mutationKey: assignTopicMutKey!(projectID, meetingID),
-    mutationFn: assignTopicMutFn!(projectID, meetingID),
-    onSuccess(_, { topicID }) {
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
-      queryClient.invalidateQueries(
-        topicInfoQueryKey!(projectID, meetingID, topicID),
-      )
-    },
+  const assignMutation = topic!.useAssignUsers(projectID, meetingID, () => {
+    toast("User successfully assigned to topic.", { type: "success" })
   })
 
-  const createTopicMutation = useMutation<
-    BackendResponse<Topic>,
-    AxiosError<BackendResponse>,
-    boolean
-  >({
-    mutationKey: createTopicMutKey!(projectID, meetingID),
-    mutationFn: createTopicMutFn!(
-      projectID,
-      meetingID,
-      topicTitle,
-      topicDescription,
-      topicType === "discuss",
-    ),
-    onSuccess: (data: BackendResponse<Topic>, shouldClose: boolean) => {
+  const createTopicMutation = topic!.useCreate(
+    projectID,
+    meetingID,
+    ({ data }, { __should_close }) => {
       // assign users
       assignMutation.mutate({
         userIDs: topicAssigned,
-        topicID: data.data.ID,
+        topicID: data.ID,
       })
 
-      toast(`Topic #${data.data.ID} Created`, { type: "success" })
-      queryClient.invalidateQueries(topicListQueryKey!(projectID, meetingID))
+      toast(`Topic #${data.ID} Created`, { type: "success" })
 
       // clear form
       setTopicTitle("")
       setTopicDescription("")
 
-      shouldClose && onClose?.(data.data.ID)
+      __should_close && onClose?.(data.ID)
     },
-  })
+  )
 
   // users in project
-  const projectInfoQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectInfoQueryKey!(projectID),
-    queryFn: projectInfoQueryFn!(projectID),
-  })
+  const projectInfoQuery = project!.useUserList(projectID)
 
   function addUser(userID: string) {
     setTopicAssigned((old) => [...old, userID])
@@ -168,6 +130,15 @@ export default function CreateTopic({
 
   function removeUser(userID: string) {
     setTopicAssigned((old) => old.filter((u) => u !== userID))
+  }
+
+  function create(shouldClose: boolean) {
+    createTopicMutation.mutate({
+      title: topicTitle,
+      description: topicDescription,
+      force_solution: topicType === "discuss",
+      __should_close: shouldClose,
+    })
   }
 
   return (
@@ -252,7 +223,7 @@ export default function CreateTopic({
         <Button
           style="secondary"
           isLoading={createTopicMutation.isLoading}
-          onClick={() => createTopicMutation.mutate(true)}
+          onClick={() => create(true)}
         >
           Save and Close
         </Button>
@@ -260,7 +231,7 @@ export default function CreateTopic({
         <Button
           style="primary"
           isLoading={createTopicMutation.isLoading}
-          onClick={() => createTopicMutation.mutate(false)}
+          onClick={() => create(false)}
         >
           Save and Create New
         </Button>

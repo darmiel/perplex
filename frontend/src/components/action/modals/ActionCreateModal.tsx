@@ -58,23 +58,15 @@ export default function ActionCreateModal({
   const [actionUserAssigned, setActionUserAssigned] = useState<string[]>([])
   const [actionTagAssigned, setActionTagsAssigned] = useState<number[]>([])
 
-  const {
-    useActionCreateMut,
-    useActionLinkTopicMut,
-    useActionLinkUserMut,
-    useActionLinkTagMut,
-    useProjectUsersQuery,
-    useTagsListQuery,
-    usePrioritiesQuery,
-  } = useAuth()
-  const linkTopicToActionMut = useActionLinkTopicMut!(projectID)
-  const linkUserToActionMut = useActionLinkUserMut!(projectID)
-  const linkTagToActionMut = useActionLinkTagMut!(projectID)
-  const usersQuery = useProjectUsersQuery!(projectID)
-  const tagsQuery = useTagsListQuery!(projectID)
-  const prioritiesQuery = usePrioritiesQuery!(projectID)
+  const { actions, projects, tags, priorities } = useAuth()
+  const linkTopicToActionMut = actions!.useLinkTopic(projectID)
+  const linkUserToActionMut = actions!.useLinkUser(projectID)
+  const linkTagToActionMut = actions!.useLinkTag(projectID)
+  const usersQuery = projects!.useUserList(projectID)
+  const tagsQuery = tags!.useList(projectID)
+  const prioritiesQuery = priorities!.useList(projectID)
 
-  const createActionMutation = useActionCreateMut!(projectID, ({ data }) => {
+  const createActionMutation = actions!.useCreate(projectID, ({ data }) => {
     toast(`Action #${data.ID} Created`, { type: "success" })
 
     // clear form

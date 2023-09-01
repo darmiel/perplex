@@ -9,11 +9,9 @@ export default function ActionPage() {
   const router = useRouter()
   const { project_id: projectID, action_id: actionID } = router.query
 
-  const { useActionFindQuery } = useAuth()
-  const findActionQuery = useActionFindQuery!(
-    Number(projectID),
-    Number(actionID),
-  )
+  const { actions } = useAuth()
+  const findActionQuery = actions!.useFind(Number(projectID), Number(actionID))
+
   if (
     !projectID ||
     !actionID ||

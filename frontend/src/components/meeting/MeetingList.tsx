@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsArrowLeft, BsCalendar } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
-import { BackendResponse, Meeting } from "@/api/types"
+import { Meeting } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import MeetingTag, {
   getMeetingTense,
@@ -36,14 +35,11 @@ export default function MeetingList({
   className?: string
 }) {
   const [showCreateMeeting, setShowCreateMeeting] = useState(false)
-  const { meetingListQueryFn, meetingListQueryKey } = useAuth()
+  const { meetings } = useAuth()
 
   const router = useRouter()
 
-  const listMeetingQuery = useQuery<BackendResponse<Meeting[]>>({
-    queryKey: meetingListQueryKey!(projectID),
-    queryFn: meetingListQueryFn!(projectID),
-  })
+  const listMeetingQuery = meetings!.useList(projectID)
   if (listMeetingQuery.isLoading) {
     return <BarLoader color="white" />
   }

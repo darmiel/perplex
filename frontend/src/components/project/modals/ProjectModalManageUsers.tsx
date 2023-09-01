@@ -1,12 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
-import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
+import { toast } from "react-toastify"
 
-import { projectUserAddVars } from "@/api/functions"
-import { BackendResponse, User } from "@/api/types"
-import { toastError } from "@/api/util"
-import { useDebounceCallback } from "@/components/Debounce"
+import useDebounce from "@/components/Debounce"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
@@ -24,50 +21,28 @@ export default function ProjectModalManageUsers({
   const [userNameSearch, setUserNameSearch] = useState("")
   const [query, setQuery] = useState("")
 
-  const {
-    user: loggedUser,
-    projectUsersQueryFn,
-    projectUsersQueryKey,
-    userListQueryFn,
-    userListQueryKey,
-    projectUserAddMutFn,
-    projectUserAddMutKey,
-  } = useAuth()
+  const { user: loggedUser, projects: project, users } = useAuth()
   const queryClient = useQueryClient()
 
-  const listUsersQuery = useQuery<BackendResponse<User[]>, AxiosError>({
-    queryKey: userListQueryKey!(query, page),
-    queryFn: userListQueryFn!(query, page),
-    keepPreviousData: true,
-  })
+  const listUsersQuery = users!.useList(query, page, true)
 
   // get project information to check which users are already in the project
-  const projectUsersQuery = useQuery<BackendResponse<User[]>>({
-    queryKey: projectUsersQueryKey!(projectID),
-    queryFn: projectUsersQueryFn!(projectID),
-  })
+  const projectUsersQuery = project!.useUserList(projectID)
 
-  const addRemoveUserMutation = useMutation<
-    BackendResponse<User>,
-    AxiosError,
-    projectUserAddVars
-  >({
-    mutationKey: projectUserAddMutKey!(projectID),
-    mutationFn: projectUserAddMutFn!(projectID),
-    onSuccess() {
-      queryClient.invalidateQueries(projectUsersQueryKey!(projectID))
+  const addRemoveUserMutation = project!.useUserLink(
+    projectID,
+    (_, { link }) => {
+      toast(`User successfully ${link ? "added" : "removed"} from Project.`, {
+        type: "success",
+      })
     },
-    onError: toastError(
-      ({ add }) => `Cannot ${add ? "add" : "remove"} User from Project`,
-    ),
-  })
+  )
 
-  // user search
-  useDebounceCallback(userNameSearch, 100, (userNameSearch) => {
+  const debounce = useDebounce(userNameSearch, 100)
+  useEffect(() => {
     setPage(1)
-    setQuery(userNameSearch)
-    queryClient.invalidateQueries(["users", page])
-  })
+    setQuery(debounce)
+  }, [debounce])
 
   return (
     <ModalContainer
@@ -119,7 +94,7 @@ export default function ProjectModalManageUsers({
                 onClick={() =>
                   addRemoveUserMutation.mutate({
                     userID: user.id,
-                    add: !isAlreadyInProject,
+                    link: !isAlreadyInProject,
                   })
                 }
                 isLoading={addRemoveUserMutation.isLoading}

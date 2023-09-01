@@ -1,11 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsPen } from "react-icons/bs"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
 import CommentSuite from "@/components/comment/CommentSuite"
@@ -33,37 +31,13 @@ export default function ProjectPage() {
   const { project_id: projectIDStr } = router.query
   const projectID = Number(projectIDStr)
 
-  const {
-    projectGetQueryFn,
-    projectGetQueryKey,
-    projectUpdateMutFn,
-    projectUpdateMutKey,
-    user,
-  } = useAuth()
-  const queryClient = useQueryClient()
+  const { projects: projectDB, user } = useAuth()
 
-  const projectInfoQuery = useQuery<BackendResponse<Project>>({
-    queryKey: projectGetQueryKey!(projectID),
-    queryFn: projectGetQueryFn!(projectID),
-  })
+  const projectInfoQuery = projectDB!.useFind(projectID)
 
-  const updateProjectMut = useMutation<BackendResponse<never>>({
-    mutationKey: projectUpdateMutKey!(projectID),
-    mutationFn: projectUpdateMutFn!(projectID, editName, editDescription),
-    onError: (err) => {
-      toast(
-        <>
-          <strong>Failed to update project</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-    onSuccess() {
-      toast(`Project #${projectID} updated`, { type: "success" })
-      queryClient.invalidateQueries(projectGetQueryKey!(projectID))
-      setIsEdit(false)
-    },
+  const projectEditMut = projectDB!.useEdit((_, { projectID }) => {
+    toast(`Project #${projectID} updated`, { type: "success" })
+    setIsEdit(false)
   })
 
   if (!projectID || Array.isArray(projectID)) {
@@ -154,8 +128,14 @@ export default function ProjectPage() {
                   <Button
                     className="w-1/2 text-sm"
                     style="primary"
-                    isLoading={updateProjectMut.isLoading}
-                    onClick={() => updateProjectMut.mutate()}
+                    isLoading={projectEditMut.isLoading}
+                    onClick={() =>
+                      projectEditMut.mutate({
+                        projectID: project.ID,
+                        name: editName,
+                        description: editDescription,
+                      })
+                    }
                   >
                     Save
                   </Button>

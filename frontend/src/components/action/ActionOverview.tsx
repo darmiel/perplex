@@ -53,12 +53,12 @@ export default function ActionOverview({ action }: { action: Action }) {
 
   const [isEdit, setIsEdit] = useState(false)
 
-  const { usePrioritiesQuery, useActionEditMut } = useAuth()
+  const { priorities, actions } = useAuth()
   const queryClient = useQueryClient()
 
-  const projectPrioritiesQuery = usePrioritiesQuery!(action.project_id)
+  const projectPrioritiesQuery = priorities!.useList(action.project_id)
 
-  const actionEditMut = useActionEditMut!(
+  const actionEditMut = actions!.useEdit(
     action.project_id,
     (_, { actionID }) => {
       toast(`Action ${actionID} updated`, { type: "success" })

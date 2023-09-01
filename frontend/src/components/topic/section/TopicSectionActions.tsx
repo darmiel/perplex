@@ -17,8 +17,8 @@ export default function TopicSectionActions({
   topic: Topic
   actions: Action[]
 }) {
-  const { useActionLinkTopicMut } = useAuth()
-  const unlinkActionMut = useActionLinkTopicMut!(projectID)
+  const { actions: actionsDB } = useAuth()
+  const unlinkActionMut = actionsDB!.useLinkTopic(projectID)
 
   return (
     <>

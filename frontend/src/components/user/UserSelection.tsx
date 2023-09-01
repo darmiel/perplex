@@ -1,9 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { BarLoader } from "react-spinners"
 import Popup from "reactjs-popup"
 
-import { BackendResponse, User } from "@/api/types"
+import { User } from "@/api/types"
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
 import { useAuth } from "@/contexts/AuthContext"
@@ -29,13 +28,8 @@ export default function UserSelection({
   )
   const [hasChanged, setHasChanged] = useState(false)
 
-  const { projectUsersQueryFn, projectUsersQueryKey } = useAuth()
-  const queryClient = useQueryClient()
-  const projectInfoQuery = useQuery<BackendResponse<User[]>>({
-    enabled: open,
-    queryKey: projectUsersQueryKey!(projectID),
-    queryFn: projectUsersQueryFn!(projectID),
-  })
+  const { projects } = useAuth()
+  const projectUsersQuery = projects!.useUserList(projectID)
 
   function addUser(userID: string) {
     setHasChanged(true)
@@ -60,11 +54,11 @@ export default function UserSelection({
       }}
     >
       <div className="p-1 rounded-md bg-neutral-900 border border-neutral-600 space-y-2">
-        {projectInfoQuery.isLoading ? (
+        {projectUsersQuery.isLoading ? (
           <BarLoader color="white" />
         ) : (
           <>
-            {projectInfoQuery.data?.data.map((user) => (
+            {projectUsersQuery.data?.data.map((user) => (
               <CheckableCardContainer
                 key={user.id}
                 checked={assigned.includes(user.id)}

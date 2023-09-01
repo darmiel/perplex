@@ -26,9 +26,9 @@ export default function ActionList({
 }) {
   const [showCreateAction, setShowCreateAction] = useState(false)
 
-  const { useActionListForProjectQuery } = useAuth()
+  const { actions } = useAuth()
   const { data, error, isLoading, isError } =
-    useActionListForProjectQuery!(projectID)
+    actions!.useListForProject(projectID)
 
   if (isLoading) {
     return <BarLoader color="white" />

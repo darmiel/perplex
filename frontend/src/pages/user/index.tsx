@@ -1,52 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import { BarLoader } from "react-spinners"
 
-import { BackendResponse } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function User() {
-  const {
-    user,
-    userResolveQueryFn,
-    userResolveQueryKey,
-    userChangeNameMutFn,
-    userChangeNameMutKey,
-  } = useAuth()
+  const { user, users } = useAuth()
 
   const [userName, setUserName] = useState<string>("")
 
-  const queryClient = useQueryClient()
-  const userNameQuery = useQuery<BackendResponse<string>, AxiosError>({
-    enabled: !!user,
-    queryKey: userResolveQueryKey!(user!.uid),
-    queryFn: userResolveQueryFn!(user!.uid),
-    onSuccess(data) {
-      setUserName(data.data)
-    },
-    retry: (failureCount, error) => {
-      if (error.response?.status === 404) {
-        return false
-      }
-      return failureCount < 3
-    },
-  })
+  const userNameQuery = users!.useResolve(user?.uid ?? "", (name) =>
+    setUserName(name),
+  )
 
-  const changeNameMutation = useMutation<
-    BackendResponse<string>,
-    AxiosError,
-    string
-  >({
-    mutationKey: userChangeNameMutKey!(),
-    mutationFn: userChangeNameMutFn!(),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(userResolveQueryKey!(user!.uid))
-    },
-  })
+  const changeNameMutation = users!.useChangeName(user!.uid, () => {})
 
   if (!user) {
     return (
@@ -123,7 +92,11 @@ export default function User() {
             )}
             <Button
               isLoading={changeNameMutation.isLoading}
-              onClick={() => changeNameMutation.mutate(userName)}
+              onClick={() =>
+                changeNameMutation.mutate({
+                  newName: userName,
+                })
+              }
             >
               {isUnregistered ? "Register" : "Change Name"}
             </Button>

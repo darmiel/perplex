@@ -1,10 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useState } from "react"
 import { toast } from "react-toastify"
 
-import { sendCommentVars } from "@/api/functions"
-import { BackendResponse, CommentEntityType } from "@/api/types"
+import { CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
@@ -22,27 +19,17 @@ export default function CommentSendNewBox({
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
-  const { commentSendMutFn, commentSendMutKey, commentListQueryKey } = useAuth()
-  const queryClient = useQueryClient()
+  const { comments: comment } = useAuth()
 
-  const refreshComments = () =>
-    queryClient.invalidateQueries(
-      commentListQueryKey!(projectID, commentType, commentEntityID),
-    )
-
-  const sendCommentMutation = useMutation<
-    BackendResponse<never>,
-    AxiosError,
-    sendCommentVars
-  >({
-    mutationKey: commentSendMutKey!(projectID, commentType, commentEntityID),
-    mutationFn: commentSendMutFn!(projectID, commentType, commentEntityID),
-    onSuccess: () => {
+  const sendCommentMutation = comment!.useSend(
+    projectID,
+    commentType,
+    commentEntityID,
+    () => {
       setCommentBoxText("")
-      refreshComments()
       toast("Comment sent!", { type: "success" })
     },
-  })
+  )
 
   return (
     <div className={`relative ${className}`}>

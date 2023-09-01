@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 
 import { extractErrorMessage } from "@/api/util"
@@ -11,7 +10,7 @@ import "reactjs-popup/dist/index.css"
 import { useRouter } from "next/router"
 import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 
-import { BackendResponse, Topic } from "@/api/types"
+import { Topic } from "@/api/types"
 import CreateTopic from "@/components/modals/TopicCreateModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 
@@ -29,12 +28,9 @@ export default function TopicList({
   const [showCreateTopic, setShowCreateTopic] = useState(false)
 
   const router = useRouter()
-  const { topicListQueryFn, topicListQueryKey } = useAuth()
+  const { topics } = useAuth()
 
-  const topicListQuery = useQuery<BackendResponse<Topic[]>>({
-    queryKey: topicListQueryKey!(projectID, meetingID),
-    queryFn: topicListQueryFn!(projectID, meetingID),
-  })
+  const topicListQuery = topics!.useList(projectID, meetingID)
 
   if (topicListQuery.isLoading) {
     return <div>Loading...</div>

@@ -9,15 +9,11 @@ import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionSectionAssigned({ action }: { action: Action }) {
-  const {
-    user: loggedUser,
-    useProjectUsersQuery,
-    useActionLinkUserMut,
-  } = useAuth()
+  const { user: loggedUser, projects, actions } = useAuth()
 
   // get project information to check which users are already in the project
-  const projectUsersQuery = useProjectUsersQuery!(action.project_id)
-  const assignMut = useActionLinkUserMut!(action.project_id)
+  const projectUsersQuery = projects!.useUserList(action.project_id)
+  const assignMut = actions!.useLinkUser(action.project_id)
 
   return (
     <div className="flex flex-col space-y-2">

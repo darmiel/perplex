@@ -17,8 +17,8 @@ export default function ProjectSectionManageTags({
 }) {
   const [showTagControl, setShowTagControl] = useState(false)
 
-  const { useTagsListQuery } = useAuth()
-  const projectTagsQuery = useTagsListQuery!(projectID)
+  const { tags } = useAuth()
+  const projectTagsQuery = tags!.useList(projectID)
 
   return (
     <>

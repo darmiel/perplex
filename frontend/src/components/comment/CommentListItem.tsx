@@ -1,5 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { ReactNode, useState } from "react"
 import {
   BsCheck,
@@ -12,8 +10,7 @@ import {
 import { ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
 
-import { BackendResponse, Comment, CommentEntityType } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
+import { Comment, CommentEntityType } from "@/api/types"
 import { RelativeDate } from "@/components/ui/DateString"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import ResolveUserName from "@/components/user/ResolveUserName"
@@ -47,53 +44,30 @@ export default function CommentListItem({
   onSolutionClick?: (solution: boolean) => void
   isSolutionMutLoading?: boolean
 }) {
-  const {
-    user,
-    commentListQueryKey,
-    commentDeleteMutFn,
-    commentDeleteMutKey,
-    commentEditMutFn,
-    commentEditMutKey,
-  } = useAuth()
+  const { user, comments: commentDB } = useAuth()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [editContent, setEditContent] = useState("")
 
-  const queryClient = useQueryClient()
-
-  const refreshCommentList = () =>
-    queryClient.invalidateQueries(
-      commentListQueryKey!(projectID, commentType, commentEntityID),
-    )
-
-  const deleteCommentMutation = useMutation<BackendResponse, AxiosError>({
-    mutationKey: commentDeleteMutKey!(comment.ID),
-    mutationFn: commentDeleteMutFn!(projectID, comment.ID),
-    onSuccess() {
-      toast(`Comment #${comment.ID} deleted!`, { type: "success" })
-      refreshCommentList()
+  const deleteCommentMutation = commentDB!.useDelete(
+    projectID,
+    commentType,
+    commentEntityID,
+    (_, { commentID }) => {
+      toast(`Comment #${commentID} deleted!`, { type: "success" })
     },
-    onError(err) {
-      toast(
-        <>
-          <strong>Failed to delete Comment:</strong>
-          <pre>{extractErrorMessage(err)}</pre>
-        </>,
-        { type: "error" },
-      )
-    },
-  })
+  )
 
-  const editCommentMutation = useMutation<BackendResponse, AxiosError, string>({
-    mutationKey: commentEditMutKey!(comment.ID),
-    mutationFn: commentEditMutFn!(projectID, comment.ID),
-    onSuccess() {
-      toast(`Comment #${comment.ID} edited!`, { type: "success" })
-      refreshCommentList()
+  const editCommentMutation = commentDB!.useEdit(
+    projectID,
+    commentType,
+    commentEntityID,
+    (_, { commentID }) => {
+      toast(`Comment #${commentID} edited!`, { type: "success" })
       setEditMode(false)
     },
-  })
+  )
 
   const createdAtDate = new Date(Date.parse(comment.CreatedAt))
   const wasEdited = comment.CreatedAt !== comment.UpdatedAt
@@ -110,7 +84,9 @@ export default function CommentListItem({
       return
     }
     setConfirmDelete(false)
-    deleteCommentMutation.mutate()
+    deleteCommentMutation.mutate({
+      commentID: comment.ID,
+    })
   }
 
   return (
@@ -162,7 +138,12 @@ export default function CommentListItem({
                   {/* Commit Edit */}
                   <Loadable loading={editCommentMutation.isLoading}>
                     <button
-                      onClick={() => editCommentMutation.mutate(editContent)}
+                      onClick={() =>
+                        editCommentMutation.mutate({
+                          commentID: comment.ID,
+                          content: editContent,
+                        })
+                      }
                       className="text-primary-500"
                     >
                       <BsCheck size="20px" />
