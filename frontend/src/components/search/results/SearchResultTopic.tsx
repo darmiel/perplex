@@ -8,19 +8,23 @@ export default function SearchResultTopic({
   topic,
   topicMap,
   onClick,
+  onMouseOver,
 }: {
   topic: Topic
   topicMap: { [key: number]: number }
   onClick: () => void
+  onMouseOver: (link: string) => void
 }) {
+  const href = `/project/${topicMap[topic.ID] ?? "unknown"}/meeting/${
+    topic.meeting_id
+  }/topic/${topic.ID}`
   return (
     <Link
-      href={`/project/${topicMap[topic.ID] ?? "unknown"}/meeting/${
-        topic.meeting_id
-      }/topic/${topic.ID}`}
+      href={href}
       key={topic.ID}
       className="flex items-center space-x-2 p-2 rounded-md hover:bg-neutral-800"
       onClick={() => onClick()}
+      onMouseEnter={() => onMouseOver(href)}
     >
       <TopicTag className="text-xs" topic={topic} />
       <div className="flex flex-col">

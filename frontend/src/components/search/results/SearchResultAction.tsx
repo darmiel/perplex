@@ -8,16 +8,20 @@ import ResolveUserName from "@/components/user/ResolveUserName"
 export default function SearchResultAction({
   action,
   onClick,
+  onMouseOver,
 }: {
   action: Action
   onClick: () => void
+  onMouseOver: (link: string) => void
 }) {
+  const href = `/project/${action.project_id}/action/${action.ID}`
   return (
     <Link
-      href={`/project/${action.project_id}/action/${action.ID}`}
+      href={href}
       key={action.ID}
       className="flex items-center space-x-2 p-2 rounded-md hover:bg-neutral-800"
       onClick={() => onClick()}
+      onMouseEnter={() => onMouseOver(href)}
     >
       <ActionTag action={action} />
       <div className="flex flex-col">
