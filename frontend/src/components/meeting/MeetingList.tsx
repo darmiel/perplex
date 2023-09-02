@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsArrowLeft, BsCalendar } from "react-icons/bs"
+import { BsArrowDown, BsArrowLeft, BsArrowUp, BsCalendar } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { Meeting } from "@/api/types"
@@ -20,6 +20,7 @@ import {
   TruncateTitle,
 } from "@/components/ui/text/TruncateText"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLocalBoolState } from "@/hooks/localStorage"
 
 export default function MeetingList({
   projectID,
@@ -62,6 +63,12 @@ export default function MeetingList({
   })
 
   const MeetingListForTense = ({ tense }: { tense: MeetingTense }) => {
+    // collapse meetings for tense
+    const [expandTense, setExpandTense] = useLocalBoolState(
+      `meeting-overview/expand-tense/${tense}`,
+      true,
+    )
+
     const meetings = tenses[tense]
     if (meetings.length === 0) {
       return null
@@ -69,38 +76,47 @@ export default function MeetingList({
     const style = tagStyles[tense]
     return (
       <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <span className={style.color}>{style.icon}</span>
-          <h2 className="font-semibold text-sm text-neutral-400">
-            {style.text} Meetings
-          </h2>
-          <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
-            {meetings.length}
+        <button
+          className="w-full flex justify-between items-center hover:bg-neutral-700 px-2 py-1 rounded-md"
+          onClick={() => setExpandTense((prev) => !prev)}
+        >
+          <div className="flex flex-row items-center space-x-2">
+            <span className={style.color}>{style.icon}</span>
+            <h2 className="font-semibold text-sm text-neutral-400">
+              {style.text} Meetings
+            </h2>
+            <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+              {meetings.length}
+            </div>
           </div>
-        </div>
-        {meetings.map((meeting, key) => (
-          <div key={key}>
-            <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
-              <CardContainer
-                style={
-                  selectedMeetingID === meeting.ID
-                    ? "selected-border"
-                    : "neutral"
-                }
-              >
-                <div className="flex items-center space-x-2">
-                  <MeetingTag icon date={new Date(meeting.start_date)} />
-                  <div>
-                    <TruncateTitle truncate={22}>{meeting.name}</TruncateTitle>
+          {expandTense ? <BsArrowDown /> : <BsArrowUp />}
+        </button>
+        {expandTense &&
+          meetings.map((meeting, key) => (
+            <div key={key}>
+              <Link href={`/project/${projectID}/meeting/${meeting.ID}`}>
+                <CardContainer
+                  style={
+                    selectedMeetingID === meeting.ID
+                      ? "selected-border"
+                      : "neutral"
+                  }
+                >
+                  <div className="flex items-center space-x-2">
+                    <MeetingTag icon date={new Date(meeting.start_date)} />
+                    <div>
+                      <TruncateTitle truncate={22}>
+                        {meeting.name}
+                      </TruncateTitle>
+                    </div>
                   </div>
-                </div>
-                <TruncateSubTitle truncate={36}>
-                  {meeting.start_date}
-                </TruncateSubTitle>
-              </CardContainer>
-            </Link>
-          </div>
-        ))}
+                  <TruncateSubTitle truncate={36}>
+                    {meeting.start_date}
+                  </TruncateSubTitle>
+                </CardContainer>
+              </Link>
+            </div>
+          ))}
         <div className="mt-4"></div>
       </div>
     )

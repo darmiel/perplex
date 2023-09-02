@@ -7,10 +7,14 @@ import MeetingList from "@/components/meeting/MeetingList"
 import MeetingNotePage from "@/components/meeting/MeetingNotePage"
 import MeetingTopicPage from "@/components/meeting/MeetingTopicPage"
 import TabContainer from "@/components/ui/tab/TabContainer"
+import { useLocalBoolState } from "@/hooks/localStorage"
 
 export default function ProjectPage() {
-  const [showMeetingList, setShowMeetingList] = useState(false)
-
+  // collapse meeting list (true by default)
+  const [showMeetingList, setShowMeetingList] = useLocalBoolState(
+    "topic-overview/show-meetings",
+    false,
+  )
   const tabPanes = [
     {
       name: "Topics",

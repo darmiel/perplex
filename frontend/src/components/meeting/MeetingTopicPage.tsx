@@ -1,8 +1,8 @@
-import { useState } from "react"
 import { BsArrowDown } from "react-icons/bs"
 
 import TopicList from "@/components/topic/TopicList"
 import TopicOverview from "@/components/topic/TopicOverview"
+import { useLocalBoolState } from "@/hooks/localStorage"
 
 export default function MeetingTopicPage({
   projectID,
@@ -13,7 +13,10 @@ export default function MeetingTopicPage({
   meetingID: number
   topicID: number
 }) {
-  const [showTopicList, setShowTopicList] = useState(true)
+  const [showTopicList, setShowTopicList] = useLocalBoolState(
+    "topic-overview/show-topics",
+    true,
+  )
   return (
     <div className="flex flex-row h-full overflow-y-auto">
       {showTopicList ? (
