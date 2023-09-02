@@ -61,12 +61,14 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             </ModalPopup>
 
             {/*<Register>*/}
-            <Component {...pageProps} />
+            <main className="flex-1 bg-darker">
+              <Component {...pageProps} />
+            </main>
 
             {/*</Register>*/}
           </div>
           <Toaster theme="dark" closeButton={true} position="bottom-right" />
-          <ReactQueryDevtools position="top-left" />
+          <ReactQueryDevtools position="bottom-right" />
         </AuthProvider>
       </QueryClientProvider>
     </>

@@ -3,6 +3,7 @@ import { useState } from "react"
 import { BiArchive, BiNote } from "react-icons/bi"
 import { BsArrowDown } from "react-icons/bs"
 
+import { navigationBorderRight } from "@/api/classes"
 import MeetingList from "@/components/meeting/MeetingList"
 import MeetingNotePage from "@/components/meeting/MeetingNotePage"
 import MeetingTopicPage from "@/components/meeting/MeetingTopicPage"
@@ -64,7 +65,7 @@ export default function ProjectPage() {
   return (
     <>
       {showMeetingList ? (
-        <div className="flex flex-col h-full max-h-full w-[25rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+        <div className={`${navigationBorderRight} flex flex-col h-full max-h-full w-[25rem] bg-section-darker p-6 space-y-4 border-r border-r-neutral-800`}>
           <MeetingList
             projectID={projectID}
             selectedMeetingID={meetingID}
@@ -73,11 +74,11 @@ export default function ProjectPage() {
           />
         </div>
       ) : (
-        <div className="flex-initial w-[4rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+        <div className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker space-y-4`}>
           <h2 className="text-center mt-24 text-neutral-400 -rotate-90">
             <button
               onClick={() => setShowMeetingList(true)}
-              className="bg-neutral-900 border border-neutral-600 rounded-md px-4 py-1 flex justify-center items-center space-x-2"
+              className="bg-neutral-900 border border-neutral-600 rounded-md px-4 py-1 flex justify-center items-center space-x-2 "
             >
               <div>Meetings</div>
               <BsArrowDown color="gray" size="1em" />

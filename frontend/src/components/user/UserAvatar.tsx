@@ -17,7 +17,7 @@ export default function UserAvatar({
     <Image
       src={`https://api.dicebear.com/6.x/shapes/svg?seed=${userID}`}
       alt={alt ?? userID}
-      className={`${className ?? "w-10"} rounded-full`}
+      className={`${className ?? "w-10 rounded-full"} `}
       height={height}
       width={width}
     />

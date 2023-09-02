@@ -3,7 +3,7 @@
 import Head from "next/head"
 import Link from "next/link"
 import { Fragment, useMemo, useState } from "react"
-import { BsArrowDown, BsArrowRight, BsArrowUp, BsGear } from "react-icons/bs"
+import { BsArrowDown, BsArrowUp, BsGear } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { Action, Project } from "@/api/types"
@@ -193,9 +193,14 @@ function ProjectList() {
         <Button
           style="secondary"
           onClick={() => setShowManageProjects(true)}
-          icon={<BsGear />}
+          className="group"
         >
-          Manage Projects
+          <span className="flex items-center space-x-2">
+            <span className="inline-block transition-colors group-hover:text-primary-300 group-hover:animate-spin">
+              <BsGear />
+            </span>
+            <span>Manage Projects</span>
+          </span>
         </Button>
       </div>
       <div className="flex flex-row space-x-2 h-full w-full max-h-full overflow-x-auto">
@@ -248,7 +253,8 @@ function DashboardMeeting() {
           return (
             <div
               key={meeting.ID}
-              className="w-full p-4 flex flex-col space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
+              // className="space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
+              className="w-full max-w-sm flex flex-col space-y-1 rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
             >
               <h3 className="text-lg font-semibold">{meeting.name}</h3>
               <p className="text-neutral-400 flex space-x-2 items-center">
@@ -260,10 +266,12 @@ function DashboardMeeting() {
               </p>
               <Button
                 href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-                className="w-fit text-sm"
-                icon={<BsArrowRight />}
+                className="w-fit text-sm group"
               >
                 View Meeting
+                <span className="transition text-neutral-400 group-hover:text-primary-500 inline-block group-hover:translate-x-1 motion-reduce:transform-none">
+                  -&gt;
+                </span>
               </Button>
             </div>
           )

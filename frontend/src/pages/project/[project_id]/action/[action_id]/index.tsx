@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 
+import { navigationBorderRight } from "@/api/classes"
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
 import ActionOverview from "@/components/action/ActionOverview"
@@ -37,7 +38,7 @@ export default function ActionPage() {
 
   return (
     <>
-      <div className="flex-initial w-[30rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+      <div className={`${navigationBorderRight} flex-initial w-[30rem] bg-neutral-950 p-6 space-y-4`}>
         <ActionList projectID={projectIDNum} selectedActionID={actionIDNum} />
       </div>
 

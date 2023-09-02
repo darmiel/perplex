@@ -1,79 +1,133 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { BsGithub } from "react-icons/bs"
-import { ClipLoader } from "react-spinners"
+import { Fragment, ReactNode } from "react"
+import { BsGithub, BsHouse, BsPersonCheck } from "react-icons/bs"
+import { Tooltip } from "react-tooltip"
 
 import PerplexLogo from "@/../public/perplex.svg"
-import { extractErrorMessage } from "@/api/util"
+import { navigationBorderRight } from "@/api/classes"
+import ResolveUserName from "@/components/user/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
+function NavbarItem({
+  selected = false,
+  href,
+  tooltip_id,
+  children,
+}: {
+  selected?: boolean
+  href: string
+  tooltip_id?: string
+  children: ReactNode
+}) {
+  const router = useRouter()
+  return (
+    <Link href={href} className="w-full" data-tooltip-id={tooltip_id}>
+      <li
+        className={`flex flex-col justify-center items-center space-y-2 w-full px-3 py-2 ${
+          selected || router.asPath === href
+            ? "border-l-2 border-l-primary-600 text-primary-600"
+            : ""
+        }`}
+      >
+        {children}
+      </li>
+    </Link>
+  )
+}
+
 export default function Navbar() {
-  const { user, projects } = useAuth()
+  const { projects } = useAuth()
 
   const router = useRouter()
   const { project_id: projectID } = router.query
-
   const projectListQuery = projects!.useList()
 
+  const p = projectListQuery.data?.data ?? []
+
   return (
-    <aside
-      id="separator-sidebar"
-      className="flex-none top-0 left-0 w-20 h-screen transition-transform -translate-x-full sm:translate-x-0"
-      aria-label="Sidebar"
+    <nav
+      className={`${navigationBorderRight} w-16 bg-section-darkest flex flex-col justify-between`}
     >
-      <div className="h-full px-3 py-4 overflow-y-auto bg-black flex flex-col justify-between">
-        <div>
-          <div className="flex justify-center w-full mt-4">
-            <Link href="/">
-              <Image src={PerplexLogo} alt="Perplex Logo" />
-            </Link>
-          </div>
-
-          <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">
-            {projectListQuery.isLoading ? (
-              <ClipLoader color="white" />
-            ) : projectListQuery.isError ? (
-              <div>
-                Error: <pre>{extractErrorMessage(projectListQuery.error)}</pre>
-              </div>
-            ) : (
-              projectListQuery.data.data.map((project, key) => (
-                <Link key={key} href={`/project/${project.ID}`}>
-                  {String(project.ID) === projectID ? (
-                    <li className="border-2 border-primary-900 rounded-full p-2">
-                      <UserAvatar userID={String(project.ID)} />
-                    </li>
-                  ) : (
-                    <li>
-                      <UserAvatar userID={String(project.ID)} />
-                    </li>
-                  )}
-                </Link>
-              ))
-            )}
-          </ul>
+      <div>
+        <div className="p-4 w-full">
+          <Image src={PerplexLogo} alt="Logo" />
         </div>
 
-        <div className="mt-auto">
-          <ul className="space-y-4 font-medium mt-10 flex flex-col items-center">
-            <li className="p-2">
-              <a href="https://github.com/darmiel/perplex">
-                <BsGithub size="100%" />
-              </a>
-            </li>
-            <li className="w-full">
-              <hr className="border-neutral-600" />
-            </li>
-            <li>
-              <Link href="/user">
-                <UserAvatar userID={user?.uid ?? "1"} />
-              </Link>
-            </li>
-          </ul>
-        </div>
+        <ul className="mt-6 flex flex-col space-y-4">
+          {/* Dashboard Link */}
+          <NavbarItem href="/">
+            <BsHouse />
+            <span className="text-xs text-neutral-400">Home</span>
+          </NavbarItem>
+
+          {/* Project List */}
+          {p.map((project, index) => (
+            <Fragment key={index}>
+              <NavbarItem
+                key={index}
+                href={`/project/${project.ID}`}
+                tooltip_id={`tooltip-project-${project.ID}`}
+              >
+                <UserAvatar
+                  userID={String(project.ID)}
+                  className={`${
+                    String(project.ID) === projectID ? "" : "grayscale"
+                  } rounded-[50%] hover:rounded-md hover:grayscale-0 transition duration-150 ease-in-out hover:scale-110 w-full`}
+                />
+              </NavbarItem>
+              <Tooltip
+                id={`tooltip-project-${project.ID}`}
+                place="right"
+                offset={10}
+                variant="dark"
+                opacity={1.0}
+                style={{
+                  backgroundColor: "black",
+                }}
+              >
+                <span className="flex space-x-1 items-center">
+                  <span className="font-semibold">{project.name}</span>
+                  <span className="text-neutral-400">#{project.ID}</span>
+                </span>
+                <span className="flex space-x-1 items-center">
+                  <span className="text-neutral-400">Created by</span>
+                  <span>
+                    <ResolveUserName userID={project.owner_id} />
+                  </span>
+                </span>
+              </Tooltip>
+            </Fragment>
+          ))}
+        </ul>
       </div>
-    </aside>
+      <div>
+        <ul className="mt-6 flex flex-col space-y-2">
+          {/* User Settings */}
+          <NavbarItem href="/user">
+            <BsPersonCheck />
+            <span className="text-xs text-neutral-400">User</span>
+          </NavbarItem>
+
+          {/* GitHub Link to Repository */}
+          <li className="w-full p-4">
+            <a href="https://github.com/darmiel/perplex">
+              <BsGithub size="100%" />
+            </a>
+          </li>
+        </ul>
+      </div>
+      <Tooltip
+        id="project-name"
+        place="right"
+        variant="dark"
+        opacity={1.0}
+        style={{
+          backgroundColor: "black",
+        }}
+      />
+    </nav>
   )
 }

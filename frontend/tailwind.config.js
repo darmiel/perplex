@@ -18,6 +18,9 @@ module.exports = {
       colors: {
         primary: colors.purple,
         secondary: colors.yellow,
+        "section-darkest": "#0A0A0A",
+        "section-darker": "#141414",
+        "section-dark": "#1F1F1F",
       },
     },
   },

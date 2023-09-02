@@ -1,5 +1,6 @@
 import { BsArrowDown } from "react-icons/bs"
 
+import { navigationBorderRight } from "@/api/classes"
 import TopicList from "@/components/topic/TopicList"
 import TopicOverview from "@/components/topic/TopicOverview"
 import { useLocalBoolState } from "@/hooks/localStorage"
@@ -20,7 +21,7 @@ export default function MeetingTopicPage({
   return (
     <div className="flex flex-row h-full overflow-y-auto">
       {showTopicList ? (
-        <div className="flex-initial w-[21rem] bg-neutral-900 p-6 border-r border-neutral-700">
+        <div className={`${navigationBorderRight} flex-initial w-[21rem] bg-section-darker p-6`}>
           <TopicList
             projectID={projectID}
             meetingID={meetingID}
@@ -29,7 +30,7 @@ export default function MeetingTopicPage({
           />
         </div>
       ) : (
-        <div className="flex-initial w-[4rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+        <div className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker p-6 space-y-4`}>
           <h2 className="text-center mt-20 text-neutral-400 -rotate-90">
             <button
               onClick={() => setShowTopicList(true)}

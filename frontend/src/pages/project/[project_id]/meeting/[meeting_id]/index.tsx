@@ -1,5 +1,6 @@
 import { useRouter } from "next/router"
 
+import { navigationBorderRight } from "@/api/classes"
 import MeetingList from "@/components/meeting/MeetingList"
 import MeetingOverview from "@/components/meeting/MeetingOverview"
 
@@ -21,7 +22,7 @@ export default function ProjectPage() {
 
   return (
     <>
-      <div className="flex-initial w-[25rem] bg-neutral-950 p-6 border-x border-neutral-700 space-y-4">
+      <div className={`${navigationBorderRight} flex-initial w-[25rem] bg-section-darker p-6 space-y-4`}>
         <MeetingList projectID={projectID} selectedMeetingID={meetingID} />
       </div>
 

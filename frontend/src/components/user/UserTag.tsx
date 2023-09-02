@@ -26,7 +26,7 @@ export default function UserTag({
       } border rounded-full px-3 py-1 flex flex-row items-center space-x-2`}
     >
       <div>
-        <UserAvatar userID={userID} className="h-4 w-4" />
+        <UserAvatar userID={userID} className="h-4 w-4 rounded-full" />
       </div>
       <div>
         <span>{displayName}</span>
