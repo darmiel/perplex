@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { BarLoader } from "react-spinners"
-import { toast } from "react-toastify"
 import Popup from "reactjs-popup"
+import { toast } from "sonner"
 
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
@@ -31,9 +31,8 @@ export default function MultiUserSelect({
     projectID,
     meetingID,
     (_, { userIDs }) => {
-      toast(
+      toast.success(
         `${userIDs.length} user${assigned.length !== 1 ? "s" : ""} assigned!`,
-        { type: "success" },
       )
       setOpen(false)
     },

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { Tag } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -32,23 +32,17 @@ export default function ProjectModalManageTags({
   const projectTagsQuery = tags!.useList(projectID)
 
   const removeTagMut = tags!.useDelete(projectID, (_, { tagID }) => {
-    toast(`Tag #${tagID} removed from Project #${projectID}`, {
-      type: "success",
-    })
+    toast.success(`Tag #${tagID} removed from Project #${projectID}`)
     setConfirmDelete(null)
   })
 
   const editTagMut = tags!.useEdit(projectID, (_, { tagID }) => {
-    toast(`Tag #${tagID} edited`, {
-      type: "success",
-    })
+    toast.success(`Tag #${tagID} edited`)
     setEditMode(null)
   })
 
   const createTagMut = tags!.useCreate(projectID, ({ data }) => {
-    toast(<>Tag (#{data.ID}) created</>, {
-      type: "success",
-    })
+    toast.success(`Tag (#{data.ID}) created`)
   })
 
   if (projectTagsQuery.isLoading) {

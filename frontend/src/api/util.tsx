@@ -1,5 +1,5 @@
 import { AxiosError } from "axios"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { BackendResponse } from "@/api/types"
 
@@ -39,12 +39,6 @@ export function toastError<Variables>(
     const title = typeof message === "string" ? message : message(variables)
     const body = extractErrorMessage(err)
 
-    toast(
-      <>
-        <strong>{title}</strong>
-        <pre>{body}</pre>
-      </>,
-      { type: "error" },
-    )
+    toast.error(title, { description: body })
   }
 }

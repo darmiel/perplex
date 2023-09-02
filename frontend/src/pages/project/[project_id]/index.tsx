@@ -2,7 +2,7 @@ import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { BsPen } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
@@ -36,7 +36,7 @@ export default function ProjectPage() {
   const projectInfoQuery = projectDB!.useFind(projectID)
 
   const projectEditMut = projectDB!.useEdit((_, { projectID }) => {
-    toast(`Project #${projectID} updated`, { type: "success" })
+    toast.success(`Project #${projectID} updated`)
     setIsEdit(false)
   })
 

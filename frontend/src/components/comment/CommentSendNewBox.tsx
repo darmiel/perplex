@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -27,7 +27,7 @@ export default function CommentSendNewBox({
     commentEntityID,
     () => {
       setCommentBoxText("")
-      toast("Comment sent!", { type: "success" })
+      toast.success("Comment sent!")
     },
   )
 

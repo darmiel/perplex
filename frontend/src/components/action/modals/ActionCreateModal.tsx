@@ -9,7 +9,7 @@ import {
   BsXCircleFill,
 } from "react-icons/bs"
 import { BarLoader, ClipLoader } from "react-spinners"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
@@ -69,7 +69,7 @@ export default function ActionCreateModal({
   const linkTopic = !!topicID && !!meetingID
 
   const createActionMutation = actions!.useCreate(projectID, ({ data }) => {
-    toast(`Action #${data.ID} Created`, { type: "success" })
+    toast.success(`Action #${data.ID} Created`)
 
     // clear form
     setActionTitle("")

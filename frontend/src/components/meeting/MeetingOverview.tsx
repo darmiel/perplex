@@ -4,7 +4,7 @@ import { forwardRef, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import { BsPen, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
@@ -44,7 +44,7 @@ export default function MeetingOverview({
   const meetingDeleteMutation = meetings!.useDelete(
     projectID,
     (_, { meetingID }) => {
-      toast(`Meeting #${meetingID} deleted`, { type: "success" })
+      toast.success(`Meeting #${meetingID} deleted`)
       setConfirmDelete(false)
       setWasDeleted(true)
     },
@@ -53,7 +53,7 @@ export default function MeetingOverview({
   const meetingUpdateMutation = meetings!.useEdit(
     projectID,
     (_, { meetingID }) => {
-      toast(`Meeting #${meetingID} edited`, { type: "success" })
+      toast.success(`Meeting #${meetingID} edited`)
       setIsEdit(false)
     },
   )

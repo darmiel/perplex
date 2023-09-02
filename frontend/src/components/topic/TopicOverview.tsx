@@ -10,7 +10,7 @@ import {
   BsTrash,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { Comment, Topic } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -141,7 +141,7 @@ export default function TopicOverview({
     meetingID,
     topicID,
     () => {
-      toast(`Topic #${topicID} updated`, { type: "success" })
+      toast.success(`Topic #${topicID} updated`)
       setIsEdit(false)
     },
   )
@@ -150,7 +150,7 @@ export default function TopicOverview({
     projectID,
     meetingID,
     (_, { topicID }) => {
-      toast(`Topic #${topicID} deleted`, { type: "success" })
+      toast.success(`Topic #${topicID} deleted`)
       setConfirmDelete(false)
       setWasDeleted(true)
     },
@@ -163,9 +163,8 @@ export default function TopicOverview({
     meetingID,
     topicID,
     (_, { mark, commentID }) => {
-      toast(
+      toast.success(
         `Comment #${commentID} ${mark ? "marked" : "unmarked"} as solution!`,
-        { type: "success" },
       )
     },
   )

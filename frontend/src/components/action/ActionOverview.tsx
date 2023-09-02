@@ -23,7 +23,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import "react-datepicker/dist/react-datepicker.css"
 
 import Head from "next/head"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import ActionTag from "@/components/action/ActionTag"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
@@ -44,12 +44,8 @@ export default function ActionOverview({ action }: { action: Action }) {
 
   const projectPrioritiesQuery = priorities!.useList(action.project_id)
 
-  const actionEditMut = actions!.useEdit(
-    action.project_id,
-    (_, { actionID }) => {
-      toast(`Action ${actionID} updated`, { type: "success" })
-      setIsEdit(false)
-    },
+  const actionEditMut = actions!.useEdit(action.project_id, () =>
+    setIsEdit(false),
   )
 
   const actionStatusMut = actions!.useStatus(action.project_id, () => {})
@@ -60,6 +56,25 @@ export default function ActionOverview({ action }: { action: Action }) {
     setEditDueDate(action.due_date.Valid ? action.due_date.Time : "")
     setEditPriorityID(action.priority_id || 0)
     setIsEdit(true)
+  }
+
+  function edit() {
+    toast.promise(
+      actionEditMut.mutateAsync({
+        actionID: action.ID,
+        title: editTitle,
+        description: editDescription,
+        due_date: editDueDate,
+        priority_id: editPriorityID,
+      }),
+      {
+        loading: "Editing...",
+        success: () => {
+          return `${action.ID} has been edited`
+        },
+        error: "Error",
+      },
+    )
   }
 
   // I really tried to type this, but it's just too much work
@@ -204,15 +219,7 @@ export default function ActionOverview({ action }: { action: Action }) {
                   className="w-1/2 text-sm"
                   style="primary"
                   isLoading={actionEditMut.isLoading}
-                  onClick={() =>
-                    actionEditMut.mutate({
-                      actionID: action.ID,
-                      title: editTitle,
-                      description: editDescription,
-                      due_date: editDueDate,
-                      priority_id: editPriorityID,
-                    })
-                  }
+                  onClick={() => edit()}
                 >
                   Save
                 </Button>

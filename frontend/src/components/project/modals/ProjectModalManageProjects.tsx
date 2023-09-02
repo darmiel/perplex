@@ -7,7 +7,7 @@ import {
   BsTrash,
   BsTriangleFill,
 } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -38,11 +38,11 @@ function ModalList({
   const { user, projects: project } = useAuth()
 
   const leaveProjectMutation = project!.useLeave((_, { projectID }) => {
-    toast(`Left Project #${projectID}`, { type: "success" })
+    toast.success(`Left Project #${projectID}`)
   })
 
   const createProjectMutation = project!.useCreate(({ data }) => {
-    toast(`Project #${data.ID} created`, { type: "success" })
+    toast.success(`Project #${data.ID} created`)
     setCreateName("")
     setCreateDescription("")
   })
@@ -240,9 +240,7 @@ function ModalDelete({
 
   const { projects: projectDB } = useAuth()
   const deleteProjectMutation = projectDB!.useDelete((_, { projectID }) => {
-    toast(`Project #${projectID} deleted`, {
-      type: "success",
-    })
+    toast.success(`Project #${projectID} deleted`)
     onDelete()
   })
 

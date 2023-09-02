@@ -6,18 +6,15 @@ import { Inter } from "next/font/google"
 import Head from "next/head"
 import { useEffect, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
+import { Toaster } from "sonner"
 
 import { AuthProvider } from "@/contexts/AuthContext"
 
 import "./globals.css"
 
-import { ToastContainer } from "react-toastify"
-
 import Navbar from "@/components/navbar/Navbar"
 import SearchModal from "@/components/search/SearchModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-
-import "react-toastify/dist/ReactToastify.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -68,7 +65,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
 
             {/*</Register>*/}
           </div>
-          <ToastContainer position="bottom-right" />
+          <Toaster theme="dark" closeButton={true} position="bottom-right" />
           <ReactQueryDevtools position="top-left" />
         </AuthProvider>
       </QueryClientProvider>

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { Priority } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
@@ -36,9 +36,9 @@ export default function ProjectModalManagePriorities({
   const removePriorityMut = priorities!.useDelete(
     projectID,
     (_, { priorityID }) => {
-      toast(`Priority #${priorityID} removed from Project #${projectID}`, {
-        type: "success",
-      })
+      toast.success(
+        `Priority #${priorityID} removed from Project #${projectID}`,
+      )
       setConfirmDelete(null)
     },
   )

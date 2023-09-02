@@ -2,7 +2,7 @@ import { useState } from "react"
 import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
 import { GoDiscussionClosed } from "react-icons/go"
 import { BarLoader } from "react-spinners"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
@@ -97,21 +97,21 @@ export default function CreateTopic({
 
   const { topics: topic, projects: project } = useAuth()
 
-  const assignMutation = topic!.useAssignUsers(projectID, meetingID, () => {
-    toast("User successfully assigned to topic.", { type: "success" })
-  })
+  const assignMutation = topic!.useAssignUsers(projectID, meetingID, () => {})
 
   const createTopicMutation = topic!.useCreate(
     projectID,
     meetingID,
     ({ data }, { __should_close }) => {
-      // assign users
-      assignMutation.mutate({
-        userIDs: topicAssigned,
-        topicID: data.ID,
-      })
+      if (topicAssigned?.length > 0) {
+        // assign users
+        assignMutation.mutate({
+          userIDs: topicAssigned,
+          topicID: data.ID,
+        })
+      }
 
-      toast(`Topic #${data.ID} Created`, { type: "success" })
+      toast.success(`Topic #${data.ID} Created`, { description: data.title })
 
       // clear form
       setTopicTitle("")

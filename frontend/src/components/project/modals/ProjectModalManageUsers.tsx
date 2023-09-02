@@ -1,7 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import useDebounce from "@/components/Debounce"
 import Button from "@/components/ui/Button"
@@ -22,7 +21,6 @@ export default function ProjectModalManageUsers({
   const [query, setQuery] = useState("")
 
   const { user: loggedUser, projects: project, users } = useAuth()
-  const queryClient = useQueryClient()
 
   const listUsersQuery = users!.useList(query, page, true)
 
@@ -32,9 +30,9 @@ export default function ProjectModalManageUsers({
   const addRemoveUserMutation = project!.useUserLink(
     projectID,
     (_, { link }) => {
-      toast(`User successfully ${link ? "added" : "removed"} from Project.`, {
-        type: "success",
-      })
+      toast.success(
+        `User successfully ${link ? "added" : "removed"} from Project.`,
+      )
     },
   )
 

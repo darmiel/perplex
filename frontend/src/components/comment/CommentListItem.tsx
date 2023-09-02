@@ -8,7 +8,7 @@ import {
   BsX,
 } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { Comment, CommentEntityType } from "@/api/types"
 import { RelativeDate } from "@/components/ui/DateString"
@@ -55,7 +55,7 @@ export default function CommentListItem({
     commentType,
     commentEntityID,
     (_, { commentID }) => {
-      toast(`Comment #${commentID} deleted!`, { type: "success" })
+      toast.success(`Comment #${commentID} deleted!`)
     },
   )
 
@@ -64,7 +64,7 @@ export default function CommentListItem({
     commentType,
     commentEntityID,
     (_, { commentID }) => {
-      toast(`Comment #${commentID} edited!`, { type: "success" })
+      toast.success(`Comment #${commentID} edited!`)
       setEditMode(false)
     },
   )

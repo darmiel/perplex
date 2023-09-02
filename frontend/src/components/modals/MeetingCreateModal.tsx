@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 import { BsTriangle } from "react-icons/bs"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
@@ -27,7 +27,7 @@ export default function CreateMeeting({
   const createMeetingMutation = meeting!.useCreate(
     projectID,
     ({ data }, { __should_close }) => {
-      toast(`Meeting #${data.ID} Created`, { type: `success` })
+      toast.success(`Meeting #${data.ID} Created`)
 
       // clear form
       setMeetingTitle("")
