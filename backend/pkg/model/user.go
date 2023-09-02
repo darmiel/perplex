@@ -183,7 +183,7 @@ type Action struct {
 	// AssignedUsers contains all users assigned to the action
 	AssignedUsers []User `gorm:"many2many:action_user_assignments" json:"assigned_users"`
 	// PriorityID is the ID of the priority of the action
-	PriorityID uint `json:"priority_id"`
+	PriorityID *uint `json:"priority_id"`
 	// Priority is the priority of the action
 	Priority Priority `json:"priority,omitempty"`
 	// Tags contains all tags of the action

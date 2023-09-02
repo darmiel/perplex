@@ -89,9 +89,7 @@ func (a *actionService) FindActionsByTag(tagID uint) ([]model.Action, error) {
 func (a *actionService) FindActionsByPriority(priorityID uint) ([]model.Action, error) {
 	var actions []model.Action
 	if err := a.preload().
-		Where(model.Action{
-			PriorityID: priorityID,
-		}).
+		Where("priority_id = ?", priorityID).
 		Find(&actions).Error; err != nil {
 		return nil, err
 	}
@@ -126,11 +124,15 @@ func (a *actionService) FindActionsByProjectAndUser(projectID uint, userID strin
 }
 
 func (a *actionService) CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint, creatorID string) (*model.Action, error) {
+	var priorityIDCreate *uint
+	if priorityID > 0 {
+		priorityIDCreate = &priorityID
+	}
 	action := model.Action{
 		Title:       title,
 		Description: description,
 		DueDate:     dueDate,
-		PriorityID:  priorityID,
+		PriorityID:  priorityIDCreate,
 		ProjectID:   projectID,
 		CreatorID:   creatorID,
 	}
