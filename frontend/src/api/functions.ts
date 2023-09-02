@@ -9,6 +9,7 @@ import {
   Meeting,
   Priority,
   Project,
+  SearchResult,
   Tag,
   Topic,
   User,
@@ -685,6 +686,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       listQueryKey(query: string, page: number) {
         return ["users", page, { query }]
+      },
+
+      searchQueryFn(query: string) {
+        return async () =>
+          (
+            await axios.get(
+              `/user/me/search?query=${encodeURIComponent(query)}`,
+            )
+          ).data
+      },
+      searchQueryKey(query: string) {
+        return ["users-search", { query }]
       },
     },
     actions: {
@@ -1479,6 +1492,14 @@ export const functions = (axios: Axios, client: QueryClient) => {
             functions.users.resolveQueryKey(userID),
           ),
           onError: toastError("Cannot change User name:"),
+        })
+      },
+      useSearch(query: string) {
+        return useQuery<BackendResponse<SearchResult>, AxiosError>({
+          enabled: !!query && query.length > 2,
+          queryKey: functions.users.searchQueryKey(query),
+          queryFn: functions.users.searchQueryFn(query),
+          keepPreviousData: true,
         })
       },
     },

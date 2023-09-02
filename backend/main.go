@@ -161,7 +161,7 @@ func main() {
 	routes.CommentRoutes(commentGroup, commentHandler)
 
 	// /user
-	userHandler := handlers.NewUserHandler(userService, sugar, validate)
+	userHandler := handlers.NewUserHandler(userService, projectService, meetingService, topicService, actionService, sugar, validate)
 	userGroup := app.Group("/user")
 	routes.UserRoutes(userGroup, userHandler)
 

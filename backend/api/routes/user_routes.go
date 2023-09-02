@@ -12,6 +12,7 @@ func UserRoutes(router fiber.Router, handler *handlers.UserHandler) {
 	router.Put("/me", handler.UpdateName)
 	// upcoming meetings
 	router.Get("/me/upcoming-meetings", handler.UpcomingMeetings)
+	router.Get("/me/search", handler.Search)
 	// get username
 	router.Get("/resolve/:user_id", handler.Resolve)
 }

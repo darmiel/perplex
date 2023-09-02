@@ -61,6 +61,7 @@ export type Topic = {
   creator: User
   creator_id: string
   meeting_id: number
+  Meeting: Meeting
 }
 
 export type Priority = {
@@ -101,4 +102,12 @@ export type Tag = {
   title: string
   color: string
   project_id: number
+}
+
+export type SearchResult = {
+  projects: Project[]
+  meetings: Meeting[]
+  topics: Topic[]
+  actions: Action[]
+  topic_meeting_id: { [key: number]: number }
 }

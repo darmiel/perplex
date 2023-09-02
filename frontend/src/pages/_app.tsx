@@ -4,7 +4,8 @@ import type { Metadata } from "next"
 import { AppProps } from "next/app"
 import { Inter } from "next/font/google"
 import Head from "next/head"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { useHotkeys } from "react-hotkeys-hook"
 
 import { AuthProvider } from "@/contexts/AuthContext"
 
@@ -13,6 +14,8 @@ import "./globals.css"
 import { ToastContainer } from "react-toastify"
 
 import Navbar from "@/components/navbar/Navbar"
+import SearchModal from "@/components/search/SearchModal"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 import "react-toastify/dist/ReactToastify.css"
 
@@ -26,6 +29,16 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ Component, pageProps }: AppProps) {
+  const [showSearch, setShowSearch] = useState(false)
+
+  useHotkeys(
+    "mod+k",
+    () => {
+      setShowSearch(true)
+    },
+    [showSearch],
+  )
+
   useEffect(() => {
     // Add the custom class to the <body> element
     document.body.classList.add(inter.className)
@@ -35,6 +48,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
       document.body.classList.remove(inter.className)
     }
   }, [])
+
   return (
     <>
       <Head>
@@ -44,8 +58,14 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
         <AuthProvider>
           <div className="h-screen w-screen max-h-screen flex">
             <Navbar />
+
+            <ModalPopup open={showSearch} setOpen={setShowSearch}>
+              <SearchModal onClose={() => setShowSearch(false)} />
+            </ModalPopup>
+
             {/*<Register>*/}
             <Component {...pageProps} />
+
             {/*</Register>*/}
           </div>
           <ToastContainer position="bottom-right" />
