@@ -124,7 +124,7 @@ function DashboardProjectItem({
   onActionClick: (action: Action) => void
 }) {
   return (
-    <section className="h-full flex flex-col p-4 space-y-2 justify-start rounded-md overflow-y-auto">
+    <section className="h-fit flex flex-col p-4 space-y-2 justify-start rounded-md overflow-y-auto">
       <Link
         className="flex items-center space-x-4"
         href={`/project/${project.ID}`}
@@ -190,20 +190,16 @@ function ProjectList() {
 
       <div className="flex items-center space-x-4">
         <BadgeHeader title="Projects" badge={projects.length} />
-        <Button
-          style="secondary"
-          onClick={() => setShowManageProjects(true)}
-          className="group"
-        >
-          <span className="flex items-center space-x-2">
-            <span className="inline-block transition-colors group-hover:text-primary-300 group-hover:animate-spin">
+        <button onClick={() => setShowManageProjects(true)} className="group">
+          <span className="flex items-center space-x-2 px-2 py-1 rounded-md text-neutral-400 text-xs animate-pulse transition duration-300 hover:text-white hover:scale-105 bg-neutral-700 bg-opacity-0 hover:bg-opacity-100">
+            <span className="inline-block group-hover:animate-spin">
               <BsGear />
             </span>
             <span>Manage Projects</span>
           </span>
-        </Button>
+        </button>
       </div>
-      <div className="flex flex-row space-x-2 h-full w-full max-h-full overflow-x-auto">
+      <div className="flex flex-row space-x-2 w-full">
         {projects.map((project, index) => (
           <Fragment key={index}>
             {!!index && <Hr />}

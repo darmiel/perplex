@@ -217,3 +217,23 @@ type Tag struct {
 func (t Tag) CheckProjectOwnership(projectID uint) bool {
 	return t.ProjectID == projectID
 }
+
+type Notification struct {
+	gorm.Model
+	// Title of the notification
+	Title string `json:"title"`
+	// Suffix of the notification, shown after the title in the notification view
+	Suffix string `json:"suffix"`
+	// Description of the notification
+	Description string `json:"description"`
+	// UserID is the ID of the user the notification belongs to
+	UserID string `json:"user_id"`
+	// User is the user the notification belongs to
+	User User `json:"user,omitempty"`
+	// ReadAt represents the time when the notification was read (if valid)
+	ReadAt sql.NullTime `json:"read_at"`
+	// Link is the link the notification points to (optional)
+	Link string `json:"link"`
+	// LinkTitle is the title of the link (optional)
+	LinkTitle string `json:"link_title"`
+}

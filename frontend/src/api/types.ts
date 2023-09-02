@@ -111,3 +111,17 @@ export type SearchResult = {
   actions: Action[]
   topic_meeting_id: { [key: number]: number }
 }
+
+export type Notification = {
+  ID: number
+  CreatedAt: string
+  UpdatedAt: string
+  DeletedAt: string
+  title: string
+  suffix: string
+  description: string
+  user_id: string
+  read_at: NullTime
+  link: string
+  link_title: string
+}

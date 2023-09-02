@@ -16,6 +16,11 @@ type UserService interface {
 	GetName(userID string) (string, error)
 	ListUsers(query string, page int) (res []*model.User, err error)
 	ListUpcomingMeetings(userID string) []*model.Meeting
+
+	FindNotifications(userID string, unreadOnly bool) ([]*model.Notification, error)
+	MarkNotificationRead(userID string, notificationID uint) error
+	MarkAllNotificationsRead(userID string) error
+	CreateNotification(userID, title, suffix, message, link, linkTitle string) error
 }
 
 type userService struct {
@@ -100,4 +105,48 @@ func (u userService) ListUpcomingMeetings(userID string) (res []*model.Meeting) 
 		return res[i].StartDate.Before(res[j].StartDate)
 	})
 	return
+}
+
+func (u userService) FindNotifications(userID string, unreadOnly bool) (res []*model.Notification, err error) {
+	q := u.DB.Where(&model.Notification{
+		UserID: userID,
+	})
+	if unreadOnly {
+		q = q.Where("read_at IS NULL")
+	}
+	err = q.Find(&res).Error
+	return
+}
+
+func (u userService) MarkNotificationRead(userID string, notificationID uint) error {
+	return u.DB.Model(&model.Notification{}).
+		Where(&model.Notification{
+			Model: gorm.Model{
+				ID: notificationID,
+			},
+			UserID: userID,
+		}).
+		Update("read_at", time.Now()).
+		Error
+}
+
+func (u userService) MarkAllNotificationsRead(userID string) error {
+	return u.DB.Model(&model.Notification{}).
+		Where(&model.Notification{
+			UserID: userID,
+		}).
+		Where("read_at IS NULL").
+		Update("read_at", time.Now()).
+		Error
+}
+
+func (u userService) CreateNotification(userID, title, suffix, message, link, linkTitle string) error {
+	return u.DB.Create(&model.Notification{
+		Title:       title,
+		Suffix:      suffix,
+		Description: message,
+		UserID:      userID,
+		Link:        link,
+		LinkTitle:   linkTitle,
+	}).Error
 }

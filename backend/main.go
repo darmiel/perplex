@@ -57,6 +57,7 @@ func main() {
 		new(model.Priority),
 		new(model.Action),
 		new(model.Tag),
+		new(model.Notification),
 	); err != nil {
 		sugar.With(err).Fatalln("cannot migrate user")
 		return
@@ -133,7 +134,7 @@ func main() {
 	}
 
 	// /project
-	projectHandler := handlers.NewProjectHandler(projectService, sugar, validate)
+	projectHandler := handlers.NewProjectHandler(projectService, userService, sugar, validate)
 	projectGroup := app.Group("/project")
 	routes.ProjectRoutes(projectGroup, projectHandler)
 

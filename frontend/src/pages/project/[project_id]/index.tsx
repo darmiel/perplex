@@ -91,27 +91,30 @@ export default function ProjectPage() {
 
             <Hr className="mt-4 mb-6" />
 
+            <CommentSuite
+              projectID={projectID}
+              commentType="project"
+              commentEntityID={projectID}
+            />
+
+            <Hr className="mt-4 mb-6" />
+
             <div className="flex flex-row space-x-4">
-              <div className="w-1/2">
+              <div className="w-full">
                 <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
                   Meetings
                 </h1>
                 <MeetingList projectID={projectID} />
               </div>
-              <div className="w-1/2">
+              <div className="w-full">
                 <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
                   Actions
                 </h1>
                 <ActionList projectID={projectID} />
               </div>
             </div>
-
-            <CommentSuite
-              projectID={projectID}
-              commentType="project"
-              commentEntityID={projectID}
-            />
           </OverviewContent>
+
           <OverviewSide>
             <OverviewSection name="Actions">
               {!isEdit ? (

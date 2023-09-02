@@ -1,12 +1,21 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { Fragment, ReactNode } from "react"
-import { BsGithub, BsHouse, BsPersonCheck } from "react-icons/bs"
+import { Fragment, ReactNode, Ref, useRef } from "react"
+import {
+  BsBell,
+  BsBellFill,
+  BsGithub,
+  BsHouse,
+  BsPersonCheck,
+} from "react-icons/bs"
 import { Tooltip } from "react-tooltip"
+import Popup from "reactjs-popup"
+import { PopupActions } from "reactjs-popup/dist/types"
 
 import PerplexLogo from "@/../public/perplex.svg"
 import { navigationBorderRight } from "@/api/classes"
+import NotificationModal from "@/components/notification/NotificationModal"
 import ResolveUserName from "@/components/user/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
@@ -39,13 +48,18 @@ function NavbarItem({
 }
 
 export default function Navbar() {
-  const { projects } = useAuth()
+  const { projects, users } = useAuth()
 
   const router = useRouter()
   const { project_id: projectID } = router.query
+
   const projectListQuery = projects!.useList()
+  const notificationListQuery = users!.useNotificationUnread()
 
   const p = projectListQuery.data?.data ?? []
+
+  const unreadNotifications = notificationListQuery.data?.data ?? []
+  const notificationRef = useRef<PopupActions>()
 
   return (
     <nav
@@ -86,6 +100,7 @@ export default function Navbar() {
                 opacity={1.0}
                 style={{
                   backgroundColor: "black",
+                  zIndex: 999999999,
                 }}
               >
                 <span className="flex space-x-1 items-center">
@@ -111,6 +126,45 @@ export default function Navbar() {
             <span className="text-xs text-neutral-400">User</span>
           </NavbarItem>
 
+          {/* Notifications */}
+          <li className="w-full p-5">
+            <Popup
+              contentStyle={{
+                background: "none",
+                border: "none",
+                width: "auto",
+              }}
+              trigger={
+                <button className="relative inline-flex items-center text-sm font-medium text-center">
+                  {unreadNotifications.length > 0 ? (
+                    <>
+                      <BsBellFill size="100%" />
+
+                      {/* Show annoying red dot with bounce animation */}
+                      <div className="animate-ping absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-section-darkest rounded-full -top-3 -right-3"></div>
+                      <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-section-darkest rounded-full -top-3 -right-3">
+                        {unreadNotifications.length}
+                      </div>
+                    </>
+                  ) : (
+                    <BsBell size="100%" />
+                  )}
+                </button>
+              }
+              ref={notificationRef as Ref<PopupActions>}
+              closeOnDocumentClick={false}
+              closeOnEscape={true}
+              position="right center"
+              offsetX={30}
+              offsetY={-60}
+              arrow={false}
+            >
+              <NotificationModal
+                onClose={() => notificationRef?.current?.close()}
+              />
+            </Popup>
+          </li>
+
           {/* GitHub Link to Repository */}
           <li className="w-full p-4">
             <a href="https://github.com/darmiel/perplex">
@@ -119,15 +173,6 @@ export default function Navbar() {
           </li>
         </ul>
       </div>
-      <Tooltip
-        id="project-name"
-        place="right"
-        variant="dark"
-        opacity={1.0}
-        style={{
-          backgroundColor: "black",
-        }}
-      />
     </nav>
   )
 }

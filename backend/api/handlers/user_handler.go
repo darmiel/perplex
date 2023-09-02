@@ -183,3 +183,41 @@ func (h UserHandler) Search(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(presenter.SuccessResponse("search results", result))
 }
+
+func (h UserHandler) ListUnreadNotifications(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	notifications, err := h.srv.FindNotifications(u.UserID, true)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("unread notifications", notifications))
+}
+
+func (h UserHandler) ListAllNotifications(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	notifications, err := h.srv.FindNotifications(u.UserID, false)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("all notifications", notifications))
+}
+
+func (h UserHandler) MarkNotificationAsRead(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	notificationID, err := ctx.ParamsInt("notification_id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	if err := h.srv.MarkNotificationRead(u.UserID, uint(notificationID)); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("marked notification as read", nil))
+}
+
+func (h UserHandler) MarkAllNotificationsAsRead(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	if err := h.srv.MarkAllNotificationsRead(u.UserID); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("marked all notifications as read", nil))
+}

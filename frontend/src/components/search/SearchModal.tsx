@@ -131,7 +131,7 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      <div className="w-full space-y-2">
+      <div className="max-h-96 overflow-y-auto space-y-2">
         {result.projects.length > 0 && (
           <>
             <h3 className="text-xs text-neutral-500 uppercase font-semibold">

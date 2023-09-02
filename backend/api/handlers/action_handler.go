@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
 	"github.com/darmiel/perplex/pkg/model"
@@ -216,6 +217,21 @@ func (a ActionHandler) UserLocalsMiddleware(ctx *fiber.Ctx) error {
 func (a ActionHandler) LinkUser(ctx *fiber.Ctx) error {
 	action := ctx.Locals("action").(model.Action)
 	projectUser := ctx.Locals("project_user").(model.User)
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+
+	// create notification for linked user
+	if u.UserID != projectUser.ID {
+		if err := a.userSrv.CreateNotification(
+			projectUser.ID,
+			action.Title,
+			"action",
+			"you have been assigned to an action",
+			fmt.Sprintf("/project/%d/action/%d", action.ProjectID, action.ID),
+			"Go to Action"); err != nil {
+			a.logger.Warnf("cannot create notification for user %s: %v", projectUser.ID, err)
+		}
+	}
+
 	return fiberResponseNoVal(ctx, "linked user", a.srv.LinkUser(action.ID, projectUser.ID))
 }
 

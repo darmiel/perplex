@@ -187,13 +187,15 @@ export default function MeetingOverview({
 
           <hr className="mt-4 mb-6 border-gray-700" />
 
-          <TopicList projectID={projectID} meetingID={meetingID} />
-
           <CommentSuite
             projectID={projectID}
             commentType="meeting"
             commentEntityID={meetingID}
           />
+
+          <hr className="mt-4 mb-6 border-gray-700" />
+
+          <TopicList projectID={projectID} meetingID={meetingID} />
         </OverviewContent>
         <OverviewSide>
           <OverviewSection name="Actions">

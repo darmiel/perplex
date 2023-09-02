@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
 	"github.com/darmiel/perplex/pkg/model"
@@ -22,16 +23,18 @@ var ErrOnlyUser = errors.New("only users can perform this action")
 
 type ProjectHandler struct {
 	srv       services.ProjectService
+	userSrv   services.UserService
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
 
 func NewProjectHandler(
 	srv services.ProjectService,
+	userSrv services.UserService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *ProjectHandler {
-	return &ProjectHandler{srv, logger, validator}
+	return &ProjectHandler{srv, userSrv, logger, validator}
 }
 
 type projectDto struct {
@@ -200,6 +203,11 @@ func (h *ProjectHandler) AddUser(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrOnlyOwner))
 	}
 	userID := ctx.Params("user_id")
+	// find user
+	targetUser, err := h.userSrv.FindUser(userID)
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotFound))
+	}
 	// check if user already in project
 	if util.HasAccess(&p, userID) {
 		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrAlreadyInProject))
@@ -207,6 +215,18 @@ func (h *ProjectHandler) AddUser(ctx *fiber.Ctx) error {
 	if err := h.srv.AddUser(p.ID, userID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+
+	// create notification for receiver
+	if err := h.userSrv.CreateNotification(
+		targetUser.ID,
+		p.Name,
+		"project",
+		fmt.Sprintf("%s added you to the project", util.GetFriendlyName(ctx)),
+		fmt.Sprintf("/project/%d", p.ID),
+		"Go to Project"); err != nil {
+		h.logger.Warnf("cannot create notification for user %s: %v", targetUser.ID, err)
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user added", nil))
 }
 
@@ -224,5 +244,22 @@ func (h *ProjectHandler) RemoveUser(ctx *fiber.Ctx) error {
 	if err := h.srv.RemoveUser(p.ID, userID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+
+	// create notification for receiver
+	if targetUser, err := h.userSrv.FindUser(userID); err != nil {
+		h.logger.Warnf("cannot find user to create notification for %s: %v", userID, err)
+	} else {
+		if err = h.userSrv.CreateNotification(
+			targetUser.ID,
+			p.Name,
+			"project",
+			"You were removed from the project",
+			"",
+			"",
+		); err != nil {
+			h.logger.Warnf("cannot create notification for user %s: %v", targetUser.ID, err)
+		}
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user added", nil))
 }

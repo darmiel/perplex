@@ -7,6 +7,7 @@ import {
   Comment,
   CommentEntityType,
   Meeting,
+  Notification,
   Priority,
   Project,
   SearchResult,
@@ -201,6 +202,10 @@ export type actionStatusVars = {
 
 export type userChangeNameVars = {
   newName: string
+}
+
+export type userNotificationReadVars = {
+  notificationID: number
 }
 
 export type SuccessCallback<Data, Variables> = (
@@ -698,6 +703,36 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       searchQueryKey(query: string) {
         return ["users-search", { query }]
+      },
+
+      notificationAllQueryFn() {
+        return async () => (await axios.get(`/user/me/notification/all`)).data
+      },
+      notificationAllQueryKey() {
+        return ["notifications", "all"]
+      },
+
+      notificationUnreadQueryFn() {
+        return async () =>
+          (await axios.get(`/user/me/notification/unread`)).data
+      },
+      notificationUnreadQueryKey() {
+        return ["notifications", "unread"]
+      },
+
+      notificationReadMutFn() {
+        return async ({ notificationID }: userNotificationReadVars) =>
+          (await axios.delete(`/user/me/notification/${notificationID}`)).data
+      },
+      notificationReadMutKey() {
+        return ["notification-read-mut"]
+      },
+
+      notificationReadAllMutFn() {
+        return async () => (await axios.delete(`/user/me/notification`)).data
+      },
+      notificationReadAllMutKey() {
+        return ["notification-read-all-mut"]
       },
     },
     actions: {
@@ -1500,6 +1535,48 @@ export const functions = (axios: Axios, client: QueryClient) => {
           queryKey: functions.users.searchQueryKey(query),
           queryFn: functions.users.searchQueryFn(query),
           keepPreviousData: true,
+        })
+      },
+      useNotificationAll() {
+        return useQuery<BackendResponse<Notification[]>>({
+          queryKey: functions.users.notificationAllQueryKey(),
+          queryFn: functions.users.notificationAllQueryFn(),
+        })
+      },
+      useNotificationUnread() {
+        return useQuery<BackendResponse<Notification[]>>({
+          queryKey: functions.users.notificationUnreadQueryKey(),
+          queryFn: functions.users.notificationUnreadQueryFn(),
+        })
+      },
+      useNotificationRead(
+        callback: SuccessCallback<never, userNotificationReadVars>,
+      ) {
+        return useMutation<
+          BackendResponse,
+          AxiosError,
+          userNotificationReadVars
+        >({
+          mutationKey: functions.users.notificationReadMutKey(),
+          mutationFn: functions.users.notificationReadMutFn(),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.users.notificationUnreadQueryKey(),
+            functions.users.notificationAllQueryKey(),
+          ),
+          onError: toastError("Cannot mark Notification as read:"),
+        })
+      },
+      useNotificationReadAll(callback: SuccessCallback<never, void>) {
+        return useMutation<BackendResponse, AxiosError>({
+          mutationKey: functions.users.notificationReadAllMutKey(),
+          mutationFn: functions.users.notificationReadAllMutFn(),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.users.notificationUnreadQueryKey(),
+            functions.users.notificationAllQueryKey(),
+          ),
+          onError: toastError("Cannot mark all Notifications as read:"),
         })
       },
     },

@@ -61,7 +61,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             </ModalPopup>
 
             {/*<Register>*/}
-            <main className="flex-1 bg-darker">
+            <main className="flex flex-1 bg-darker">
               <Component {...pageProps} />
             </main>
 
