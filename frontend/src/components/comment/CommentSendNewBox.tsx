@@ -31,6 +31,23 @@ export default function CommentSendNewBox({
     },
   )
 
+  function send() {
+    if (sendCommentMutation.isLoading) {
+      return
+    }
+    sendCommentMutation.mutate({ comment: commentBoxText })
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (
+      e.key === "Enter" &&
+      e.getModifierState("Meta") &&
+      !e.getModifierState("Shift")
+    ) {
+      send()
+    }
+  }
+
   return (
     <div className={`relative ${className}`}>
       <textarea
@@ -39,7 +56,9 @@ export default function CommentSendNewBox({
         rows={4}
         onChange={(e) => setCommentBoxText(e.target.value)}
         value={commentBoxText}
+        onKeyDown={onKeyDown}
       ></textarea>
+
       <div className="absolute bottom-6 right-4 flex flex-row justify-center items-center">
         {/* Show error message above the textbox */}
         {sendCommentMutation.isError && (
@@ -59,8 +78,11 @@ export default function CommentSendNewBox({
           <Button
             style="primary"
             isLoading={sendCommentMutation.isLoading}
-            onClick={() =>
-              sendCommentMutation.mutate({ comment: commentBoxText })
+            onClick={() => send()}
+            icon={
+              <span className="px-2 py-1 rounded-md bg-neutral-800">
+                ⌘ + Enter
+              </span>
             }
           >
             Send

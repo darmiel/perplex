@@ -39,6 +39,9 @@ export default function CreateMeeting({
   )
 
   function create(shouldClose: boolean) {
+    if (createMeetingMutation.isLoading) {
+      return
+    }
     createMeetingMutation.mutate({
       title: meetingTitle,
       description: meetingDescription,
@@ -75,6 +78,7 @@ export default function CreateMeeting({
           placeholder="My awesome Meeting"
           onChange={(event) => setMeetingTitle(event.target.value)}
           value={meetingTitle}
+          onKeyDown={(e) => e.key === "Enter" && create(false)}
         />
       </div>
 

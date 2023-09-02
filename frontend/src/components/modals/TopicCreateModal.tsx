@@ -133,6 +133,9 @@ export default function CreateTopic({
   }
 
   function create(shouldClose: boolean) {
+    if (createTopicMutation.isLoading) {
+      return
+    }
     createTopicMutation.mutate({
       title: topicTitle,
       description: topicDescription,
@@ -154,6 +157,7 @@ export default function CreateTopic({
           placeholder="My awesome Topic"
           onChange={(event) => setTopicTitle(event.target.value)}
           value={topicTitle}
+          onKeyDown={(e) => e.key === "Enter" && create(false)}
         />
       </div>
 
