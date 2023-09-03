@@ -9,12 +9,12 @@ import { toast } from "sonner"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
-import MeetingSectionAssigned from "@/components/meeting/sections/MeetingSectionAssigned"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
+import SectionAssignUsers from "@/components/ui/overview/common/SectionAssignUsers"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -61,6 +61,8 @@ export default function MeetingOverview({
   )
 
   const linkTagMut = meetings!.useLinkTag(projectID, meetingID, () => {})
+
+  const linkUser = meetings!.useLinkUser(projectID, meetingID, () => {})
 
   if (meetingInfoQuery.isLoading) {
     return <BarLoader color="white" />
@@ -258,7 +260,25 @@ export default function MeetingOverview({
             </div>
           </OverviewSection>
           <OverviewSection name="Assigned">
-            <MeetingSectionAssigned meeting={meeting} />
+            <SectionAssignUsers
+              projectID={projectID}
+              users={meeting.assigned_users}
+              onAssign={(user) =>
+                linkUser.mutate({
+                  link: true,
+                  userID: user.id,
+                })
+              }
+              onUnassign={(user) =>
+                linkUser.mutate({
+                  link: false,
+                  userID: user.id,
+                })
+              }
+              loadingUser={
+                linkUser.isLoading ? linkUser.variables?.userID : undefined
+              }
+            />
           </OverviewSection>
           <OverviewSection name="Tags">
             <SectionAssignTags
