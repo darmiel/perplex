@@ -1,12 +1,12 @@
 import Head from "next/head"
 import Link from "next/link"
-import { forwardRef, useState } from "react"
+import { useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import { BsPen, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
-import { extractErrorMessage } from "@/api/util"
+import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
 import TopicList from "@/components/topic/TopicList"
@@ -99,21 +99,6 @@ export default function MeetingOverview({
       meetingID: meetingID,
     })
   }
-
-  // I really tried to type this, but it's just too much work
-  // and I don't have the time to do it
-  // @ts-ignore
-  // eslint-disable-next-line
-  const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
-    <button
-      className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
-      onClick={onClick}
-      // @ts-ignore
-      ref={ref}
-    >
-      {value}
-    </button>
-  ))
 
   if (wasDeleted) {
     return (

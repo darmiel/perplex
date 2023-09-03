@@ -1,4 +1,5 @@
 import { AxiosError } from "axios"
+import { forwardRef } from "react"
 import { toast } from "sonner"
 
 import { BackendResponse } from "@/api/types"
@@ -46,3 +47,18 @@ export function toastError<Variables>(
 export function includesFold(haystack: string, needle: string): boolean {
   return haystack.toLowerCase().includes(needle.toLowerCase())
 }
+
+// I really tried to type this, but it's just too much work
+// and I don't have the time to do it
+// @ts-ignore
+// eslint-disable-next-line
+export const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
+  <button
+    className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+    onClick={onClick}
+    // @ts-ignore
+    ref={ref}
+  >
+    {value}
+  </button>
+))

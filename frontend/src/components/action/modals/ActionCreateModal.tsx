@@ -1,5 +1,5 @@
 import { UseMutationResult } from "@tanstack/react-query"
-import { forwardRef, useState } from "react"
+import { useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import {
   BsArrowRight,
@@ -11,7 +11,7 @@ import {
 import { BarLoader, ClipLoader } from "react-spinners"
 import { toast } from "sonner"
 
-import { extractErrorMessage } from "@/api/util"
+import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
@@ -119,21 +119,6 @@ export default function ActionCreateModal({
   function removeTag(tagID: number) {
     setActionTagsAssigned((old) => old.filter((t) => t !== tagID))
   }
-
-  // I really tried to type this, but it's just too much work
-  // and I don't have the time to do it
-  // @ts-ignore
-  // eslint-disable-next-line
-  const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
-    <button
-      className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
-      onClick={onClick}
-      // @ts-ignore
-      ref={ref}
-    >
-      {value}
-    </button>
-  ))
 
   return (
     <ModalContainer
