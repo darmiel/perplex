@@ -1,5 +1,12 @@
 import Link from "next/link"
-import { BsCheck, BsCheckAll, BsClock, BsX } from "react-icons/bs"
+import {
+  BsCheck,
+  BsCheckAll,
+  BsCheckCircleFill,
+  BsCircle,
+  BsClock,
+  BsX,
+} from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
@@ -8,6 +15,7 @@ import { extractErrorMessage } from "@/api/util"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import { RelativeDate } from "@/components/ui/DateString"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLocalBoolState } from "@/hooks/localStorage"
 
 function NotificationItem({ notification }: { notification: Notification }) {
   const { users } = useAuth()
@@ -79,6 +87,10 @@ export default function NotificationModal({
 }: {
   onClose?: () => void
 }) {
+  const [unreadOnly, setUnreadOnly] = useLocalBoolState(
+    "notifications/unread-only",
+    false,
+  )
   const { users } = useAuth()
   const notificationListQuery = users!.useNotificationAll()
   const notificationReadAllMutation = users!.useNotificationReadAll(() => {})
@@ -93,7 +105,9 @@ export default function NotificationModal({
     return <>Error loading notifications</>
   }
 
-  const notifications = notificationListQuery.data.data
+  const notifications = notificationListQuery.data.data.filter((n) =>
+    unreadOnly ? !n.read_at.Valid : true,
+  )
   const unreadCount = notifications.filter((n) => !n.read_at.Valid).length
 
   return (
@@ -123,6 +137,15 @@ export default function NotificationModal({
             )}
             <span>All Read</span>
           </button>
+          {/* Checkbox to show only unread notifications with label "Unread only" styled to fit the design */}
+
+          <button
+            onClick={() => setUnreadOnly((prev) => !prev)}
+            className="flex space-x-2 items-center py-1 px-2 border border-neutral-800 rounded-full"
+          >
+            {unreadOnly ? <BsCheckCircleFill /> : <BsCircle />}
+            <span className="text-neutral-400 text-sm">Unread only</span>
+          </button>
         </div>
         <button
           onClick={() => onClose?.()}
@@ -132,7 +155,7 @@ export default function NotificationModal({
         </button>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {notificationListQuery.data.data.map((notification) => (
+        {notifications.map((notification) => (
           <NotificationItem key={notification.ID} notification={notification} />
         ))}
       </div>

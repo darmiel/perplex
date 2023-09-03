@@ -190,6 +190,10 @@ func (h UserHandler) ListUnreadNotifications(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+	// sort notifications by date
+	sort.Slice(notifications, func(i, j int) bool {
+		return notifications[i].CreatedAt.After(notifications[j].CreatedAt)
+	})
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("unread notifications", notifications))
 }
 
@@ -199,6 +203,10 @@ func (h UserHandler) ListAllNotifications(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+	// sort notifications by date
+	sort.Slice(notifications, func(i, j int) bool {
+		return notifications[i].CreatedAt.After(notifications[j].CreatedAt)
+	})
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("all notifications", notifications))
 }
 
