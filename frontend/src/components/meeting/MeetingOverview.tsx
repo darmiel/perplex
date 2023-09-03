@@ -211,8 +211,8 @@ export default function MeetingOverview({
                 <Button
                   className={
                     confirmDelete
-                      ? "w-full bg-red-500 hover:bg-red-600 text-white"
-                      : "w-full text-red-500"
+                      ? "w-full bg-red-500 hover:bg-red-600 text-white text-sm"
+                      : "w-full text-red-500 text-sm"
                   }
                   icon={<BsTrash />}
                   onClick={deleteMeeting}
