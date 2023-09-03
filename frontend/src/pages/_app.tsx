@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 import { Toaster } from "sonner"
 
+import PerplexLogo from "@/../public/perplex.svg"
 import { AuthProvider } from "@/contexts/AuthContext"
 
 import "./globals.css"
@@ -50,6 +51,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <link href={PerplexLogo.src} rel="icon" />
       </Head>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
