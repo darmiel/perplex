@@ -16,10 +16,13 @@ import (
 const (
 	// MaxCommentLength - 8 MiB
 	MaxCommentLength = 8 * 1024 * 1024
+	// MinCommentLength - 1
+	MinCommentLength = 1
 )
 
 var (
 	ErrCommentTooLong       = errors.New("comment too long (max. 8 MiB)")
+	ErrCommentTooShort      = errors.New("comment too short (min 1)")
 	ErrInvalidCommentTarget = errors.New("invalid comment target")
 )
 
@@ -180,6 +183,9 @@ func (h *CommentHandler) AddGenericComment(ctx *fiber.Ctx) error {
 	content := utils.CopyString(string(ctx.Body()))
 	if len(content) > MaxCommentLength {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrCommentTooLong))
+	}
+	if len(content) < MinCommentLength {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrCommentTooShort))
 	}
 
 	// check target type and call handler

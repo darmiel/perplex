@@ -6,13 +6,12 @@ import {
   BsArrowRight,
   BsCheck,
   BsPen,
-  BsPeople,
   BsTrash,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
-import { Comment, Topic } from "@/api/types"
+import { Comment } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import {
@@ -36,7 +35,6 @@ import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import { PriorityTag } from "@/components/ui/tag/Tag"
 import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
-import MultiUserSelect from "@/components/user/MultiUserSelect"
 import { useAuth } from "@/contexts/AuthContext"
 
 function SectionParticipants({
@@ -64,40 +62,6 @@ function SectionParticipants({
     userIDs[comment.author_id] = true
   }
   return <UserTagList users={Object.keys(userIDs)} />
-}
-
-function SectionAssigned({
-  topic,
-  projectID,
-  meetingID,
-  topicID,
-}: {
-  topic: Topic
-  projectID: number
-  meetingID: number
-  topicID: number
-}) {
-  return (
-    <div className="flex flex-col space-y-4">
-      <UserTagList users={topic.assigned_users} />
-      <div>
-        <MultiUserSelect
-          key={topic.ID}
-          projectID={projectID}
-          meetingID={meetingID}
-          topicID={topicID}
-          initialSelection={topic.assigned_users?.map((user) => user.id) ?? []}
-        >
-          <button className="w-full px-4 py-2 text-center border border-neutral-700 bg-neutral-900 hover:bg-neutral-950 rounded-md cursor-pointer">
-            <div className="flex flex-row items-center justify-center space-x-2">
-              <BsPeople />
-              <div>Assign Users</div>
-            </div>
-          </button>
-        </MultiUserSelect>
-      </div>
-    </div>
-  )
 }
 
 export default function TopicOverview({

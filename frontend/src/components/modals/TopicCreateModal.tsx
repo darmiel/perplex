@@ -97,16 +97,16 @@ export default function CreateTopic({
 
   const { topics: topic, projects: project } = useAuth()
 
-  const assignMutation = topic!.useAssignUsers(projectID, meetingID, () => {})
+  const assignMutation = topic!.useLinkUser(projectID, meetingID, () => {})
 
   const createTopicMutation = topic!.useCreate(
     projectID,
     meetingID,
     ({ data }, { __should_close }) => {
-      if (topicAssigned?.length > 0) {
-        // assign users
+      for (const userID of topicAssigned) {
         assignMutation.mutate({
-          userIDs: topicAssigned,
+          link: true,
+          userID: userID,
           topicID: data.ID,
         })
       }
