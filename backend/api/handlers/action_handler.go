@@ -225,24 +225,6 @@ func (a ActionHandler) UnlinkUser(ctx *fiber.Ctx) error {
 
 // :action_id/tag/:tag_id
 
-func (a ActionHandler) TagLocalsMiddleware(ctx *fiber.Ctx) error {
-	p := ctx.Locals("project").(model.Project)
-	tagID, err := ctx.ParamsInt("tag_id")
-	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	tag, err := a.srv.FindTag(uint(tagID))
-	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(err))
-	}
-	ctx.Locals("tag", *tag)
-	// check if tag belongs to project
-	if tag.ProjectID != p.ID {
-		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
-	}
-	return ctx.Next()
-}
-
 func (a ActionHandler) LinkTag(ctx *fiber.Ctx) error {
 	action := ctx.Locals("action").(model.Action)
 	tag := ctx.Locals("tag").(model.Tag)

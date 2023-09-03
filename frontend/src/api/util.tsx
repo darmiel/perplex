@@ -42,3 +42,7 @@ export function toastError<Variables>(
     toast.error(title, { description: body })
   }
 }
+
+export function includesFold(haystack: string, needle: string): boolean {
+  return haystack.toLowerCase().includes(needle.toLowerCase())
+}

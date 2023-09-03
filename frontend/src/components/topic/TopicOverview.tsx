@@ -19,21 +19,24 @@ import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
+import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
 import TopicTag from "@/components/topic/TopicTag"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
+import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
+import SectionAssignUsers from "@/components/ui/overview/common/SectionAssignUsers"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
+import { PriorityTag } from "@/components/ui/tag/Tag"
 import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import MultiUserSelect from "@/components/user/MultiUserSelect"
-import UserTag from "@/components/user/UserTag"
 import { useAuth } from "@/contexts/AuthContext"
 
 function SectionParticipants({
@@ -61,17 +64,6 @@ function SectionParticipants({
     userIDs[comment.author_id] = true
   }
   return <UserTagList users={Object.keys(userIDs)} />
-}
-
-function SectionAuthor({ topic }: { topic: Topic }) {
-  return (
-    <div className="w-fit">
-      <UserTag
-        userID={topic.creator?.id ?? ""}
-        displayName={topic.creator?.name ?? "Unknown User"}
-      />
-    </div>
-  )
 }
 
 function SectionAssigned({
@@ -122,6 +114,7 @@ export default function TopicOverview({
   const [editTitle, setEditTitle] = useState("")
   const [editDescription, setEditDescription] = useState("")
   const [editForceSolution, setEditForceSolution] = useState(false)
+  const [editPriorityID, setEditPriorityID] = useState<number>(0)
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
@@ -169,6 +162,9 @@ export default function TopicOverview({
     },
   )
 
+  const linkTagMut = topics!.useLinkTag(projectID, meetingID, () => {})
+  const linkUserMut = topics!.useLinkUser(projectID, meetingID, () => {})
+
   if (findTopicQuery.isLoading) {
     return <div>Loading...</div>
   }
@@ -196,6 +192,7 @@ export default function TopicOverview({
     setEditTitle(topic.title)
     setEditDescription(topic.description)
     setEditForceSolution(topic.force_solution || false)
+    setEditPriorityID(topic.priority_id || 0)
 
     setIsEdit(true)
   }
@@ -308,7 +305,7 @@ export default function TopicOverview({
         createdAt={dateCreated}
         setEditTitle={setEditTitle}
         isEdit={isEdit}
-      />
+      ></OverviewTitle>
 
       <OverviewContainer>
         <OverviewContent>
@@ -411,6 +408,7 @@ export default function TopicOverview({
                       title: editTitle,
                       description: editDescription,
                       force_solution: editForceSolution,
+                      priority_id: editPriorityID,
                     })
                   }
                   isLoading={topicUpdateMutation.isLoading}
@@ -427,11 +425,70 @@ export default function TopicOverview({
               </div>
             )}
           </OverviewSection>
-          <OverviewSection name="Author">
-            <SectionAuthor topic={topic} />
+          <OverviewSection name="Priority">
+            {/* Priority Edit */}
+            {isEdit ? (
+              <PriorityPicker
+                projectID={projectID}
+                defaultValue={topic.priority_id}
+                setPriorityID={setEditPriorityID}
+              />
+            ) : (
+              !!topic.priority_id &&
+              topic.priority && (
+                <span className="">
+                  <PriorityTag priority={topic.priority!} />
+                </span>
+              )
+            )}
+          </OverviewSection>
+          <OverviewSection name="Tags">
+            <SectionAssignTags
+              projectID={projectID}
+              onAssign={(tag) =>
+                linkTagMut.mutate({
+                  link: true,
+                  topicID: topic.ID,
+                  tagID: tag.ID,
+                })
+              }
+              onUnassign={(tag) =>
+                linkTagMut.mutate({
+                  link: false,
+                  topicID: topic.ID,
+                  tagID: tag.ID,
+                })
+              }
+              loadingTag={
+                linkTagMut.isLoading ? linkTagMut.variables?.tagID : 0
+              }
+              tags={topic.tags}
+            />
           </OverviewSection>
           <OverviewSection name="Assigned">
-            <SectionAssigned {...topicInfoProps} topic={topic} />
+            <SectionAssignUsers
+              projectID={projectID}
+              onAssign={(user) =>
+                linkUserMut.mutate({
+                  link: true,
+                  topicID: topic.ID,
+                  userID: user.id,
+                })
+              }
+              onUnassign={(user) =>
+                linkUserMut.mutate({
+                  link: false,
+                  topicID: topic.ID,
+                  userID: user.id,
+                })
+              }
+              users={topic.assigned_users}
+              loadingUser={
+                linkUserMut.isLoading
+                  ? linkUserMut.variables?.userID
+                  : undefined
+              }
+            />
           </OverviewSection>
           <OverviewSection name="Participants">
             <SectionParticipants {...topicInfoProps} />

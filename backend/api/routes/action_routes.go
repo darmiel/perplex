@@ -26,7 +26,7 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler, middlewa
 	router.Post("/:action_id/user/:user_id", handler.LinkUser)
 	router.Delete("/:action_id/user/:user_id", handler.UnlinkUser)
 
-	router.Use("/:action_id/tag/:tag_id", handler.TagLocalsMiddleware)
+	router.Use("/:action_id/tag/:tag_id", middlewares.TagLocalsMiddleware)
 	router.Post("/:action_id/tag/:tag_id", handler.LinkTag)
 	router.Delete("/:action_id/tag/:tag_id", handler.UnlinkTag)
 

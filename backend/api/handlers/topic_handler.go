@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
 	"github.com/darmiel/perplex/pkg/model"
@@ -16,6 +17,7 @@ type TopicHandler struct {
 	srv       services.TopicService
 	meetSrv   services.MeetingService
 	projSrv   services.ProjectService
+	userSrv   services.UserService
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
@@ -24,10 +26,11 @@ func NewTopicHandler(
 	srv services.TopicService,
 	meetSrv services.MeetingService,
 	projSrv services.ProjectService,
+	userSrv services.UserService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *TopicHandler {
-	return &TopicHandler{srv, meetSrv, projSrv, logger, validator}
+	return &TopicHandler{srv, meetSrv, projSrv, userSrv, logger, validator}
 }
 
 var ErrNoSolution = errors.New("topic requires a solution before close")
@@ -36,6 +39,7 @@ type topicDto struct {
 	Title         string `validate:"required,startsnotwith= ,endsnotwith= ,min=1,max=128" json:"title"`
 	Description   string `json:"description"`
 	ForceSolution bool   `json:"force_solution"`
+	PriorityID    uint   `json:"priority_id"`
 }
 
 func (h *TopicHandler) ValidateTopicDto(dto *topicDto) error {
@@ -83,7 +87,7 @@ func (h *TopicHandler) AddTopic(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 
-	topic, err := h.srv.AddTopic(u.UserID, m.ID, payload.Title, payload.Description, payload.ForceSolution)
+	topic, err := h.srv.AddTopic(u.UserID, m.ID, payload.Title, payload.Description, payload.ForceSolution, payload.PriorityID)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -129,7 +133,7 @@ func (h *TopicHandler) EditTopic(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 
-	if err := h.srv.EditTopic(t.ID, payload.Title, payload.Description, payload.ForceSolution); err != nil {
+	if err := h.srv.EditTopic(t.ID, payload.Title, payload.Description, payload.ForceSolution, payload.PriorityID); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("topic edited", nil))
@@ -156,27 +160,44 @@ func (h *TopicHandler) SetStatusUnchecked(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("topic opened", nil))
 }
 
-type topicAssignUserDto struct {
-	AssignedUsers []string `json:"assigned_users"`
+func (h *TopicHandler) LinkTag(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	tag := ctx.Locals("tag").(model.Tag)
+	return fiberResponseNoVal(ctx, "linked tag", h.srv.LinkTag(topic.ID, tag.ID))
 }
 
-func (h *TopicHandler) AssignUsers(ctx *fiber.Ctx) error {
-	var payload topicAssignUserDto
-	if err := ctx.BodyParser(&payload); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
-	}
-	// check if all users in project
+func (h *TopicHandler) UnlinkTag(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	tag := ctx.Locals("tag").(model.Tag)
+	return fiberResponseNoVal(ctx, "unlinked tag", h.srv.UnlinkTag(topic.ID, tag.ID))
+}
+
+func (h *TopicHandler) LinkUser(ctx *fiber.Ctx) error {
 	p := ctx.Locals("project").(model.Project)
-	for _, userID := range payload.AssignedUsers {
-		if !util.HasAccess(&p, userID) {
-			return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(ErrNotFound))
+	m := ctx.Locals("meeting").(model.Meeting)
+	topic := ctx.Locals("topic").(model.Topic)
+	projectUser := ctx.Locals("project_user").(model.User)
+
+	// create notification for linked user if not self link
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	if u.UserID != projectUser.ID {
+		if err := h.userSrv.CreateNotification(
+			projectUser.ID,
+			topic.Title,
+			"topic",
+			"You have been assigned to a Topic",
+			fmt.Sprintf("/project/%d/meeting/%d/topic/%d",
+				p.ID, m.ID, topic.ID),
+			"Go to Topic"); err != nil {
+			h.logger.Warnf("cannot create notification for user %s: %v", projectUser.ID, err)
 		}
 	}
 
-	t := ctx.Locals("topic").(model.Topic)
-	if err := h.srv.AssignUsersToTopic(t.ID, payload.AssignedUsers); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
-	}
+	return fiberResponseNoVal(ctx, "linked user", h.srv.LinkUser(topic.ID, projectUser.ID))
+}
 
-	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("users assigned", nil))
+func (h *TopicHandler) UnlinkUser(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	projectUser := ctx.Locals("project_user").(model.User)
+	return fiberResponseNoVal(ctx, "unlinked user", h.srv.UnlinkUser(topic.ID, projectUser.ID))
 }

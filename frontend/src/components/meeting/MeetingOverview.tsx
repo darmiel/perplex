@@ -14,6 +14,7 @@ import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
+import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -58,6 +59,8 @@ export default function MeetingOverview({
       setIsEdit(false)
     },
   )
+
+  const linkTagMut = meetings!.useLinkTag(projectID, meetingID, () => {})
 
   if (meetingInfoQuery.isLoading) {
     return <BarLoader color="white" />
@@ -256,6 +259,27 @@ export default function MeetingOverview({
           </OverviewSection>
           <OverviewSection name="Assigned">
             <MeetingSectionAssigned meeting={meeting} />
+          </OverviewSection>
+          <OverviewSection name="Tags">
+            <SectionAssignTags
+              projectID={projectID}
+              onAssign={(tag) =>
+                linkTagMut.mutate({
+                  link: true,
+                  tagID: tag.ID,
+                })
+              }
+              onUnassign={(tag) =>
+                linkTagMut.mutate({
+                  link: false,
+                  tagID: tag.ID,
+                })
+              }
+              loadingTag={
+                linkTagMut.isLoading ? linkTagMut.variables?.tagID : 0
+              }
+              tags={meeting.tags}
+            />
           </OverviewSection>
         </OverviewSide>
       </OverviewContainer>

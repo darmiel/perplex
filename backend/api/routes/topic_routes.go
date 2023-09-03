@@ -5,16 +5,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler) {
+func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler, middlewares *handlers.MiddlewareHandler) {
 	router.Get("/", handler.ListTopicForMeeting)
 	router.Post("/", handler.AddTopic)
 
 	// make sure the requested topic belongs to the current meeting / project
-	router.Use("/:topic_id", handler.TopicAuthorizationMiddleware)
-	router.Get("/:topic_id", handler.GetTopic)
-	router.Delete("/:topic_id", handler.DeleteTopic)
-	router.Put("/:topic_id", handler.EditTopic)
-	router.Post("/:topic_id/status", handler.SetStatusChecked)
-	router.Delete("/:topic_id/status", handler.SetStatusUnchecked)
-	router.Post("/:topic_id/assign", handler.AssignUsers)
+	specific := router.Group("/:topic_id")
+	specific.Use("/", handler.TopicAuthorizationMiddleware)
+	specific.Get("/", handler.GetTopic)
+	specific.Delete("/", handler.DeleteTopic)
+	specific.Put("/", handler.EditTopic)
+	specific.Post("/status", handler.SetStatusChecked)
+	specific.Delete("/status", handler.SetStatusUnchecked)
+
+	// user linking
+	userGroup := specific.Group("/user/:user_id")
+	userGroup.Use("/", middlewares.UserLocalsMiddleware)
+	userGroup.Post("/", handler.LinkUser)
+	userGroup.Delete("/", handler.UnlinkUser)
+
+	// tag linking
+	tagGroup := specific.Group("/tag/:tag_id")
+	tagGroup.Use("/", middlewares.TagLocalsMiddleware)
+	tagGroup.Post("/", handler.LinkTag)
+	tagGroup.Delete("/", handler.UnlinkTag)
 }

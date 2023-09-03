@@ -25,27 +25,17 @@ type ActionService interface {
 	UnlinkTag(actionID, tagID uint) error
 	CloseAction(actionID uint) error
 	OpenAction(actionID uint) error
-	//
-	FindTag(tagID uint) (*model.Tag, error)
-	FindTagsByProject(projectID uint) ([]model.Tag, error)
-	CreateTag(title, color string, projectID uint) (*model.Tag, error)
-	DeleteTag(tagID uint) error
-	EditTag(tagID uint, title, color string) error
-	//
-	FindPriority(priorityID uint) (*model.Priority, error)
-	FindPrioritiesByProject(projectID uint) ([]model.Priority, error)
-	CreatePriority(title, color string, weight int, projectID uint) (*model.Priority, error)
-	DeletePriority(priorityID uint) error
-	EditPriority(priorityID uint, title, color string, weight int) error
 }
 
 type actionService struct {
-	DB *gorm.DB
+	DB      *gorm.DB
+	projSrv ProjectService
 }
 
-func NewActionService(db *gorm.DB) ActionService {
+func NewActionService(db *gorm.DB, projSrv ProjectService) ActionService {
 	return &actionService{
-		DB: db,
+		DB:      db,
+		projSrv: projSrv,
 	}
 }
 
@@ -126,6 +116,9 @@ func (a *actionService) FindActionsByProjectAndUser(projectID uint, userID strin
 func (a *actionService) CreateAction(title, description string, dueDate sql.NullTime, priorityID, projectID uint, creatorID string) (*model.Action, error) {
 	var priorityIDCreate *uint
 	if priorityID > 0 {
+		if _, err := a.projSrv.FindPriority(priorityID); err != nil {
+			return nil, err
+		}
 		priorityIDCreate = &priorityID
 	}
 	action := model.Action{
@@ -154,7 +147,7 @@ func (a *actionService) EditAction(id uint, title, description string, dueDate s
 	// check if priority exists
 	var priorityIDUpdate interface{} = nil
 	if priorityID != 0 {
-		if _, err := a.FindPriority(priorityID); err != nil {
+		if _, err := a.projSrv.FindPriority(priorityID); err != nil {
 			return err
 		}
 		priorityIDUpdate = priorityID
@@ -271,127 +264,4 @@ func (a *actionService) OpenAction(id uint) error {
 	}).
 		Update("ClosedAt", nil).
 		Error
-}
-
-// Tags
-
-func (a *actionService) FindTag(tagID uint) (*model.Tag, error) {
-	var tag model.Tag
-	if err := a.DB.First(&tag, tagID).Error; err != nil {
-		return nil, err
-	}
-	return &tag, nil
-}
-
-func (a *actionService) FindTagsByProject(projectID uint) ([]model.Tag, error) {
-	var tags []model.Tag
-	if err := a.DB.Where(model.Tag{
-		ProjectID: projectID,
-	}).Find(&tags).Error; err != nil {
-		return nil, err
-	}
-	return tags, nil
-}
-
-func (a *actionService) CreateTag(title, color string, projectID uint) (*model.Tag, error) {
-	tag := model.Tag{
-		Title:     title,
-		Color:     color,
-		ProjectID: projectID,
-	}
-	if err := a.DB.Create(&tag).Error; err != nil {
-		return nil, err
-	}
-	return &tag, nil
-}
-
-func (a *actionService) DeleteTag(tagID uint) error {
-	// find all actions with this tag and remove it
-	if actions, err := a.FindActionsByTag(tagID); err != nil {
-		return err
-	} else {
-		for _, action := range actions {
-			if err = a.UnlinkTag(action.ID, tagID); err != nil {
-				return err
-			}
-		}
-	}
-	// delete tag
-	return a.DB.Delete(&model.Tag{
-		Model: gorm.Model{
-			ID: tagID,
-		},
-	}).Error
-}
-
-func (a *actionService) EditTag(tagID uint, title, color string) error {
-	return a.DB.Updates(&model.Tag{
-		Model: gorm.Model{
-			ID: tagID,
-		},
-		Title: title,
-		Color: color,
-	}).Error
-}
-
-// Priorities
-
-func (a *actionService) FindPriority(priorityID uint) (*model.Priority, error) {
-	var priority model.Priority
-	if err := a.DB.First(&priority, priorityID).Error; err != nil {
-		return nil, err
-	}
-	return &priority, nil
-}
-
-func (a *actionService) FindPrioritiesByProject(projectID uint) ([]model.Priority, error) {
-	var priorities []model.Priority
-	if err := a.DB.Where(&model.Priority{
-		ProjectID: projectID,
-	}).Find(&priorities).Error; err != nil {
-		return nil, err
-	}
-	return priorities, nil
-}
-
-func (a *actionService) CreatePriority(title, color string, weight int, projectID uint) (*model.Priority, error) {
-	priority := model.Priority{
-		Title:     title,
-		Color:     color,
-		Weight:    weight,
-		ProjectID: projectID,
-	}
-	if err := a.DB.Create(&priority).Error; err != nil {
-		return nil, err
-	}
-	return &priority, nil
-}
-
-func (a *actionService) DeletePriority(priorityID uint) error {
-	// find all actions with this tag and remove it
-	if actions, err := a.FindActionsByPriority(priorityID); err != nil {
-		return err
-	} else {
-		for _, action := range actions {
-			if err = a.EditAction(action.ID, action.Title, action.Description, action.DueDate, 0); err != nil {
-				return err
-			}
-		}
-	}
-	return a.DB.Delete(&model.Priority{
-		Model: gorm.Model{
-			ID: priorityID,
-		},
-	}).Error
-}
-
-func (a *actionService) EditPriority(priorityID uint, title, color string, weight int) error {
-	return a.DB.Updates(&model.Priority{
-		Model: gorm.Model{
-			ID: priorityID,
-		},
-		Title:  title,
-		Weight: weight,
-		Color:  color,
-	}).Error
 }

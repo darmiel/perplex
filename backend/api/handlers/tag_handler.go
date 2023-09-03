@@ -11,13 +11,13 @@ import (
 )
 
 type TagHandler struct {
-	srv       services.ActionService
+	srv       services.ProjectService
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
 
 func NewTagHandler(
-	srv services.ActionService,
+	srv services.ProjectService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *TagHandler {

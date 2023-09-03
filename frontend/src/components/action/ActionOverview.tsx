@@ -27,10 +27,11 @@ import { toast } from "sonner"
 
 import ActionTag from "@/components/action/ActionTag"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
-import ActionSectionTags from "@/components/action/sections/ActionSectionTags"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
 import CommentSuite from "@/components/comment/CommentSuite"
+import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import DurationTag from "@/components/ui/DurationTag"
+import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 
 export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
@@ -40,15 +41,15 @@ export default function ActionOverview({ action }: { action: Action }) {
 
   const [isEdit, setIsEdit] = useState(false)
 
-  const { priorities, actions } = useAuth()
-
-  const projectPrioritiesQuery = priorities!.useList(action.project_id)
+  const { actions } = useAuth()
 
   const actionEditMut = actions!.useEdit(action.project_id, () =>
     setIsEdit(false),
   )
 
   const actionStatusMut = actions!.useStatus(action.project_id, () => {})
+
+  const linkTagMut = actions!.useLinkTag(action.project_id)
 
   function enterEdit() {
     setEditTitle(action.title)
@@ -118,18 +119,11 @@ export default function ActionOverview({ action }: { action: Action }) {
           <div className="flex space-x-2 items-center mb-4">
             {/* Priority Edit */}
             {isEdit ? (
-              <select
-                className="w-fit bg-transparent"
+              <PriorityPicker
+                projectID={action.project_id}
                 defaultValue={action.priority_id}
-                onChange={(e) => setEditPriorityID(Number(e.target.value))}
-              >
-                <option value="0">No Priority</option>
-                {projectPrioritiesQuery.data?.data.map((priority) => (
-                  <option key={priority.ID} value={priority.ID}>
-                    {priority.title}
-                  </option>
-                ))}
-              </select>
+                setPriorityID={setEditPriorityID}
+              />
             ) : (
               !!action.priority_id && (
                 <PriorityTag priority={action.priority!} />
@@ -237,7 +231,27 @@ export default function ActionOverview({ action }: { action: Action }) {
             <ActionSectionAssigned action={action} />
           </OverviewSection>
           <OverviewSection name="Tags" badge={action.tags.length}>
-            <ActionSectionTags action={action} />
+            <SectionAssignTags
+              projectID={action.project_id}
+              onAssign={(tag) =>
+                linkTagMut.mutate({
+                  link: true,
+                  actionID: action.ID,
+                  tagID: tag.ID,
+                })
+              }
+              onUnassign={(tag) =>
+                linkTagMut.mutate({
+                  link: false,
+                  actionID: action.ID,
+                  tagID: tag.ID,
+                })
+              }
+              tags={action.tags}
+              loadingTag={
+                linkTagMut.isLoading ? linkTagMut.variables?.tagID : 0
+              }
+            />
           </OverviewSection>
           <OverviewSection name="Linked Topics" badge={action.topics.length}>
             <ActionSectionTopics action={action} />

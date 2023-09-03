@@ -40,6 +40,7 @@ export type Meeting = {
   creator_id: string
   project_id: number
   assigned_users: User[]
+  tags: Tag[]
 }
 
 export type User = {
@@ -58,11 +59,14 @@ export type Topic = {
   comments?: Comment[]
   solution_id?: number
   closed_at: NullTime
-  assigned_users?: User[]
+  assigned_users: User[]
   creator: User
   creator_id: string
   meeting_id: number
   Meeting: Meeting
+  tags: Tag[]
+  priority_id: number
+  priority?: Priority
 }
 
 export type Priority = {

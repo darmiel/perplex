@@ -84,6 +84,7 @@ export default function Navbar() {
                 key={index}
                 href={`/project/${project.ID}`}
                 tooltip_id={`tooltip-project-${project.ID}`}
+                selected={String(project.ID) === projectID}
               >
                 <UserAvatar
                   userID={String(project.ID)}

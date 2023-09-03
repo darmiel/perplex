@@ -76,7 +76,7 @@ export default function ProjectPage() {
       )}
 
       <Tabs
-        className="[&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0"
+        className="[&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0 overflow-y-auto"
         value={tab}
         onChange={(newTab) => {
           setTab(newTab)

@@ -7,12 +7,12 @@ import { TruncateTitle } from "@/components/ui/text/TruncateText"
 
 export default function ActionListItemSmall({ action }: { action: Action }) {
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="w-64 flex flex-col space-y-1">
       <div className="flex items-center text-neutral-400 space-x-2">
         <div>
           <ActionTag action={action} />
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col whitespace-nowrap">
           <TruncateTitle truncate={30} className="text-sm">
             {action.title}
           </TruncateTitle>

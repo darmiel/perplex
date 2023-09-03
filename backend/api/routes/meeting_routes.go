@@ -25,4 +25,9 @@ func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler, middle
 	linkUser.Post("/", handler.LinkUser)
 	linkUser.Delete("/", handler.UnlinkUser)
 
+	// tag linking
+	tagGroup := specific.Group("/link/tag/:tag_id")
+	tagGroup.Use("/", middlewares.TagLocalsMiddleware)
+	tagGroup.Post("/", handler.LinkTag)
+	tagGroup.Delete("/", handler.UnlinkTag)
 }

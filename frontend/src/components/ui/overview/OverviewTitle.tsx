@@ -16,6 +16,8 @@ export default function OverviewTitle({
   isEdit,
   injectHeader,
   className = "",
+
+  children,
 }: {
   creatorID: string
   title: string
@@ -28,6 +30,8 @@ export default function OverviewTitle({
   isEdit: boolean
   injectHeader?: ReactNode | false
   className?: string
+
+  children?: ReactNode
 }) {
   return (
     <div className={`w-full ${className}`}>
@@ -55,6 +59,8 @@ export default function OverviewTitle({
           <DateString value={createdAt} date time />
         </div>
       </div>
+
+      {children}
 
       <Hr className="my-4" />
     </div>

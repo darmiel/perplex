@@ -15,6 +15,8 @@ type MeetingService interface {
 	Extend(meeting *model.Meeting, preload ...string) error
 	LinkUser(meetingID uint, userID string) error
 	UnlinkUser(meetingID uint, userID string) error
+	LinkTag(meetingID, tagID uint) error
+	UnlinkTag(meetingID, tagID uint) error
 }
 
 type meetingService struct {
@@ -28,7 +30,8 @@ func NewMeetingService(db *gorm.DB) MeetingService {
 }
 
 func (m *meetingService) preload() *gorm.DB {
-	return m.DB.Preload("AssignedUsers")
+	return m.DB.Preload("AssignedUsers").
+		Preload("Tags")
 }
 
 func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name, description string, startDate time.Time) (resp *model.Meeting, err error) {
@@ -110,5 +113,33 @@ func (m *meetingService) UnlinkUser(meetingID uint, userID string) error {
 		Association("AssignedUsers").
 		Delete(&model.User{
 			ID: userID,
+		})
+}
+
+func (m *meetingService) LinkTag(meetingID, tagID uint) error {
+	return m.DB.Model(&model.Meeting{
+		Model: gorm.Model{
+			ID: meetingID,
+		},
+	}).
+		Association("Tags").
+		Append(&model.Tag{
+			Model: gorm.Model{
+				ID: tagID,
+			},
+		})
+}
+
+func (m *meetingService) UnlinkTag(meetingID, tagID uint) error {
+	return m.DB.Model(&model.Meeting{
+		Model: gorm.Model{
+			ID: meetingID,
+		},
+	}).
+		Association("Tags").
+		Delete(&model.Tag{
+			Model: gorm.Model{
+				ID: tagID,
+			},
 		})
 }

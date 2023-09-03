@@ -78,10 +78,10 @@ func main() {
 
 	projectService := services.NewProjectService(db)
 	meetingService := services.NewMeetingService(db)
-	topicService := services.NewTopicService(db)
+	topicService := services.NewTopicService(db, projectService)
 	commentService := services.NewCommentService(db, topicService)
 	userService := services.NewUserService(db, projectService, meetingService)
-	actionService := services.NewActionService(db)
+	actionService := services.NewActionService(db, projectService)
 
 	// user middleware
 	// check if user is already registered in database
@@ -134,7 +134,7 @@ func main() {
 	}
 
 	// middlewares
-	middlewareHandler := handlers.NewMiddlewareHandler(userService)
+	middlewareHandler := handlers.NewMiddlewareHandler(userService, projectService)
 
 	// /project
 	projectHandler := handlers.NewProjectHandler(projectService, userService, sugar, validate)
@@ -147,9 +147,9 @@ func main() {
 	routes.MeetingRoutes(meetingGroup, meetingHandler, middlewareHandler)
 
 	// /topics
-	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, sugar, validate)
+	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, userService, sugar, validate)
 	topicGroup := meetingGroup.Group("/:meeting_id/topic")
-	routes.TopicRoutes(topicGroup, topicHandler)
+	routes.TopicRoutes(topicGroup, topicHandler, middlewareHandler)
 
 	// /comment
 	commentHandler := handlers.NewCommentHandler(
@@ -175,12 +175,12 @@ func main() {
 	routes.ActionRoutes(actionGroup, actionHandler, middlewareHandler)
 
 	// /tag
-	tagHandler := handlers.NewTagHandler(actionService, sugar, validate)
+	tagHandler := handlers.NewTagHandler(projectService, sugar, validate)
 	tagGroup := projectGroup.Group("/:project_id/tag")
 	routes.TagRoutes(tagGroup, tagHandler)
 
 	// /priority
-	priorityHandler := handlers.NewPriorityHandler(actionService, sugar, validate)
+	priorityHandler := handlers.NewPriorityHandler(projectService, sugar, validate)
 	priorityGroup := projectGroup.Group("/:project_id/priority")
 	routes.PriorityRoutes(priorityGroup, priorityHandler)
 

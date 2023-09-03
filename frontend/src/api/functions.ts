@@ -70,6 +70,11 @@ export type meetingLinkUserVars = {
   link: boolean
 }
 
+export type meetingLinkTagVars = {
+  tagID: number
+  link: boolean
+}
+
 // ======================
 // Topic Types
 // ======================
@@ -77,6 +82,7 @@ export type topicUpdateVars = {
   title: string
   description: string
   force_solution: boolean
+  priority_id: number
 }
 
 export type topicDeleteVars = {
@@ -84,7 +90,8 @@ export type topicDeleteVars = {
 }
 
 export type topicAssignUsersVars = {
-  userIDs: string[]
+  link: boolean
+  userID: string
   topicID: number
 }
 
@@ -98,6 +105,12 @@ export type topicCreateVars = {
 export type topicStatusVars = {
   topicID: number
   close: boolean
+}
+
+export type topicLinkTagVars = {
+  topicID: number
+  tagID: number
+  link: boolean
 }
 
 // ======================
@@ -484,6 +497,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
       linkUserMutKey(projectID: number, meetingID: number) {
         return [{ projectID }, { meetingID }, "link-user-mut"]
       },
+
+      linkTagMutFn(projectID: number, meetingID: number) {
+        return async ({ tagID, link }: meetingLinkTagVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/link/tag/${tagID}`,
+            )
+          ).data
+      },
+      linkTagMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "link-tag-mut"]
+      },
     },
     topics: {
       listQueryFn(projectID: number, meetingID: number) {
@@ -524,14 +549,16 @@ export const functions = (axios: Axios, client: QueryClient) => {
           title,
           description,
           force_solution,
+          priority_id,
         }: topicUpdateVars) =>
           (
             await axios.put(
               `/project/${projectID}/meeting/${meetingID}/topic/${topicID}`,
               {
-                title: title,
-                description: description,
-                force_solution: force_solution,
+                title,
+                description,
+                force_solution,
+                priority_id,
               },
             )
           ).data
@@ -580,18 +607,27 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
 
       assignMutFn(projectID: number, meetingID: number) {
-        return async ({ userIDs, topicID }: topicAssignUsersVars) =>
+        return async ({ link, userID, topicID }: topicAssignUsersVars) =>
           (
-            await axios.post(
-              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/assign`,
-              {
-                assigned_users: userIDs,
-              },
+            await axios[link ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/user/${userID}`,
             )
           ).data
       },
       assignMutKey(projectID: number, meetingID: number) {
         return [{ projectID }, { meetingID }, "topic-assign-mut"]
+      },
+
+      linkTagMutFn(projectID: number, meetingID: number) {
+        return async ({ topicID, tagID, link }: topicLinkTagVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/tag/${tagID}`,
+            )
+          ).data
+      },
+      linkTagMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "topic-link-tag-mut"]
       },
     },
     comments: {
@@ -1169,6 +1205,24 @@ export const functions = (axios: Axios, client: QueryClient) => {
           ),
         })
       },
+      useLinkTag(
+        projectID: number,
+        meetingID: number,
+        callback: SuccessCallback<never, meetingLinkTagVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, meetingLinkTagVars>({
+          mutationKey: functions.meetings.linkTagMutKey(projectID, meetingID),
+          mutationFn: functions.meetings.linkTagMutFn(projectID, meetingID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.meetings.listQueryKey(projectID),
+            functions.meetings.findQueryKey(projectID, meetingID),
+          ),
+          onError: toastError(
+            ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,
+          ),
+        })
+      },
     },
     topics: {
       useDelete(
@@ -1231,7 +1285,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
           enabled: !!projectID && !!meetingID,
         })
       },
-      useAssignUsers(
+      useLinkUser(
         projectID: number,
         meetingID: number,
         callback: SuccessCallback<never, topicAssignUsersVars>,
@@ -1280,6 +1334,25 @@ export const functions = (axios: Axios, client: QueryClient) => {
             functions.topics.listQueryKey(projectID, meetingID),
           ),
           onError: toastError("Cannot change Topic status:"),
+        })
+      },
+      useLinkTag(
+        projectID: number,
+        meetingID: number,
+        callback: SuccessCallback<never, topicLinkTagVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, topicLinkTagVars>({
+          mutationKey: functions.topics.linkTagMutKey(projectID, meetingID),
+          mutationFn: functions.topics.linkTagMutFn(projectID, meetingID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            ({ topicID }) =>
+              functions.topics.findQueryKey(projectID, meetingID, topicID),
+            functions.topics.listQueryKey(projectID, meetingID),
+          ),
+          onError: toastError(
+            ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,
+          ),
         })
       },
     },

@@ -8,26 +8,37 @@ import (
 )
 
 type TopicService interface {
-	AddTopic(creatorID string, meetingID uint, title, description string, forceSolution bool) (*model.Topic, error)
+	AddTopic(creatorID string, meetingID uint, title, description string, forceSolution bool, priorityID uint) (*model.Topic, error)
 	GetTopic(topicID uint, preload ...string) (*model.Topic, error)
 	ListTopicsForMeeting(meetingID uint) ([]*model.Topic, error)
 	DeleteTopic(topicID uint) error
-	EditTopic(topicID uint, title, description string, forceSolution bool) error
+	EditTopic(topicID uint, title, description string, forceSolution bool, priorityID uint) error
 	SetSolution(topicID uint, commentID uint) error
 	CheckTopic(topicID uint) error
 	UncheckTopic(topicID uint) error
-	AssignUsersToTopic(topicID uint, userIDs []string) error
 	Extend(topic *model.Topic, preload ...string) error
+	LinkTag(topicID, tagID uint) error
+	UnlinkTag(topicID, tagID uint) error
+	LinkUser(topicID uint, userID string) error
+	UnlinkUser(topicID uint, userID string) error
 }
 
 type topicService struct {
-	DB *gorm.DB
+	DB      *gorm.DB
+	projSrv ProjectService
 }
 
-func NewTopicService(db *gorm.DB) TopicService {
+func NewTopicService(db *gorm.DB, projSrv ProjectService) TopicService {
 	return &topicService{
-		DB: db,
+		DB:      db,
+		projSrv: projSrv,
 	}
+}
+
+func (m *topicService) preload() *gorm.DB {
+	return m.DB.Preload("Tags").
+		Preload("AssignedUsers").
+		Preload("Priority")
 }
 
 func (m *topicService) AddTopic(
@@ -35,20 +46,29 @@ func (m *topicService) AddTopic(
 	meetingID uint,
 	title, description string,
 	forceSolution bool,
+	priorityID uint,
 ) (res *model.Topic, err error) {
+	var priorityIDCreate *uint
+	if priorityID > 0 {
+		if _, err := m.projSrv.FindPriority(priorityID); err != nil {
+			return nil, err
+		}
+		priorityIDCreate = &priorityID
+	}
 	res = &model.Topic{
 		Title:         title,
 		Description:   description,
 		CreatorID:     creatorID,
 		ForceSolution: forceSolution,
 		MeetingID:     meetingID,
+		PriorityID:    priorityIDCreate,
 	}
 	err = m.DB.Create(res).Error
 	return
 }
 
 func (m *topicService) GetTopic(topicID uint, preload ...string) (res *model.Topic, err error) {
-	q := m.DB.Preload("AssignedUsers")
+	q := m.preload()
 	for _, p := range preload {
 		q = q.Preload(p)
 	}
@@ -61,30 +81,12 @@ func (m *topicService) GetTopic(topicID uint, preload ...string) (res *model.Top
 }
 
 func (m *topicService) ListTopicsForMeeting(meetingID uint) (res []*model.Topic, err error) {
-	err = m.DB.Preload("AssignedUsers").Preload("Creator").Find(&res, &model.Topic{
-		MeetingID: meetingID,
-	}).Error
+	err = m.preload().
+		Preload("Creator").
+		Find(&res, &model.Topic{
+			MeetingID: meetingID,
+		}).Error
 	return
-}
-
-func (m *topicService) AssignUsersToTopic(topicID uint, userIDs []string) error {
-	var topic model.Topic
-	if err := m.DB.Preload("AssignedUsers").First(&topic, topicID).Error; err != nil {
-		return err
-	}
-	if err := m.DB.Model(&topic).Association("AssignedUsers").Delete(topic.AssignedUsers); err != nil {
-		return err
-	}
-	if len(userIDs) > 0 {
-		var users []model.User
-		if err := m.DB.Find(&users, userIDs).Error; err != nil {
-			return err
-		}
-		if err := m.DB.Model(&topic).Association("AssignedUsers").Append(users); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (m *topicService) DeleteTopic(topicID uint) error {
@@ -102,14 +104,23 @@ func (m *topicService) DeleteTopic(topicID uint) error {
 	return nil
 }
 
-func (m *topicService) EditTopic(topicID uint, title, description string, forceSolution bool) error {
+func (m *topicService) EditTopic(topicID uint, title, description string, forceSolution bool, priorityID uint) error {
+	var priorityIDEdit interface{} = nil
+	if priorityID != 0 {
+		if _, err := m.projSrv.FindPriority(priorityID); err != nil {
+			return err
+		}
+		priorityIDEdit = priorityID
+	}
 	return m.DB.Updates(&model.Topic{
 		Model: gorm.Model{
 			ID: topicID,
 		},
 		Title:       title,
 		Description: description,
-	}).Update("force_solution", forceSolution).Error
+	}).Update("force_solution", forceSolution).
+		Update("PriorityID", priorityIDEdit).
+		Error
 }
 
 func (m *topicService) SetSolution(topicID uint, commentID uint) error {
@@ -142,4 +153,56 @@ func (m *topicService) Extend(topic *model.Topic, preload ...string) error {
 		q = q.Preload(p)
 	}
 	return q.First(topic).Error
+}
+
+func (m *topicService) LinkTag(topicID, tagID uint) error {
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("Tags").
+		Append(&model.Tag{
+			Model: gorm.Model{
+				ID: tagID,
+			},
+		})
+}
+
+func (m *topicService) UnlinkTag(topicID, tagID uint) error {
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("Tags").
+		Delete(&model.Tag{
+			Model: gorm.Model{
+				ID: tagID,
+			},
+		})
+}
+
+func (m *topicService) LinkUser(topicID uint, userID string) error {
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("AssignedUsers").
+		Append(&model.User{
+			ID: userID,
+		})
+}
+
+func (m *topicService) UnlinkUser(topicID uint, userID string) error {
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("AssignedUsers").
+		Delete(&model.User{
+			ID: userID,
+		})
 }

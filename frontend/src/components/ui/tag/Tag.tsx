@@ -34,7 +34,7 @@ export function TagContainer({
   return (
     <span
       style={styleAttr}
-      className={`${className} ${styleClassName} rounded-full text-sm px-3 py-1 flex flex-row items-center space-x-1`}
+      className={`${className} ${styleClassName} whitespace-nowrap rounded-full text-sm px-3 py-1 flex flex-row items-center space-x-1 w-fit`}
     >
       {children}
     </span>

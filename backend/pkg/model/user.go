@@ -85,6 +85,12 @@ type Topic struct {
 	AssignedUsers []User `gorm:"many2many:user_topic_assignments" json:"assigned_users"`
 	// Actions contains a list of actions related to the topic
 	Actions []Action `gorm:"many2many:topic_action_assignments" json:"actions"`
+	// PriorityID is the ID of the priority of the topic
+	PriorityID *uint `json:"priority_id"`
+	// Priority is the priority of the topic
+	Priority Priority `json:"priority,omitempty"`
+	// Tags contains all tags of the topic
+	Tags []Tag `gorm:"many2many:topic_tag_assignments" json:"tags"`
 }
 
 func (t Topic) CheckProjectOwnership(projectID uint) bool {
@@ -113,6 +119,8 @@ type Meeting struct {
 	Comments []Comment `json:"comments,omitempty"`
 	// AssignedUsers contains all users assigned to the meeting
 	AssignedUsers []User `gorm:"many2many:meeting_user_assignments" json:"assigned_users"`
+	// Tags contains all tags of the meeting
+	Tags []Tag `gorm:"many2many:meeting_tag_assignments" json:"tags"`
 }
 
 func (m Meeting) CheckProjectOwnership(projectID uint) bool {

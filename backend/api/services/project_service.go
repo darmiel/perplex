@@ -21,6 +21,16 @@ type ProjectService interface {
 	RemoveUser(projectID uint, userID string) error
 	EditProject(id uint, name, description string) error
 	Extend(project *model.Project, preload ...string) error
+	FindTag(tagID uint) (*model.Tag, error)
+	FindTagsByProject(projectID uint) ([]model.Tag, error)
+	CreateTag(title, color string, projectID uint) (*model.Tag, error)
+	DeleteTag(tagID uint) error
+	EditTag(tagID uint, title, color string) error
+	FindPriority(priorityID uint) (*model.Priority, error)
+	FindPrioritiesByProject(projectID uint) ([]model.Priority, error)
+	CreatePriority(title, color string, weight int, projectID uint) (*model.Priority, error)
+	DeletePriority(priorityID uint) error
+	EditPriority(priorityID uint, title, color string, weight int) error
 }
 
 type projectService struct {
@@ -141,4 +151,108 @@ func (p *projectService) RemoveUser(projectID uint, userID string) error {
 		return err
 	}
 	return p.DB.Model(&project).Association("Users").Delete(&user)
+}
+
+// Tags
+
+func (p *projectService) FindTag(tagID uint) (*model.Tag, error) {
+	var tag model.Tag
+	if err := p.DB.First(&tag, tagID).Error; err != nil {
+		return nil, err
+	}
+	return &tag, nil
+}
+
+func (p *projectService) FindTagsByProject(projectID uint) ([]model.Tag, error) {
+	var tags []model.Tag
+	if err := p.DB.Where(model.Tag{
+		ProjectID: projectID,
+	}).Find(&tags).Error; err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
+func (p *projectService) CreateTag(title, color string, projectID uint) (*model.Tag, error) {
+	tag := model.Tag{
+		Title:     title,
+		Color:     color,
+		ProjectID: projectID,
+	}
+	if err := p.DB.Create(&tag).Error; err != nil {
+		return nil, err
+	}
+	return &tag, nil
+}
+
+func (p *projectService) DeleteTag(tagID uint) error {
+	// delete tag | TODO: delete all relations with this tag
+	return p.DB.Delete(&model.Tag{
+		Model: gorm.Model{
+			ID: tagID,
+		},
+	}).Error
+}
+
+func (p *projectService) EditTag(tagID uint, title, color string) error {
+	return p.DB.Updates(&model.Tag{
+		Model: gorm.Model{
+			ID: tagID,
+		},
+		Title: title,
+		Color: color,
+	}).Error
+}
+
+// Priorities
+
+func (p *projectService) FindPriority(priorityID uint) (*model.Priority, error) {
+	var priority model.Priority
+	if err := p.DB.First(&priority, priorityID).Error; err != nil {
+		return nil, err
+	}
+	return &priority, nil
+}
+
+func (p *projectService) FindPrioritiesByProject(projectID uint) ([]model.Priority, error) {
+	var priorities []model.Priority
+	if err := p.DB.Where(&model.Priority{
+		ProjectID: projectID,
+	}).Find(&priorities).Error; err != nil {
+		return nil, err
+	}
+	return priorities, nil
+}
+
+func (p *projectService) CreatePriority(title, color string, weight int, projectID uint) (*model.Priority, error) {
+	priority := model.Priority{
+		Title:     title,
+		Color:     color,
+		Weight:    weight,
+		ProjectID: projectID,
+	}
+	if err := p.DB.Create(&priority).Error; err != nil {
+		return nil, err
+	}
+	return &priority, nil
+}
+
+func (p *projectService) DeletePriority(priorityID uint) error {
+	// find all actions with this tag and remove it
+	return p.DB.Delete(&model.Priority{
+		Model: gorm.Model{
+			ID: priorityID,
+		},
+	}).Error
+}
+
+func (p *projectService) EditPriority(priorityID uint, title, color string, weight int) error {
+	return p.DB.Updates(&model.Priority{
+		Model: gorm.Model{
+			ID: priorityID,
+		},
+		Title:  title,
+		Weight: weight,
+		Color:  color,
+	}).Error
 }

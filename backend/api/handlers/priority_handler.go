@@ -12,13 +12,13 @@ import (
 )
 
 type PriorityHandler struct {
-	srv       services.ActionService
+	srv       services.ProjectService
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
 
 func NewPriorityHandler(
-	srv services.ActionService,
+	srv services.ProjectService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *PriorityHandler {

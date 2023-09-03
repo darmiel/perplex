@@ -84,7 +84,7 @@ func (h *MeetingHandler) MeetingAccessMiddleware(ctx *fiber.Ctx) error {
 	}
 
 	// append assigned users
-	if err = h.srv.Extend(&m, "AssignedUsers"); err != nil {
+	if err = h.srv.Extend(&m, "AssignedUsers", "Tags"); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	ctx.Locals("meeting", m)
@@ -181,4 +181,18 @@ func (h *MeetingHandler) UnlinkUser(ctx *fiber.Ctx) error {
 	meeting := ctx.Locals("meeting").(model.Meeting)
 	projectUser := ctx.Locals("project_user").(model.User)
 	return fiberResponseNoVal(ctx, "unlinked user", h.srv.UnlinkUser(meeting.ID, projectUser.ID))
+}
+
+// LinkTag and UnlinkTag
+
+func (h *MeetingHandler) LinkTag(ctx *fiber.Ctx) error {
+	meeting := ctx.Locals("meeting").(model.Meeting)
+	tag := ctx.Locals("tag").(model.Tag)
+	return fiberResponseNoVal(ctx, "linked tag", h.srv.LinkTag(meeting.ID, tag.ID))
+}
+
+func (h *MeetingHandler) UnlinkTag(ctx *fiber.Ctx) error {
+	meeting := ctx.Locals("meeting").(model.Meeting)
+	tag := ctx.Locals("tag").(model.Tag)
+	return fiberResponseNoVal(ctx, "unlinked tag", h.srv.UnlinkTag(meeting.ID, tag.ID))
 }

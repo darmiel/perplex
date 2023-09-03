@@ -21,7 +21,9 @@ export default function MeetingTopicPage({
   return (
     <div className="flex flex-row h-full overflow-y-auto">
       {showTopicList ? (
-        <div className={`${navigationBorderRight} flex-initial w-[21rem] bg-section-darker p-6`}>
+        <div
+          className={`${navigationBorderRight} flex-initial w-[21rem] bg-section-darker p-6`}
+        >
           <TopicList
             projectID={projectID}
             meetingID={meetingID}
@@ -30,7 +32,9 @@ export default function MeetingTopicPage({
           />
         </div>
       ) : (
-        <div className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker p-6 space-y-4`}>
+        <div
+          className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker p-6 space-y-4`}
+        >
           <h2 className="text-center mt-20 text-neutral-400 -rotate-90">
             <button
               onClick={() => setShowTopicList(true)}
@@ -43,7 +47,7 @@ export default function MeetingTopicPage({
         </div>
       )}
 
-      <div className="flex-auto bg-neutral-950 p-6">
+      <div className="flex-auto bg-neutral-950 p-6 overflow-y-auto">
         <TopicOverview
           key={topicID}
           projectID={projectID}
