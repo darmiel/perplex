@@ -2,8 +2,8 @@ import Link from "next/link"
 
 import { Action } from "@/api/types"
 import ActionTag from "@/components/action/ActionTag"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { PriorityTag } from "@/components/ui/tag/Tag"
-import ResolveUserName from "@/components/user/ResolveUserName"
 
 export default function SearchResultAction({
   action,

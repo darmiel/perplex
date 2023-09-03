@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler) {
+func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler, middlewares *handlers.MiddlewareHandler) {
 	router.Get("/", handler.ListActionsForProject)
 	router.Post("/", handler.CreateAction)
 	router.Get("/me", handler.ListActionsForProjectAndUser)
@@ -22,7 +22,7 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler) {
 	router.Post("/:action_id/topic/:topic_id", handler.LinkTopic)
 	router.Delete("/:action_id/topic/:topic_id", handler.UnlinkTopic)
 
-	router.Use("/:action_id/user/:user_id", handler.UserLocalsMiddleware)
+	router.Use("/:action_id/user/:user_id", middlewares.UserLocalsMiddleware)
 	router.Post("/:action_id/user/:user_id", handler.LinkUser)
 	router.Delete("/:action_id/user/:user_id", handler.UnlinkUser)
 

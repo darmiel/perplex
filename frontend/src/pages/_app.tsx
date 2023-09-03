@@ -1,3 +1,4 @@
+import { GeistProvider } from "@geist-ui/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata } from "next"
@@ -54,24 +55,27 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
         <link href={PerplexLogo.src} rel="icon" />
       </Head>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <div className="h-screen w-screen max-h-screen flex">
-            <Navbar />
+        <GeistProvider themeType="dark">
+          {/* <CssBaseline /> */}
+          <AuthProvider>
+            <div className="h-screen w-screen max-h-screen flex">
+              <Navbar />
 
-            <ModalPopup open={showSearch} setOpen={setShowSearch}>
-              <SearchModal onClose={() => setShowSearch(false)} />
-            </ModalPopup>
+              <ModalPopup open={showSearch} setOpen={setShowSearch}>
+                <SearchModal onClose={() => setShowSearch(false)} />
+              </ModalPopup>
 
-            {/*<Register>*/}
-            <main className="flex flex-1 bg-darker">
-              <Component {...pageProps} />
-            </main>
+              {/*<Register>*/}
+              <main className="flex flex-1 bg-darker">
+                <Component {...pageProps} />
+              </main>
 
-            {/*</Register>*/}
-          </div>
-          <Toaster theme="dark" closeButton={true} position="bottom-right" />
-          <ReactQueryDevtools position="bottom-right" />
-        </AuthProvider>
+              {/*</Register>*/}
+            </div>
+            <Toaster theme="dark" closeButton={true} position="bottom-right" />
+            <ReactQueryDevtools position="bottom-right" />
+          </AuthProvider>
+        </GeistProvider>
       </QueryClientProvider>
     </>
   )

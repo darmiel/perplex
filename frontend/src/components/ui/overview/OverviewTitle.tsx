@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
 
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import DateString from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
-import ResolveUserName from "@/components/user/ResolveUserName"
 
 export default function OverviewTitle({
   creatorID,

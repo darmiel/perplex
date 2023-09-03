@@ -1,13 +1,12 @@
+import { Tabs } from "@geist-ui/core"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BiArchive, BiNote } from "react-icons/bi"
-import { BsArrowDown } from "react-icons/bs"
+import { BsArchive, BsArrowDown } from "react-icons/bs"
 
 import { navigationBorderRight } from "@/api/classes"
 import MeetingList from "@/components/meeting/MeetingList"
 import MeetingNotePage from "@/components/meeting/MeetingNotePage"
 import MeetingTopicPage from "@/components/meeting/MeetingTopicPage"
-import TabContainer from "@/components/ui/tab/TabContainer"
 import { useLocalBoolState } from "@/hooks/localStorage"
 
 export default function ProjectPage() {
@@ -16,19 +15,6 @@ export default function ProjectPage() {
     "topic-overview/show-meetings",
     false,
   )
-  const tabPanes = [
-    {
-      name: "Topics",
-      icon: <BiArchive />,
-    },
-    {
-      name: "Notes",
-      icon: <BiNote />,
-    },
-  ] as const
-  type tabName = (typeof tabPanes)[number]["name"]
-
-  const [tab, setTab] = useState<tabName>("Topics")
 
   const router = useRouter()
   const {
@@ -38,14 +24,12 @@ export default function ProjectPage() {
     tab: tabFromURL,
   } = router.query
 
-  // check if tabFromURL is a valid tab name
-  if (
-    tabFromURL &&
-    tabFromURL !== tab &&
-    tabPanes.some((pane) => pane.name === tabFromURL)
-  ) {
-    setTab(tabFromURL as tabName)
-  }
+  const [tab, setTab] = useState((): string => {
+    if (tabFromURL) {
+      return tabFromURL as string
+    }
+    return "Topics"
+  })
 
   if (
     !projectIDStr ||
@@ -65,7 +49,9 @@ export default function ProjectPage() {
   return (
     <>
       {showMeetingList ? (
-        <div className={`${navigationBorderRight} flex flex-col h-full max-h-full w-[25rem] bg-section-darker p-6 space-y-4 border-r border-r-neutral-800`}>
+        <div
+          className={`${navigationBorderRight} flex flex-col h-full max-h-full w-[25rem] bg-section-darker p-6 space-y-4 border-r border-r-neutral-800`}
+        >
           <MeetingList
             projectID={projectID}
             selectedMeetingID={meetingID}
@@ -74,7 +60,9 @@ export default function ProjectPage() {
           />
         </div>
       ) : (
-        <div className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker space-y-4`}>
+        <div
+          className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker space-y-4`}
+        >
           <h2 className="text-center mt-24 text-neutral-400 -rotate-90">
             <button
               onClick={() => setShowMeetingList(true)}
@@ -87,11 +75,11 @@ export default function ProjectPage() {
         </div>
       )}
 
-      <TabContainer
-        tab={tab}
-        setTab={(newTab) => {
-          setTab(newTab as tabName)
-
+      <Tabs
+        className="[&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0"
+        value={tab}
+        onChange={(newTab) => {
+          setTab(newTab)
           // update URL
           router.push(
             {
@@ -104,20 +92,30 @@ export default function ProjectPage() {
             { shallow: true },
           )
         }}
-        panes={tabPanes}
+        width="100%"
+        height="100%"
+        align="center"
+        hideBorder
       >
-        {tab === "Topics" ? (
+        <Tabs.Item
+          label={
+            <>
+              <BsArchive />
+              Topics
+            </>
+          }
+          value="Topics"
+        >
           <MeetingTopicPage
             projectID={projectID}
             meetingID={meetingID}
             topicID={topicID}
           />
-        ) : tab === "Notes" ? (
+        </Tabs.Item>
+        <Tabs.Item label="Notes" value="Notes">
           <MeetingNotePage />
-        ) : (
-          <>Unknown site.</>
-        )}
-      </TabContainer>
+        </Tabs.Item>
+      </Tabs>
     </>
   )
 }

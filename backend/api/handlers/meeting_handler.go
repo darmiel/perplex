@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
 	"github.com/darmiel/perplex/pkg/model"
@@ -20,6 +21,7 @@ var ErrDescriptionTooLong = errors.New("description too long")
 type MeetingHandler struct {
 	srv       services.MeetingService
 	projSrv   services.ProjectService
+	userSrv   services.UserService
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
@@ -27,10 +29,11 @@ type MeetingHandler struct {
 func NewMeetingHandler(
 	srv services.MeetingService,
 	projSrv services.ProjectService,
+	userSrv services.UserService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *MeetingHandler {
-	return &MeetingHandler{srv, projSrv, logger, validator}
+	return &MeetingHandler{srv, projSrv, userSrv, logger, validator}
 }
 
 type meetingDto struct {
@@ -73,14 +76,19 @@ func (h *MeetingHandler) MeetingAccessMiddleware(ctx *fiber.Ctx) error {
 
 	// check if meeting belongs to project
 	p := ctx.Locals("project").(model.Project)
-	if m, ok := util.Any(p.Meetings, func(t model.Meeting) bool {
+	m, ok := util.Any(p.Meetings, func(t model.Meeting) bool {
 		return t.ID == uint(meetingID)
-	}); ok {
-		ctx.Locals("meeting", m)
-		return ctx.Next()
+	})
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
 	}
 
-	return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
+	// append assigned users
+	if err = h.srv.Extend(&m, "AssignedUsers"); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	ctx.Locals("meeting", m)
+	return ctx.Next()
 }
 
 // AddMeeting creates a new meeting for the current project
@@ -146,4 +154,31 @@ func (h *MeetingHandler) EditMeeting(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting edited", nil))
+}
+
+func (h *MeetingHandler) LinkUser(ctx *fiber.Ctx) error {
+	meeting := ctx.Locals("meeting").(model.Meeting)
+	projectUser := ctx.Locals("project_user").(model.User)
+
+	// create notification for linked user if not self link
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	if u.UserID != projectUser.ID {
+		if err := h.userSrv.CreateNotification(
+			projectUser.ID,
+			meeting.Name,
+			"meeting",
+			"you have been assigned to a meeting",
+			fmt.Sprintf("/project/%d/meeting/%d", meeting.ProjectID, meeting.ID),
+			"Go to Meeting"); err != nil {
+			h.logger.Warnf("cannot create notification for user %s: %v", projectUser.ID, err)
+		}
+	}
+
+	return fiberResponseNoVal(ctx, "linked user", h.srv.LinkUser(meeting.ID, projectUser.ID))
+}
+
+func (h *MeetingHandler) UnlinkUser(ctx *fiber.Ctx) error {
+	meeting := ctx.Locals("meeting").(model.Meeting)
+	projectUser := ctx.Locals("project_user").(model.User)
+	return fiberResponseNoVal(ctx, "unlinked user", h.srv.UnlinkUser(meeting.ID, projectUser.ID))
 }

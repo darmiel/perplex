@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Action } from "@/api/types"
 import ActionTag from "@/components/action/ActionTag"
 import CommentSuite from "@/components/comment/CommentSuite"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
@@ -10,7 +11,6 @@ import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { PriorityTag, TagContainer } from "@/components/ui/tag/Tag"
 import TagList from "@/components/ui/tag/TagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
-import ResolveUserName from "@/components/user/ResolveUserName"
 
 export default function ActionPeekModal({
   action,

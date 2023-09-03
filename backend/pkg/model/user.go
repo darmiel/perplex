@@ -28,6 +28,8 @@ type User struct {
 	AssignedActions []Action `gorm:"many2many:action_user_assignments" json:"assigned_actions"`
 	// Actions contains all actions the user created
 	CreatedActions []Action `gorm:"foreignKey:CreatorID" json:"actions"`
+	// AssignedMeetings contains all meetings the user was assigned to
+	AssignedMeetings []Meeting `gorm:"many2many:meeting_user_assignments" json:"assigned_meetings"`
 }
 
 // Comment represents a comment in a topic
@@ -109,6 +111,8 @@ type Meeting struct {
 	Creator User `json:"creator,omitempty"`
 	// Comments for the meeting
 	Comments []Comment `json:"comments,omitempty"`
+	// AssignedUsers contains all users assigned to the meeting
+	AssignedUsers []User `gorm:"many2many:meeting_user_assignments" json:"assigned_users"`
 }
 
 func (m Meeting) CheckProjectOwnership(projectID uint) bool {

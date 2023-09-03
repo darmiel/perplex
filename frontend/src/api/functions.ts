@@ -65,6 +65,11 @@ export type meetingCreateVars = {
   __should_close: boolean
 }
 
+export type meetingLinkUserVars = {
+  userID: string
+  link: boolean
+}
+
 // ======================
 // Topic Types
 // ======================
@@ -466,6 +471,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       listUpcomingQueryKey() {
         return ["upcoming-meetings"]
+      },
+
+      linkUserMutFn(projectID: number, meetingID: number) {
+        return async ({ userID, link }: meetingLinkUserVars) =>
+          (
+            await axios![link ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/link/user/${userID}`,
+            )
+          ).data
+      },
+      linkUserMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "link-user-mut"]
       },
     },
     topics: {
@@ -1132,6 +1149,24 @@ export const functions = (axios: Axios, client: QueryClient) => {
           queryKey: functions.meetings.listUpcomingQueryKey(),
           queryFn: functions.meetings.listUpcomingQueryFn(),
           staleTime: 1000 * 60 * 5,
+        })
+      },
+      useLinkUser(
+        projectID: number,
+        meetingID: number,
+        callback: SuccessCallback<never, meetingLinkUserVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, meetingLinkUserVars>({
+          mutationKey: functions.meetings.linkUserMutKey(projectID, meetingID),
+          mutationFn: functions.meetings.linkUserMutFn(projectID, meetingID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.meetings.listQueryKey(projectID),
+            functions.meetings.findQueryKey(projectID, meetingID),
+          ),
+          onError: toastError(
+            ({ link }) => `Cannot ${link ? "link" : "unlink"} User:`,
+          ),
         })
       },
     },

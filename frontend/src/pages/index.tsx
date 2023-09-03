@@ -1,9 +1,10 @@
 "use client"
 
+import { Avatar, Breadcrumbs, Input, Page, useInput } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
 import { Fragment, useMemo, useState } from "react"
-import { BsArrowDown, BsArrowUp, BsGear } from "react-icons/bs"
+import { BsArrowDown, BsArrowUp, BsGear, BsSearch } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { Action, Project } from "@/api/types"
@@ -11,15 +12,16 @@ import { extractErrorMessage } from "@/api/util"
 import ActionListItemSmall from "@/components/action/ActionListItemSmall"
 import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
+import ResolveProjectName from "@/components/resolve/ResolveProjectName"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-import TagList from "@/components/ui/tag/TagList"
-import ResolveUserName from "@/components/user/ResolveUserName"
-import UserAvatar from "@/components/user/UserAvatar"
+import UserAvatar, { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 const greetings = [
@@ -218,6 +220,8 @@ function ProjectList() {
 }
 
 function DashboardMeeting() {
+  const { state: search, bindings: searchBindings } = useInput("")
+
   const { meetings } = useAuth()
   const upcomingMeetingsQuery = meetings!.useListUpcoming()
   if (upcomingMeetingsQuery.isLoading) {
@@ -240,39 +244,77 @@ function DashboardMeeting() {
       <div className="flex items-center space-x-4">
         <BadgeHeader
           title="Upcoming Meetings"
+          className="font-semibold text-2xl"
           badge={upcomingMeetings.length}
         />
       </div>
-      <TagList>
-        {upcomingMeetings.map((meeting) => {
-          const meetingDate = new Date(meeting.start_date)
-          return (
-            <div
-              key={meeting.ID}
-              // className="space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
-              className="w-full max-w-sm flex flex-col space-y-1 rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
-            >
-              <h3 className="text-lg font-semibold">{meeting.name}</h3>
-              <p className="text-neutral-400 flex space-x-2 items-center">
-                <span>
-                  <RelativeDate date={new Date(meeting.start_date)} />
-                </span>
-                {/* Show time remaining until meeting starts */}
-                <DurationTag date={meetingDate} />
-              </p>
-              <Button
-                href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-                className="w-fit text-sm group"
-              >
-                View Meeting
-                <span className="transition text-neutral-400 group-hover:text-primary-500 inline-block group-hover:translate-x-1 motion-reduce:transform-none">
-                  -&gt;
-                </span>
-              </Button>
-            </div>
+      <Input
+        icon={<BsSearch />}
+        placeholder="Search in Upcoming Meetings..."
+        width="100%"
+        {...searchBindings}
+      />
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {upcomingMeetings
+          .filter(
+            (meeting) =>
+              !search ||
+              meeting.name.toLowerCase().includes(search.toLowerCase()),
           )
-        })}
-      </TagList>
+          .map((meeting) => {
+            const meetingDate = new Date(meeting.start_date)
+            return (
+              <div
+                key={meeting.ID}
+                // className="space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
+                className="w-full flex flex-col space-y-1 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
+              >
+                <Breadcrumbs>
+                  <Breadcrumbs.Item href={`/project/${meeting.project_id}`}>
+                    <ResolveProjectName projectID={meeting.project_id} />
+                  </Breadcrumbs.Item>
+                </Breadcrumbs>
+                <h3 className="text-lg font-semibold">{meeting.name}</h3>
+                <p className="text-neutral-400 flex space-x-2 items-center">
+                  <span>
+                    <RelativeDate date={new Date(meeting.start_date)} />
+                  </span>
+                  {/* Show time remaining until meeting starts */}
+                  <DurationTag date={meetingDate} />
+                </p>
+                <Flex justify="between">
+                  <Button
+                    href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
+                    className="w-fit text-sm group text-neutral-500 transition duration-300 ease-in-out hover:text-white hover:border-transparent"
+                  >
+                    View Meeting
+                    <span className="transition text-neutral-600 group-hover:text-white inline-block group-hover:translate-x-1 motion-reduce:transform-none">
+                      -&gt;
+                    </span>
+                  </Button>
+                  <Avatar.Group
+                    count={
+                      meeting.assigned_users.length > 3
+                        ? meeting.assigned_users.length - 3
+                        : undefined
+                    }
+                  >
+                    {meeting.assigned_users.map(
+                      (user, index) =>
+                        index < 3 && (
+                          <Avatar
+                            key={user.id}
+                            src={getUserAvatarURL(user.id)}
+                            stacked
+                          />
+                        ),
+                    )}
+                  </Avatar.Group>
+                </Flex>
+              </div>
+            )
+          })}
+      </div>
     </section>
   )
 }
@@ -289,7 +331,7 @@ export default function Home() {
   }
 
   return (
-    <div className="p-10 bg-neutral-900 w-full flex flex-col space-y-6 overflow-y-auto">
+    <Page>
       <Head>
         <title>Perplex - Dashboard</title>
       </Head>
@@ -301,13 +343,13 @@ export default function Home() {
           </span>
           !
         </h1>
-        <Hr className="mt-4" />
+        <Hr className="my-8" />
       </div>
       <div className="h-full max-h-full">
         <DashboardMeeting />
         <Hr className="my-4" />
         <ProjectList />
       </div>
-    </div>
+    </Page>
   )
 }

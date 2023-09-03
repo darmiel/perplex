@@ -11,9 +11,9 @@ import { ClipLoader } from "react-spinners"
 import { toast } from "sonner"
 
 import { Comment, CommentEntityType } from "@/api/types"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { RelativeDate } from "@/components/ui/DateString"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
-import ResolveUserName from "@/components/user/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 

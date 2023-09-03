@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler) {
+func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler, middlewares *handlers.MiddlewareHandler) {
 	router.Post("/", handler.AddMeeting)
 
 	// extend the project object for "Meetings"
@@ -13,8 +13,16 @@ func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler) {
 	router.Get("/", handler.GetMeetings)
 
 	// check if the requested meeting belongs to the current project
-	router.Use("/:meeting_id", handler.MeetingAccessMiddleware)
-	router.Get("/:meeting_id", handler.GetMeeting)
-	router.Delete("/:meeting_id", handler.DeleteMeeting)
-	router.Put("/:meeting_id", handler.EditMeeting)
+	specific := router.Group("/:meeting_id")
+	specific.Use("/", handler.MeetingAccessMiddleware)
+	specific.Get("/", handler.GetMeeting)
+	specific.Delete("/", handler.DeleteMeeting)
+	specific.Put("/", handler.EditMeeting)
+
+	// linkUser routes
+	linkUser := specific.Group("/link/user/:user_id")
+	linkUser.Use("/", middlewares.UserLocalsMiddleware)
+	linkUser.Post("/", handler.LinkUser)
+	linkUser.Delete("/", handler.UnlinkUser)
+
 }

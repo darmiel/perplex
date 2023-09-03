@@ -1,8 +1,8 @@
 import Link from "next/link"
 
 import { Topic } from "@/api/types"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import TopicTag from "@/components/topic/TopicTag"
-import ResolveUserName from "@/components/user/ResolveUserName"
 
 export default function SearchResultTopic({
   topic,

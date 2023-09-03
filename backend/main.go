@@ -133,15 +133,18 @@ func main() {
 		sugar.With(err).Fatalln("cannot create validator")
 	}
 
+	// middlewares
+	middlewareHandler := handlers.NewMiddlewareHandler(userService)
+
 	// /project
 	projectHandler := handlers.NewProjectHandler(projectService, userService, sugar, validate)
 	projectGroup := app.Group("/project")
 	routes.ProjectRoutes(projectGroup, projectHandler)
 
 	// /meetings
-	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, sugar, validate)
+	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, userService, sugar, validate)
 	meetingGroup := projectGroup.Group("/:project_id/meeting")
-	routes.MeetingRoutes(meetingGroup, meetingHandler)
+	routes.MeetingRoutes(meetingGroup, meetingHandler, middlewareHandler)
 
 	// /topics
 	topicHandler := handlers.NewTopicHandler(topicService, meetingService, projectService, sugar, validate)
@@ -169,7 +172,7 @@ func main() {
 	// /action
 	actionHandler := handlers.NewActionHandler(actionService, topicService, meetingService, userService, sugar, validate)
 	actionGroup := projectGroup.Group("/:project_id/action")
-	routes.ActionRoutes(actionGroup, actionHandler)
+	routes.ActionRoutes(actionGroup, actionHandler, middlewareHandler)
 
 	// /tag
 	tagHandler := handlers.NewTagHandler(actionService, sugar, validate)

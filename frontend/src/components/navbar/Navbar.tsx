@@ -16,7 +16,7 @@ import { PopupActions } from "reactjs-popup/dist/types"
 import PerplexLogo from "@/../public/perplex.svg"
 import { navigationBorderRight } from "@/api/classes"
 import NotificationModal from "@/components/notification/NotificationModal"
-import ResolveUserName from "@/components/user/ResolveUserName"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 

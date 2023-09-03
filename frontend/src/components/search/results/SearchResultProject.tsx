@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { Project } from "@/api/types"
-import ResolveUserName from "@/components/user/ResolveUserName"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 
 export default function SearchResultProject({

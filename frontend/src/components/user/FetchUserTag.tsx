@@ -1,4 +1,4 @@
-import ResolveUserName from "@/components/user/ResolveUserName"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import UserTag from "@/components/user/UserTag"
 
 export default function FetchUserTag({

@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag from "@/components/meeting/MeetingTag"
+import MeetingSectionAssigned from "@/components/meeting/sections/MeetingSectionAssigned"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
@@ -252,6 +253,9 @@ export default function MeetingOverview({
             <div className="w-fit">
               <FetchUserTag userID={meeting.creator?.id || "unknown"} />
             </div>
+          </OverviewSection>
+          <OverviewSection name="Assigned">
+            <MeetingSectionAssigned meeting={meeting} />
           </OverviewSection>
         </OverviewSide>
       </OverviewContainer>

@@ -27,6 +27,12 @@ module.exports = {
   plugins: [],
   safelist: [
     {
+      pattern: /justify-.+/,
+    },
+    {
+      pattern: /space-[xy]-\d+/,
+    },
+    {
       pattern: /text-(neutral|primary|gray)-\d+/,
     },
   ],

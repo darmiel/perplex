@@ -1,8 +1,8 @@
 import Link from "next/link"
 
 import { Meeting } from "@/api/types"
+import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { RelativeDate } from "@/components/ui/DateString"
-import ResolveUserName from "@/components/user/ResolveUserName"
 import UserAvatar from "@/components/user/UserAvatar"
 
 export default function SearchResultMeeting({

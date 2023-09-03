@@ -13,6 +13,8 @@ type MeetingService interface {
 	DeleteMeeting(meetingID uint) error
 	EditMeeting(meetingID uint, newName, newDescription string, newStartDate time.Time) error
 	Extend(meeting *model.Meeting, preload ...string) error
+	LinkUser(meetingID uint, userID string) error
+	UnlinkUser(meetingID uint, userID string) error
 }
 
 type meetingService struct {
@@ -23,6 +25,10 @@ func NewMeetingService(db *gorm.DB) MeetingService {
 	return &meetingService{
 		DB: db,
 	}
+}
+
+func (m *meetingService) preload() *gorm.DB {
+	return m.DB.Preload("AssignedUsers")
 }
 
 func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name, description string, startDate time.Time) (resp *model.Meeting, err error) {
@@ -38,7 +44,7 @@ func (m *meetingService) AddMeeting(projectID uint, creatorUserID, name, descrip
 }
 
 func (m *meetingService) GetMeeting(meetingID uint) (resp *model.Meeting, err error) {
-	err = m.DB.
+	err = m.preload().
 		First(&resp, &model.Meeting{
 			Model: gorm.Model{
 				ID: meetingID,
@@ -48,7 +54,7 @@ func (m *meetingService) GetMeeting(meetingID uint) (resp *model.Meeting, err er
 }
 
 func (m *meetingService) FindMeetingsForProject(projectID uint) (resp []*model.Meeting, err error) {
-	err = m.DB.Where("project_id = ?", projectID).Find(&resp).Error
+	err = m.preload().Where("project_id = ?", projectID).Find(&resp).Error
 	return
 }
 
@@ -81,4 +87,28 @@ func (m *meetingService) Extend(meeting *model.Meeting, preload ...string) error
 		q = q.Preload(p)
 	}
 	return q.First(meeting).Error
+}
+
+func (m *meetingService) LinkUser(meetingID uint, userID string) error {
+	return m.DB.Model(&model.Meeting{
+		Model: gorm.Model{
+			ID: meetingID,
+		},
+	}).
+		Association("AssignedUsers").
+		Append(&model.User{
+			ID: userID,
+		})
+}
+
+func (m *meetingService) UnlinkUser(meetingID uint, userID string) error {
+	return m.DB.Model(&model.Meeting{
+		Model: gorm.Model{
+			ID: meetingID,
+		},
+	}).
+		Association("AssignedUsers").
+		Delete(&model.User{
+			ID: userID,
+		})
 }
