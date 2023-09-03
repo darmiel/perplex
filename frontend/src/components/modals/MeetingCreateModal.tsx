@@ -59,7 +59,7 @@ export default function CreateMeeting({
         <input
           id="meetingTitle"
           type="text"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="My awesome Meeting"
           onChange={(event) => setMeetingTitle(event.target.value)}
           value={meetingTitle}
@@ -73,7 +73,7 @@ export default function CreateMeeting({
         </label>
         <textarea
           id="meetingDescription"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="(Markdown is supported)"
           rows={10}
           onChange={(event) => setMeetingDescription(event.target.value)}
@@ -100,14 +100,14 @@ export default function CreateMeeting({
       <hr className="border-neutral-600" />
 
       {createMeetingMutation.isError && (
-        <div className="text-red-500 text-sm font-bold flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-sm font-bold text-red-500">
           <div>
             <BsTriangle />
           </div>
           <div>{extractErrorMessage(createMeetingMutation.error)}</div>
         </div>
       )}
-      <div className="flex flex-row space-x-4 justify-end">
+      <div className="flex flex-row justify-end space-x-4">
         <Button
           style="secondary"
           isLoading={createMeetingMutation.isLoading}

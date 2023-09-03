@@ -104,16 +104,16 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className={`bg-neutral-900 border border-neutral-700 rounded-lg p-4 space-y-4 flex flex-col w-[50rem]`}
+      className={`flex w-[50rem] flex-col space-y-4 rounded-lg border border-neutral-700 bg-neutral-900 p-4`}
     >
-      <h2 className="items-center text-xs text-neutral-500 uppercase font-semibold">
+      <h2 className="items-center text-xs font-semibold uppercase text-neutral-500">
         Search across Perplex
       </h2>
 
-      <div className="flex space-x-3 items-center">
+      <div className="flex items-center space-x-3">
         <input
           type="text"
-          className="bg-neutral-800 border border-neutral-700 rounded-md p-2 w-full"
+          className="w-full rounded-md border border-neutral-700 bg-neutral-800 p-2"
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
           onKeyDown={onKeyDown}
@@ -131,10 +131,10 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      <div className="max-h-96 overflow-y-auto space-y-2">
+      <div className="max-h-96 space-y-2 overflow-y-auto">
         {result.projects.length > 0 && (
           <>
-            <h3 className="text-xs text-neutral-500 uppercase font-semibold">
+            <h3 className="text-xs font-semibold uppercase text-neutral-500">
               Projects
             </h3>
             <div className="flex flex-col space-y-2">
@@ -155,7 +155,7 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
         )}
         {result.meetings.length > 0 && (
           <>
-            <h3 className="text-xs text-neutral-500 uppercase font-semibold">
+            <h3 className="text-xs font-semibold uppercase text-neutral-500">
               Meetings
             </h3>
             <div className="flex flex-col space-y-2">
@@ -176,7 +176,7 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
         )}
         {result.topics.length > 0 && (
           <>
-            <h3 className="text-xs text-neutral-500 uppercase font-semibold">
+            <h3 className="text-xs font-semibold uppercase text-neutral-500">
               Topics
             </h3>
             <div className="flex flex-col space-y-2">
@@ -198,7 +198,7 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
         )}
         {result.actions.length > 0 && (
           <>
-            <h3 className="text-xs text-neutral-500 uppercase font-semibold">
+            <h3 className="text-xs font-semibold uppercase text-neutral-500">
               Actions
             </h3>
             <div className="flex flex-col space-y-2">

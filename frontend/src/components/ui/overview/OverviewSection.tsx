@@ -8,10 +8,10 @@ export default function OverviewSection({
   return (
     <div className="flex flex-col space-y-2">
       <div>
-        <h3 className="font-semibold text-sm text-neutral-500 flex items-center space-x-2">
+        <h3 className="flex items-center space-x-2 text-sm font-semibold text-neutral-500">
           <span>{name}</span>
           {badge !== undefined && (
-            <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+            <div className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-xs font-bold text-white">
               {badge}
             </div>
           )}

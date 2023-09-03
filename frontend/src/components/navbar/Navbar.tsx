@@ -35,7 +35,7 @@ function NavbarItem({
   return (
     <Link href={href} className="w-full" data-tooltip-id={tooltip_id}>
       <li
-        className={`flex flex-col justify-center items-center space-y-2 w-full px-3 py-2 ${
+        className={`flex w-full flex-col items-center justify-center space-y-2 px-3 py-2 ${
           selected || router.asPath === href
             ? "border-l-2 border-l-primary-600 text-primary-600"
             : ""
@@ -63,10 +63,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`${navigationBorderRight} w-16 bg-section-darkest flex flex-col justify-between`}
+      className={`${navigationBorderRight} flex w-16 flex-col justify-between bg-section-darkest`}
     >
       <div>
-        <div className="p-4 w-full">
+        <div className="w-full p-4">
           <Image src={PerplexLogo} alt="Logo" />
         </div>
 
@@ -90,7 +90,7 @@ export default function Navbar() {
                   userID={String(project.ID)}
                   className={`${
                     String(project.ID) === projectID ? "" : "grayscale"
-                  } rounded-[50%] hover:rounded-md hover:grayscale-0 transition duration-150 ease-in-out hover:scale-110 w-full`}
+                  } w-full rounded-[50%] transition duration-150 ease-in-out hover:scale-110 hover:rounded-md hover:grayscale-0`}
                 />
               </NavbarItem>
               <Tooltip
@@ -104,11 +104,11 @@ export default function Navbar() {
                   zIndex: 999999999,
                 }}
               >
-                <span className="flex space-x-1 items-center">
+                <span className="flex items-center space-x-1">
                   <span className="font-semibold">{project.name}</span>
                   <span className="text-neutral-400">#{project.ID}</span>
                 </span>
-                <span className="flex space-x-1 items-center">
+                <span className="flex items-center space-x-1">
                   <span className="text-neutral-400">Created by</span>
                   <span>
                     <ResolveUserName userID={project.owner_id} />
@@ -136,14 +136,14 @@ export default function Navbar() {
                 width: "auto",
               }}
               trigger={
-                <button className="relative inline-flex items-center text-sm font-medium text-center">
+                <button className="relative inline-flex items-center text-center text-sm font-medium">
                   {unreadNotifications.length > 0 ? (
                     <>
                       <BsBellFill size="100%" />
 
                       {/* Show annoying red dot with bounce animation */}
-                      <div className="animate-ping absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-section-darkest rounded-full -top-3 -right-3"></div>
-                      <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-section-darkest rounded-full -top-3 -right-3">
+                      <div className="absolute -right-3 -top-3 inline-flex h-6 w-6 animate-ping items-center justify-center rounded-full border-2 border-section-darkest bg-red-500 text-xs font-bold text-white"></div>
+                      <div className="absolute -right-3 -top-3 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-section-darkest bg-red-500 text-xs font-bold text-white">
                         {unreadNotifications.length}
                       </div>
                     </>

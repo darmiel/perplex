@@ -202,9 +202,9 @@ export default function TopicOverview({
 
   if (wasDeleted) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <div className="flex flex-col space-y-4 p-6 border border-red-500 bg-red-500 bg-opacity-10 rounded-md">
-          <h1 className="text-red-500 text-2xl font-semibold">
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
+          <h1 className="text-2xl font-semibold text-red-500">
             Topic not found
           </h1>
           <p className="text-neutral-300">
@@ -229,7 +229,7 @@ export default function TopicOverview({
         <title>Perplex - T# {topic.title ?? "Unknown Topic"}</title>
       </Head>
       {isEdit ? (
-        <div className="flex space-x-2 mb-4">
+        <div className="mb-4 flex space-x-2">
           <AckTopicTypeCard
             selected={!editForceSolution}
             onClick={() => setEditForceSolution(false)}
@@ -240,7 +240,7 @@ export default function TopicOverview({
           />
         </div>
       ) : (
-        <span className="text-xs text-primary-500 uppercase">
+        <span className="text-xs uppercase text-primary-500">
           {topic.force_solution ? "Discuss" : "Acknowledge"}
         </span>
       )}
@@ -275,7 +275,7 @@ export default function TopicOverview({
         <OverviewContent>
           {!!topic.solution_id && (
             <>
-              <div className="w-full border border-primary-500 rounded-md p-4 space-y-2">
+              <div className="w-full space-y-2 rounded-md border border-primary-500 p-4">
                 <div className="flex flex-row items-center space-x-2 text-primary-500">
                   <BsCheck />
                   <strong>Good News!</strong>
@@ -293,7 +293,7 @@ export default function TopicOverview({
             </>
           )}
 
-          <div className="text-neutral-500 p-4 bg-neutral-900">
+          <div className="bg-neutral-900 p-4 text-neutral-500">
             {isEdit ? (
               <textarea
                 className="w-full bg-transparent focus:outline-none"
@@ -341,7 +341,7 @@ export default function TopicOverview({
         <OverviewSide>
           <OverviewSection name="Edit">
             {!isEdit ? (
-              <div className="flex space-x-2 items-center">
+              <div className="flex items-center space-x-2">
                 <Button
                   className="w-full text-sm"
                   icon={<BsPen />}
@@ -352,8 +352,8 @@ export default function TopicOverview({
                 <Button
                   className={
                     confirmDelete
-                      ? "w-full bg-red-500 hover:bg-red-600 text-white text-sm"
-                      : "w-full text-red-500 text-sm"
+                      ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
+                      : "w-full text-sm text-red-500"
                   }
                   icon={<BsTrash />}
                   onClick={onDeleteTopicClick}

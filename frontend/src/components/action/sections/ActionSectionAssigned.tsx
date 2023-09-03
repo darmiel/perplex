@@ -18,7 +18,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
   return (
     <div className="flex flex-col space-y-2">
       {action.assigned_users.map((user) => (
-        <div key={user.id} className="flex justify-between items-center">
+        <div key={user.id} className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="h-5 w-5">
               <UserAvatar userID={user.id} />
@@ -50,7 +50,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
       ))}
       <Popup
         trigger={
-          <button className="border border-neutral-500 text-neutral-500 rounded-full text-sm px-3 py-1 flex flex-row items-center">
+          <button className="flex flex-row items-center rounded-full border border-neutral-500 px-3 py-1 text-sm text-neutral-500">
             <div className="flex flex-row items-center justify-center space-x-2">
               <BsPeople />
               <div>Assign</div>
@@ -63,7 +63,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
           width: "auto",
         }}
       >
-        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 space-y-2">
+        <div className="space-y-2 rounded-lg border border-neutral-700 bg-neutral-900 p-4">
           {projectUsersQuery.isLoading ? (
             <>Loading...</>
           ) : projectUsersQuery.isError ? (

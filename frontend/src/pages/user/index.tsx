@@ -44,7 +44,7 @@ export default function User() {
           userID={user.uid}
           height={512}
           width={512}
-          className="w-20 h-20 rounded-full"
+          className="h-20 w-20 rounded-full"
         />
       </div>
 
@@ -52,7 +52,7 @@ export default function User() {
         <h1 className="text-2xl font-bold">User Profile</h1>
 
         {isUnregistered && (
-          <div className="bg-red-600 bg-opacity-10 border border-red-600 p-4">
+          <div className="border border-red-600 bg-red-600 bg-opacity-10 p-4">
             <span className="text-red-500">
               <h2 className="text-xl">Unregistered User!</h2>
               You are not registered yet. Please choose a name. You profile will
@@ -68,7 +68,7 @@ export default function User() {
           <input
             id="userName"
             type="text"
-            className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
             placeholder="Willma"
             value={userName}
             onChange={(event) => setUserName(event.target.value)}

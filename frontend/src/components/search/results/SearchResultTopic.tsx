@@ -22,7 +22,7 @@ export default function SearchResultTopic({
     <Link
       href={href}
       key={topic.ID}
-      className="flex items-center space-x-2 p-2 rounded-md hover:bg-neutral-800"
+      className="flex items-center space-x-2 rounded-md p-2 hover:bg-neutral-800"
       onClick={() => onClick()}
       onMouseEnter={() => onMouseOver(href)}
     >
@@ -32,7 +32,7 @@ export default function SearchResultTopic({
           <p className="text-xs text-neutral-500">
             {topic.Meeting?.name ?? "Unknown Meeting"}
           </p>
-          <span className="text-white flex items-center space-x-1">
+          <span className="flex items-center space-x-1 text-white">
             <span>{topic.title}</span>
             <span className="text-neutral-400">
               by <ResolveUserName userID={topic.creator_id} />

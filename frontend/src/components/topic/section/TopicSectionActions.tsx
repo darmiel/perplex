@@ -22,7 +22,7 @@ export default function TopicSectionActions({
       {actions.map((action) => (
         <div
           key={topic.ID}
-          className="p-2 flex flex-col space-x-2 space-y-1 bg-neutral-900 border border-neutral-700 rounded-md max-w-sm"
+          className="flex max-w-sm flex-col space-x-2 space-y-1 rounded-md border border-neutral-700 bg-neutral-900 p-2"
         >
           <Link href={`/project/${action.project_id}/action/${action.ID}`}>
             <Removable

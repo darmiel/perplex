@@ -38,7 +38,7 @@ export function TopicTypeCard({
         </div>
         <div>
           <h2 className="font-bold">{title}</h2>
-          <span className="text-neutral-400 text-sm">{subtitle}</span>
+          <span className="text-sm text-neutral-400">{subtitle}</span>
         </div>
       </div>
     </CardContainer>
@@ -153,7 +153,7 @@ export default function CreateTopic({
         <input
           id="topicName"
           type="text"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="My awesome Topic"
           onChange={(event) => setTopicTitle(event.target.value)}
           value={topicTitle}
@@ -167,7 +167,7 @@ export default function CreateTopic({
         </label>
         <textarea
           id="topicDescription"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="(Markdown is supported)"
           rows={10}
           onChange={(event) => setTopicDescription(event.target.value)}
@@ -194,7 +194,7 @@ export default function CreateTopic({
       {/* Assign Users */}
       <div className="space-y-2">
         <span className="text-neutral-400">Assign</span>
-        <div className="flex flex-row space-x-4 max-w-xl">
+        <div className="flex max-w-xl flex-row space-x-4">
           {projectInfoQuery.isLoading ? (
             <BarLoader color="white" />
           ) : (
@@ -216,14 +216,14 @@ export default function CreateTopic({
       </div>
       <hr className="border-neutral-600" />
       {createTopicMutation.isError && (
-        <div className="text-red-500 text-sm font-bold flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-sm font-bold text-red-500">
           <div>
             <BsTriangle />
           </div>
           <div>{extractErrorMessage(createTopicMutation.error)}</div>
         </div>
       )}
-      <div className="flex flex-row space-x-4 justify-end">
+      <div className="flex flex-row justify-end space-x-4">
         <Button
           style="secondary"
           isLoading={createTopicMutation.isLoading}

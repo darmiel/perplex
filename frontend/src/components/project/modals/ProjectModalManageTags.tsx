@@ -95,7 +95,7 @@ export default function ProjectModalManageTags({
         <input
           id="tagSearch"
           type="text"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="My awesome Tag"
           onChange={(event) => setTagNameSearch(event.target.value)}
           value={tagNameSearch}
@@ -116,7 +116,7 @@ export default function ProjectModalManageTags({
           .map((tag) => (
             <div
               key={tag.ID}
-              className={`rounded-md p-4 flex items-center justify-between border`}
+              className={`flex items-center justify-between rounded-md border p-4`}
               style={{
                 borderColor: tag.color,
               }}
@@ -126,14 +126,14 @@ export default function ProjectModalManageTags({
                   <div className="flex flex-row space-x-2">
                     <input
                       type="text"
-                      className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                      className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="My awesome Tag"
                       onChange={(event) => setEditTitle(event.target.value)}
                       value={editTitle}
                     />
                     <input
                       type="text"
-                      className="w-1/2 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                      className="w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="#ff0000"
                       onChange={(event) => setEditColor(event.target.value)}
                       value={editColor}
@@ -142,7 +142,7 @@ export default function ProjectModalManageTags({
                 ) : (
                   <div className="flex items-center space-x-4">
                     <h2
-                      className="px-4 py-2 rounded-md text-white"
+                      className="rounded-md px-4 py-2 text-white"
                       style={{ backgroundColor: tag.color }}
                     >
                       {tag.title}
@@ -194,14 +194,14 @@ export default function ProjectModalManageTags({
           value={createName}
           onChange={(e) => setCreateName(e.target.value)}
           placeholder="My awesome Tag"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
         />
         <input
           type="text"
           value={createColor}
           onChange={(e) => setCreateColor(e.target.value)}
           placeholder="#ff0000"
-          className="w-1/2 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
         />
         <Button
           onClick={() =>

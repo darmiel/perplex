@@ -77,15 +77,15 @@ export default function MeetingList({
     return (
       <div className="space-y-4">
         <button
-          className="w-full flex justify-between items-center hover:bg-neutral-700 px-2 py-1 rounded-md"
+          className="flex w-full items-center justify-between rounded-md px-2 py-1 hover:bg-neutral-700"
           onClick={() => setExpandTense((prev) => !prev)}
         >
           <div className="flex flex-row items-center space-x-2">
             <span className={style.color}>{style.icon}</span>
-            <h2 className="font-semibold text-sm text-neutral-400">
+            <h2 className="text-sm font-semibold text-neutral-400">
               {style.text} Meetings
             </h2>
-            <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+            <div className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-xs font-bold text-white">
               {meetings.length}
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function MeetingList({
 
   return (
     <>
-      <div className={`h-fit flex flex-row space-x-2 ${className}`}>
+      <div className={`flex h-fit flex-row space-x-2 ${className}`}>
         <Button
           onClick={() => setShowCreateMeeting(true)}
           style="neutral"

@@ -36,10 +36,10 @@ export default function OverviewTitle({
   return (
     <div className={`w-full ${className}`}>
       <div className="flex flex-row items-center">
-        <h1 className="text-2xl mt-1 space-x-2 w-full">
+        <h1 className="mt-1 w-full space-x-2 text-2xl">
           {isEdit ? (
             <input
-              className="w-full font-bold bg-transparent border-b border-gray-700 focus:outline-none"
+              className="w-full border-b border-gray-700 bg-transparent font-bold focus:outline-none"
               defaultValue={title}
               onChange={(e) => setEditTitle(e.target.value)}
             />
@@ -51,7 +51,7 @@ export default function OverviewTitle({
         {injectHeader}
       </div>
 
-      <div className="flex flex-row items-center text-neutral-500 space-x-2 mt-2">
+      <div className="mt-2 flex flex-row items-center space-x-2 text-neutral-500">
         {tag && <div>{tag}</div>}
         <div>
           <ResolveUserName userID={creatorID} />

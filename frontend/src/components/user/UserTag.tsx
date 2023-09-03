@@ -21,9 +21,9 @@ export default function UserTag({
     <div
       className={`${
         userID === user?.uid
-          ? "bg-primary-400 bg-opacity-20 border-primary-500 text-primary-500"
+          ? "border-primary-500 bg-primary-400 bg-opacity-20 text-primary-500"
           : "border-neutral-500 text-neutral-500"
-      } border rounded-full px-3 py-1 flex flex-row items-center space-x-2`}
+      } flex flex-row items-center space-x-2 rounded-full border px-3 py-1`}
     >
       <div>
         <UserAvatar userID={userID} className="h-4 w-4 rounded-full" />

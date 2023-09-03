@@ -93,14 +93,14 @@ export default function CommentListItem({
     <div
       id={`comment-${commentType}-${comment.ID}`}
       className={`flex ${
-        solution ? "border-l-4 border-primary-600 pl-3 py-3" : ""
+        solution ? "border-l-4 border-primary-600 py-3 pl-3" : ""
       } p-4`}
     >
       <div>
         <UserAvatar height={256} width={256} userID={comment.author_id} />
       </div>
-      <div className="flex flex-col ml-4 w-full">
-        <div className="flex space-x-4 items-center">
+      <div className="ml-4 flex w-full flex-col">
+        <div className="flex items-center space-x-4">
           {/* Author and Creation Date */}
           <div>
             <span className="font-semibold">
@@ -117,7 +117,7 @@ export default function CommentListItem({
             <Loadable loading={isSolutionMutLoading ?? false}>
               <button onClick={() => onSolutionClick(!solution)}>
                 {solution ? (
-                  <div className="space-x-2 bg-primary-500 px-2 py-1 flex items-center text-primary-100 text-sm rounded-md">
+                  <div className="flex items-center space-x-2 rounded-md bg-primary-500 px-2 py-1 text-sm text-primary-100">
                     <BsCheckSquareFill />
                     <span>Marked Solution</span>
                   </div>
@@ -132,7 +132,7 @@ export default function CommentListItem({
           {isAuthor && (
             <>
               {editMode ? (
-                <div className="space-x-2 border border-primary-500 px-2 py-1 flex items-center">
+                <div className="flex items-center space-x-2 border border-primary-500 px-2 py-1">
                   <span>Edit:</span>
 
                   {/* Commit Edit */}
@@ -170,7 +170,7 @@ export default function CommentListItem({
               <Loadable loading={deleteCommentMutation.isLoading}>
                 <button onClick={onDeleteClick} className="text-red-500">
                   {confirmDelete ? (
-                    <div className="flex justify-center items-center text-red-500 space-x-2">
+                    <div className="flex items-center justify-center space-x-2 text-red-500">
                       <span>Delete?</span>
                       <BsTrash />
                     </div>
@@ -184,10 +184,10 @@ export default function CommentListItem({
             </>
           )}
         </div>
-        <div className="text-neutral-200 mt-2">
+        <div className="mt-2 text-neutral-200">
           {editMode ? (
             <textarea
-              className="w-full bg-transparent border border-secondary-500 p-4"
+              className="w-full border border-secondary-500 bg-transparent p-4"
               style={{ minHeight: "200px" }}
               defaultValue={editContent}
               onChange={(e) => setEditContent(e.target.value)}

@@ -32,6 +32,6 @@ export default function DurationTag({ date }: { date: Date }) {
   }
 
   return (
-    <span className={`px-2 py-1 text-xs w-fit ${className}`}>{timeString}</span>
+    <span className={`w-fit px-2 py-1 text-xs ${className}`}>{timeString}</span>
   )
 }

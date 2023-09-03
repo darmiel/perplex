@@ -46,9 +46,9 @@ export default function CommentSuite({
 
   return (
     <>
-      <h1 className="font-semibold text-xl flex items-center space-x-2">
+      <h1 className="flex items-center space-x-2 text-xl font-semibold">
         <span>Conversation</span>
-        <div className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-neutral-700 rounded-full">
+        <div className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-xs font-bold text-white">
           {comments.length}
         </div>
       </h1>

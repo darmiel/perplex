@@ -133,7 +133,7 @@ export default function ActionCreateModal({
             <input
               id="actionTitle"
               type="text"
-              className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
               placeholder="My awesome Action"
               onChange={(event) => setActionTitle(event.target.value)}
               value={actionTitle}
@@ -146,7 +146,7 @@ export default function ActionCreateModal({
             </label>
             <textarea
               id="actionDescription"
-              className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
               placeholder="(Markdown is supported)"
               rows={10}
               onChange={(event) => setActionDescription(event.target.value)}
@@ -158,13 +158,13 @@ export default function ActionCreateModal({
           {/* Priority and Due Date */}
           <div className="flex space-x-4">
             {/* Priority */}
-            <div className="space-y-2 flex flex-col">
+            <div className="flex flex-col space-y-2">
               <label className="text-neutral-400" htmlFor="actionPriority">
                 Action Priority
               </label>
               <select
                 id="actionPriority"
-                className="w-fit bg-neutral-800 border border-neutral-600 rounded-lg p-2"
+                className="w-fit rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                 defaultValue="0"
                 onChange={(e) => setActionPriorityID(Number(e.target.value))}
               >
@@ -201,9 +201,9 @@ export default function ActionCreateModal({
           </div>
 
           {/* Assign Tags */}
-          <div className="space-y-2 max-w-md">
+          <div className="max-w-md space-y-2">
             <span className="text-neutral-400">Assign Tags</span>
-            <div className="flex flex-row space-x-4 max-w-xl">
+            <div className="flex max-w-xl flex-row space-x-4">
               {tagsQuery.isLoading ? (
                 <BarLoader color="white" />
               ) : (
@@ -228,9 +228,9 @@ export default function ActionCreateModal({
           </div>
 
           {/* Assign Users */}
-          <div className="space-y-2 max-w-md">
+          <div className="max-w-md space-y-2">
             <span className="text-neutral-400">Assign Users</span>
-            <div className="flex flex-row space-x-4 max-w-xl">
+            <div className="flex max-w-xl flex-row space-x-4">
               {usersQuery.isLoading ? (
                 <BarLoader color="white" />
               ) : (
@@ -255,7 +255,7 @@ export default function ActionCreateModal({
 
       <hr className="border-neutral-600" />
 
-      <ol className="flex items-center justify-between w-full text-sm font-medium text-center text-gray-400">
+      <ol className="flex w-full items-center justify-between text-center text-sm font-medium text-gray-400">
         <li className="flex items-center space-x-2">
           {getIconForMutation(createActionMutation)}
           <span>Action Creation</span>
@@ -290,7 +290,7 @@ export default function ActionCreateModal({
       </ol>
 
       {createActionMutation.isError && (
-        <div className="text-red-500 text-sm font-bold flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-sm font-bold text-red-500">
           <div>
             <BsTriangle />
           </div>
@@ -298,7 +298,7 @@ export default function ActionCreateModal({
         </div>
       )}
 
-      <div className="flex flex-row space-x-4 justify-between">
+      <div className="flex flex-row justify-between space-x-4">
         <Button style="neutral" onClick={onClose}>
           Close
         </Button>

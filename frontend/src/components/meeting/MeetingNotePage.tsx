@@ -12,11 +12,11 @@ export default function MeetingNotePage() {
 
   return (
     <Page>
-      <div className="flex flex-row h-full">
+      <div className="flex h-full flex-row">
         {/* Write */}
         <div className="w-1/2">
           <textarea
-            className="w-full h-full px-3 py-2 bg-neutral-900 border border-neutral-700"
+            className="h-full w-full border border-neutral-700 bg-neutral-900 px-3 py-2"
             placeholder="Write your notes..."
             rows={8}
             onChange={(e) => setContent(e.target.value)}

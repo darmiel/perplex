@@ -79,7 +79,7 @@ function DashboardProjectItemActions({
   const hasActions = actionListQuery.data.data.length > 0
   return (
     <>
-      <div className="flex flex-col space-y-1 px-2 py-2 border-l-4 border-l-primary-600 bg-neutral-950 text-neutral-400">
+      <div className="flex flex-col space-y-1 border-l-4 border-l-primary-600 bg-neutral-950 px-2 py-2 text-neutral-400">
         <p className="space-x-1">
           {hasActions ? (
             <span className="text-white">
@@ -93,7 +93,7 @@ function DashboardProjectItemActions({
 
         {hasActions && (
           <Button
-            className="text-xs w-fit"
+            className="w-fit text-xs"
             onClick={() => setShowActions((old) => !old)}
             icon={showActions ? <BsArrowUp /> : <BsArrowDown />}
           >
@@ -107,7 +107,7 @@ function DashboardProjectItemActions({
             <div
               key={action.ID}
               onClick={() => onActionClick(action)}
-              className="w-full p-3 flex flex-col space-x-2 space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
+              className="flex w-full max-w-sm flex-col space-x-2 space-y-1 rounded-md border border-neutral-700 bg-neutral-900 p-3 hover:bg-neutral-950"
             >
               <ActionListItemSmall action={action} />
             </div>
@@ -126,7 +126,7 @@ function DashboardProjectItem({
   onActionClick: (action: Action) => void
 }) {
   return (
-    <section className="h-fit flex flex-col p-4 space-y-2 justify-start rounded-md overflow-y-auto">
+    <section className="flex h-fit flex-col justify-start space-y-2 overflow-y-auto rounded-md p-4">
       <Link
         className="flex items-center space-x-4"
         href={`/project/${project.ID}`}
@@ -193,7 +193,7 @@ function ProjectList() {
       <div className="flex items-center space-x-4">
         <BadgeHeader title="Projects" badge={projects.length} />
         <button onClick={() => setShowManageProjects(true)} className="group">
-          <span className="flex items-center space-x-2 px-2 py-1 rounded-md text-neutral-400 text-xs animate-pulse transition duration-300 hover:text-white hover:scale-105 bg-neutral-700 bg-opacity-0 hover:bg-opacity-100">
+          <span className="flex animate-pulse items-center space-x-2 rounded-md bg-neutral-700 bg-opacity-0 px-2 py-1 text-xs text-neutral-400 transition duration-300 hover:scale-105 hover:bg-opacity-100 hover:text-white">
             <span className="inline-block group-hover:animate-spin">
               <BsGear />
             </span>
@@ -201,7 +201,7 @@ function ProjectList() {
           </span>
         </button>
       </div>
-      <div className="flex flex-row space-x-2 w-full">
+      <div className="flex w-full flex-row space-x-2">
         {projects.map((project, index) => (
           <Fragment key={index}>
             {!!index && <Hr />}
@@ -244,7 +244,7 @@ function DashboardMeeting() {
       <div className="flex items-center space-x-4">
         <BadgeHeader
           title="Upcoming Meetings"
-          className="font-semibold text-2xl"
+          className="text-2xl font-semibold"
           badge={upcomingMeetings.length}
         />
       </div>
@@ -267,7 +267,7 @@ function DashboardMeeting() {
               <div
                 key={meeting.ID}
                 // className="space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
-                className="w-full flex flex-col space-y-1 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
+                className="flex w-full flex-col space-y-1 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
               >
                 <Breadcrumbs>
                   <Breadcrumbs.Item href={`/project/${meeting.project_id}`}>
@@ -275,7 +275,7 @@ function DashboardMeeting() {
                   </Breadcrumbs.Item>
                 </Breadcrumbs>
                 <h3 className="text-lg font-semibold">{meeting.name}</h3>
-                <p className="text-neutral-400 flex space-x-2 items-center">
+                <p className="flex items-center space-x-2 text-neutral-400">
                   <span>
                     <RelativeDate date={new Date(meeting.start_date)} />
                   </span>
@@ -285,10 +285,10 @@ function DashboardMeeting() {
                 <Flex justify="between">
                   <Button
                     href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-                    className="w-fit text-sm group text-neutral-500 transition duration-300 ease-in-out hover:text-white hover:border-transparent"
+                    className="group w-fit text-sm text-neutral-500 transition duration-300 ease-in-out hover:border-transparent hover:text-white"
                   >
                     View Meeting
-                    <span className="transition text-neutral-600 group-hover:text-white inline-block group-hover:translate-x-1 motion-reduce:transform-none">
+                    <span className="inline-block text-neutral-600 transition group-hover:translate-x-1 group-hover:text-white motion-reduce:transform-none">
                       -&gt;
                     </span>
                   </Button>
@@ -338,7 +338,7 @@ export default function Home() {
       <div>
         <h1 className="text-5xl text-neutral-400">
           {greeting}
-          <span className="text-white font-bold">
+          <span className="font-bold text-white">
             <ResolveUserName userID={user!.uid} />
           </span>
           !

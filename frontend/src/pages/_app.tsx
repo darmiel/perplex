@@ -58,7 +58,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
         <GeistProvider themeType="dark">
           {/* <CssBaseline /> */}
           <AuthProvider>
-            <div className="h-screen max-h-screen w-screen flex">
+            <div className="flex h-screen max-h-screen w-screen">
               <Navbar />
 
               <ModalPopup open={showSearch} setOpen={setShowSearch}>
@@ -66,7 +66,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
               </ModalPopup>
 
               {/*<Register>*/}
-              <main className="flex flex-1 bg-darker overflow-y-auto">
+              <main className="bg-darker flex flex-1 overflow-y-auto">
                 <Component {...pageProps} />
               </main>
 

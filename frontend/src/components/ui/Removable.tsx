@@ -12,7 +12,7 @@ export default function Removable({
   onRemove?: () => void
 }) {
   return (
-    <div className="flex justify-between items-center space-x-2">
+    <div className="flex items-center justify-between space-x-2">
       {children}
       <div
         className="cursor-pointer"

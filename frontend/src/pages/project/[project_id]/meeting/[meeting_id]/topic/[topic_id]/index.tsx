@@ -50,7 +50,7 @@ export default function ProjectPage() {
     <>
       {showMeetingList ? (
         <div
-          className={`${navigationBorderRight} flex flex-col h-full max-h-full w-[25rem] bg-section-darker p-6 space-y-4 border-r border-r-neutral-800`}
+          className={`${navigationBorderRight} flex h-full max-h-full w-[25rem] flex-col space-y-4 border-r border-r-neutral-800 bg-section-darker p-6`}
         >
           <MeetingList
             projectID={projectID}
@@ -61,12 +61,12 @@ export default function ProjectPage() {
         </div>
       ) : (
         <div
-          className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker space-y-4`}
+          className={`${navigationBorderRight} w-[4rem] flex-initial space-y-4 bg-section-darker`}
         >
-          <h2 className="text-center mt-24 text-neutral-400 -rotate-90">
+          <h2 className="mt-24 -rotate-90 text-center text-neutral-400">
             <button
               onClick={() => setShowMeetingList(true)}
-              className="bg-neutral-900 border border-neutral-600 rounded-md px-4 py-1 flex justify-center items-center space-x-2 "
+              className="flex items-center justify-center space-x-2 rounded-md border border-neutral-600 bg-neutral-900 px-4 py-1 "
             >
               <div>Meetings</div>
               <BsArrowDown color="gray" size="1em" />
@@ -76,7 +76,7 @@ export default function ProjectPage() {
       )}
 
       <Tabs
-        className="[&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0 overflow-y-auto"
+        className="overflow-y-auto [&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0"
         value={tab}
         onChange={(newTab) => {
           setTab(newTab)

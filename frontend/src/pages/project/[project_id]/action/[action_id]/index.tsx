@@ -38,7 +38,9 @@ export default function ActionPage() {
 
   return (
     <>
-      <div className={`${navigationBorderRight} flex-initial w-[30rem] bg-neutral-950 p-6 space-y-4`}>
+      <div
+        className={`${navigationBorderRight} w-[30rem] flex-initial space-y-4 bg-neutral-950 p-6`}
+      >
         <ActionList projectID={projectIDNum} selectedActionID={actionIDNum} />
       </div>
 

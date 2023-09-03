@@ -53,7 +53,7 @@ export default function UserSelection({
         width: "auto",
       }}
     >
-      <div className="p-1 rounded-md bg-neutral-900 border border-neutral-600 space-y-2">
+      <div className="space-y-2 rounded-md border border-neutral-600 bg-neutral-900 p-1">
         {projectUsersQuery.isLoading ? (
           <BarLoader color="white" />
         ) : (

@@ -19,14 +19,14 @@ export default function SearchResultAction({
     <Link
       href={href}
       key={action.ID}
-      className="flex items-center space-x-2 p-2 rounded-md hover:bg-neutral-800"
+      className="flex items-center space-x-2 rounded-md p-2 hover:bg-neutral-800"
       onClick={() => onClick()}
       onMouseEnter={() => onMouseOver(href)}
     >
       <ActionTag action={action} />
       <div className="flex flex-col">
         <h4 className="text-sm">
-          <span className="text-white flex space-x-1 items-center">
+          <span className="flex items-center space-x-1 text-white">
             <span>{action.title}</span>
             <span className="text-neutral-400">
               by <ResolveUserName userID={action.creator_id} />

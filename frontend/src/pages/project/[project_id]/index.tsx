@@ -85,11 +85,11 @@ export default function ProjectPage() {
 
         <OverviewContainer>
           <OverviewContent>
-            <div className="text-neutral-500 p-2 bg-neutral-900">
+            <div className="bg-neutral-900 p-2 text-neutral-500">
               <RenderMarkdown markdown={project.description} />
             </div>
 
-            <Hr className="mt-4 mb-6" />
+            <Hr className="mb-6 mt-4" />
 
             <CommentSuite
               projectID={projectID}
@@ -97,17 +97,17 @@ export default function ProjectPage() {
               commentEntityID={projectID}
             />
 
-            <Hr className="mt-4 mb-6" />
+            <Hr className="mb-6 mt-4" />
 
             <div className="flex flex-row space-x-4">
               <div className="w-full">
-                <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
+                <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
                   Meetings
                 </h1>
                 <MeetingList projectID={projectID} />
               </div>
               <div className="w-full">
-                <h1 className="w-fit text-xl font-semibold text-neutral-50 mb-4 p-2 bg-neutral-800 rounded-md">
+                <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
                   Actions
                 </h1>
                 <ActionList projectID={projectID} />

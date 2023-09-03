@@ -5,7 +5,7 @@ export default function OverviewContainer({
   className = "",
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={`flex flex-row w-full space-x-6 ${className}`}>
+    <div className={`flex w-full flex-row space-x-6 ${className}`}>
       {children}
     </div>
   )

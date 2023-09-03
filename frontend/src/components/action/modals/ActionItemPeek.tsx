@@ -22,9 +22,9 @@ export default function ActionPeekModal({
   return (
     <ModalContainer title="">
       <div className="flex flex-col space-y-4">
-        <div className="flex space-x-2 items-center">
+        <div className="flex items-center space-x-2">
           <ActionTag action={action} />
-          <h2 className="font-semibold text-xl">{action.title}</h2>
+          <h2 className="text-xl font-semibold">{action.title}</h2>
         </div>
         <span>
           Created by{" "}
@@ -53,7 +53,7 @@ export default function ActionPeekModal({
 
         <Hr />
 
-        <div className="w-full p-3 bg-neutral-950">
+        <div className="w-full bg-neutral-950 p-3">
           <RenderMarkdown markdown={action.description || "*no description*"} />
         </div>
 
@@ -69,7 +69,7 @@ export default function ActionPeekModal({
           </Button>
           <Link
             href={`/project/${action.project_id}/action/${action.ID}`}
-            className="px-3 py-2 bg-transparent hover:bg-neutral-800 rounded-md"
+            className="rounded-md bg-transparent px-3 py-2 hover:bg-neutral-800"
           >
             Open Action
           </Link>

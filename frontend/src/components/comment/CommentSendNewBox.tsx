@@ -51,7 +51,7 @@ export default function CommentSendNewBox({
   return (
     <div className={`relative ${className}`}>
       <textarea
-        className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700"
+        className="w-full border border-neutral-700 bg-neutral-900 px-3 py-2"
         placeholder="Write a comment..."
         rows={4}
         onChange={(e) => setCommentBoxText(e.target.value)}
@@ -59,20 +59,20 @@ export default function CommentSendNewBox({
         onKeyDown={onKeyDown}
       ></textarea>
 
-      <div className="absolute bottom-6 right-4 flex flex-row justify-center items-center">
+      <div className="absolute bottom-6 right-4 flex flex-row items-center justify-center">
         {/* Show error message above the textbox */}
         {sendCommentMutation.isError && (
-          <div className="text-red-500 mr-4">
+          <div className="mr-4 text-red-500">
             <pre>{extractErrorMessage(sendCommentMutation.error)}</pre>
           </div>
         )}
         {/* Show success message above the textbox */}
         {sendCommentMutation.isSuccess && (
-          <div className="text-green-500 mr-4">Comment sent!</div>
+          <div className="mr-4 text-green-500">Comment sent!</div>
         )}
         {/* Show loading message above the textbox */}
         {sendCommentMutation.isLoading && (
-          <div className="text-gray-500 mr-4">Sending comment...</div>
+          <div className="mr-4 text-gray-500">Sending comment...</div>
         )}
         <div>
           <Button
@@ -80,7 +80,7 @@ export default function CommentSendNewBox({
             isLoading={sendCommentMutation.isLoading}
             onClick={() => send()}
             icon={
-              <span className="px-2 py-1 rounded-md bg-neutral-800">
+              <span className="rounded-md bg-neutral-800 px-2 py-1">
                 ⌘ + Enter
               </span>
             }

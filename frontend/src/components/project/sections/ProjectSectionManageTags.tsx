@@ -44,7 +44,7 @@ export default function ProjectSectionManageTags({
             ))}
       </TagList>
       <Button
-        className="w-full mt-4"
+        className="mt-4 w-full"
         onClick={() => setShowTagControl(true)}
         icon={<BsTag />}
         disabled={!isOwner}

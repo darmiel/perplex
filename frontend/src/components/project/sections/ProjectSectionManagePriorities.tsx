@@ -36,7 +36,7 @@ export default function ProjectSectionManagePriorities({
             ))}
       </TagList>
       <Button
-        className="w-full mt-4"
+        className="mt-4 w-full"
         onClick={() => setShowPriorityControl(true)}
         icon={<BsTriangle />}
         disabled={!isOwner}

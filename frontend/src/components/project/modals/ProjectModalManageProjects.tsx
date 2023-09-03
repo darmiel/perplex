@@ -75,7 +75,7 @@ function ModalList({
 
   return (
     <ModalContainer title="Manage Projects">
-      <div className="flex space-x-10 w-full">
+      <div className="flex w-full space-x-10">
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-neutral-400" htmlFor="prioritySearch">
@@ -84,7 +84,7 @@ function ModalList({
             <input
               id="prioritySearch"
               type="text"
-              className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
               placeholder="My awesome Project"
               onChange={(event) => setProjectNameSearch(event.target.value)}
               value={projectNameSearch}
@@ -98,14 +98,14 @@ function ModalList({
                 .map((project) => (
                   <div
                     key={project.ID}
-                    className="rounded-md p-4 flex space-x-4 items-center justify-between border border-neutral-600"
+                    className="flex items-center justify-between space-x-4 rounded-md border border-neutral-600 p-4"
                   >
-                    <div className="flex space-x-4 items-center">
+                    <div className="flex items-center space-x-4">
                       <UserAvatar userID={String(project.ID)} />
                       <div className="flex flex-col">
                         <span>{project.name}</span>
                         {project.owner_id === user?.uid && (
-                          <span className="w-fit text-xs p-1 bg-blue-600 rounded-sm uppercase font-semibold">
+                          <span className="w-fit rounded-sm bg-blue-600 p-1 text-xs font-semibold uppercase">
                             Owner
                           </span>
                         )}
@@ -142,8 +142,8 @@ function ModalList({
                   </div>
                 ))
             ) : (
-              <div className="flex flex-col space-y-2 p-4 border border-primary-500 rounded-md">
-                <div className="flex items-center text-lg space-x-2">
+              <div className="flex flex-col space-y-2 rounded-md border border-primary-500 p-4">
+                <div className="flex items-center space-x-2 text-lg">
                   <BsSearch />
                   <span>No Results</span>
                 </div>
@@ -158,7 +158,7 @@ function ModalList({
           </div>
         </div>
         {showCreate && (
-          <div className="flex flex-col space-y-4 p-5 rounded-md border border-neutral-700">
+          <div className="flex flex-col space-y-4 rounded-md border border-neutral-700 p-5">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-neutral-400" htmlFor="createProjectName">
@@ -167,7 +167,7 @@ function ModalList({
                 <input
                   id="createProjectName"
                   type="text"
-                  className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                  className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                   placeholder="My awesome Project"
                   onChange={(event) => setCreateName(event.target.value)}
                   value={createName}
@@ -182,7 +182,7 @@ function ModalList({
                 </label>
                 <textarea
                   id="createProjectDescription"
-                  className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                  className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                   placeholder="(Markdown supported)"
                   onChange={(event) => setCreateDescription(event.target.value)}
                   value={createDescription}
@@ -203,7 +203,7 @@ function ModalList({
                   <div className="flex items-center space-x-2">
                     <span>Create</span>
                     {createName && (
-                      <span className="px-2 py-1 bg-neutral-700 rounded-md text-sm">
+                      <span className="rounded-md bg-neutral-700 px-2 py-1 text-sm">
                         {createName}
                       </span>
                     )}
@@ -249,7 +249,7 @@ function ModalDelete({
   return (
     <ModalContainer title={`Delete Project #${project.ID}`}>
       <div className="flex flex-col space-y-4">
-        <div className="flex flex-col space-y-2 p-4 border border-red-500 text-red-500 rounded-md bg-red-500 bg-opacity-10">
+        <div className="flex flex-col space-y-2 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-4 text-red-500">
           <div className="flex items-center space-x-2">
             <BsTriangleFill />
             <strong className="text-lg">Heads up!</strong>
@@ -275,9 +275,9 @@ function ModalDelete({
         </div>
         <div className="flex flex-col space-y-2">
           <span>Please deletion by entering the name of the project:</span>
-          <div className="flex space-x-2 items-center">
+          <div className="flex items-center space-x-2">
             <BsArrowRight />
-            <span className="w-fit px-2 py-1 bg-neutral-700 rounded-md text-sm text-neutral-500">
+            <span className="w-fit rounded-md bg-neutral-700 px-2 py-1 text-sm text-neutral-500">
               {project.name}
             </span>
           </div>
@@ -285,11 +285,11 @@ function ModalDelete({
         <div>
           <Hr />
         </div>
-        <div className="flex space-x-2 items-center">
+        <div className="flex items-center space-x-2">
           <input
             id="prioritySearch"
             type="text"
-            className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
             placeholder={project.name}
             onChange={(event) => setConfirmDeleteText(event.target.value)}
             value={confirmDeleteText}

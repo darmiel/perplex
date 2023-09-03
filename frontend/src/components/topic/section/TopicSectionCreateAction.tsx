@@ -17,7 +17,7 @@ export default function TopicSectionCreateAction({
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)
   return (
-    <div className="space-x-2 flex">
+    <div className="flex space-x-2">
       <Button
         style="neutral"
         icon={<BsPlusCircleDotted />}

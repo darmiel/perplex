@@ -54,7 +54,7 @@ export default function ProjectModalManageUsers({
         <input
           id="userNameSearch"
           type="text"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="darmiel"
           onChange={(event) => setUserNameSearch(event.target.value)}
           value={userNameSearch}
@@ -73,9 +73,9 @@ export default function ProjectModalManageUsers({
               key={user.id}
               className={`${
                 !isAlreadyInProject ? "bg-neutral-800" : ""
-              } rounded-md p-4 flex items-center justify-between border border-neutral-600`}
+              } flex items-center justify-between rounded-md border border-neutral-600 p-4`}
             >
-              <div className="flex space-x-4 items-center">
+              <div className="flex items-center space-x-4">
                 <UserAvatar userID={user.id} />
                 <div className="flex flex-col">
                   <span>{user.name}</span>

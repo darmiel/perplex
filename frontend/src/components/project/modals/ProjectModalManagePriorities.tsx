@@ -110,7 +110,7 @@ export default function ProjectModalManagePriorities({
         <input
           id="prioritySearch"
           type="text"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
           placeholder="Urgent"
           onChange={(event) => setPriorityNameSearch(event.target.value)}
           value={priorityNameSearch}
@@ -133,7 +133,7 @@ export default function ProjectModalManagePriorities({
           .map((priority) => (
             <div
               key={priority.ID}
-              className={`rounded-md p-4 flex items-center justify-between border`}
+              className={`flex items-center justify-between rounded-md border p-4`}
               style={{
                 borderColor: priority.color || "gray",
               }}
@@ -143,21 +143,21 @@ export default function ProjectModalManagePriorities({
                   <div className="flex flex-row space-x-2">
                     <input
                       type="text"
-                      className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                      className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="My awesome Priority"
                       onChange={(event) => setEditTitle(event.target.value)}
                       value={editTitle}
                     />
                     <input
                       type="text"
-                      className="w-1/4 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                      className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="#ff0000"
                       onChange={(event) => setEditColor(event.target.value)}
                       value={editColor}
                     />
                     <input
                       type="number"
-                      className="w-1/4 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+                      className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="0"
                       onChange={(event) =>
                         setEditWeight(Number(event.target.value))
@@ -168,7 +168,7 @@ export default function ProjectModalManagePriorities({
                 ) : (
                   <div className="flex items-center space-x-4">
                     <h2
-                      className="px-4 py-2 rounded-md text-white"
+                      className="rounded-md px-4 py-2 text-white"
                       style={{ backgroundColor: priority.color || "gray" }}
                     >
                       {priority.title}
@@ -221,21 +221,21 @@ export default function ProjectModalManagePriorities({
           value={createName}
           onChange={(e) => setCreateName(e.target.value)}
           placeholder="My awesome Tag"
-          className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
         />
         <input
           type="text"
           value={createColor}
           onChange={(e) => setCreateColor(e.target.value)}
           placeholder="#ff0000"
-          className="w-1/4 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
         />
         <input
           type="number"
           value={createWeight}
           onChange={(e) => setCreateWeight(Number(e.target.value))}
           placeholder="0"
-          className="w-1/4 border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+          className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
         />
         <Button
           onClick={() =>

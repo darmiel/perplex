@@ -26,11 +26,11 @@ export default function ActionSectionTopics({ action }: { action: Action }) {
             }
             loading={linkTopicMut.isLoading}
           >
-            <div className="w-full px-2 py-1 flex flex-row items-center space-x-2 space-y-1 border border-neutral-700 rounded-md">
+            <div className="flex w-full flex-row items-center space-x-2 space-y-1 rounded-md border border-neutral-700 px-2 py-1">
               <div>
                 <Link
                   href={`/project/${action.project_id}/meeting/${topic.meeting_id}`}
-                  className="text-xs text-neutral-400 px-2 py-1 bg-neutral-700 rounded-md w-fit"
+                  className="w-fit rounded-md bg-neutral-700 px-2 py-1 text-xs text-neutral-400"
                 >
                   #{topic.meeting_id}
                 </Link>

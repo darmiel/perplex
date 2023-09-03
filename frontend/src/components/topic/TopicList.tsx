@@ -64,7 +64,7 @@ export default function TopicList({
   const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
 
   return (
-    <ul className="flex flex-col flex-grow h-full overflow-y-auto  space-y-4">
+    <ul className="flex h-full flex-grow flex-col space-y-4  overflow-y-auto">
       <div className="flex space-x-2">
         <Button
           onClick={() => setShowCreateTopic(true)}
@@ -83,28 +83,28 @@ export default function TopicList({
 
       {/* ProgressBar */}
       <div>
-        <div className="w-full rounded-full h-2.5 bg-gray-700">
+        <div className="h-2.5 w-full rounded-full bg-gray-700">
           <div
-            className="bg-primary-600 h-2.5 rounded-full"
+            className="h-2.5 rounded-full bg-primary-600"
             style={{
               width: `${checkedTopicRatio * 100}%`,
             }}
           ></div>
         </div>
-        <div className="text-center mt-2 text-gray-500">
+        <div className="mt-2 text-center text-gray-500">
           <span className="text-white">{checkedTopicCount}</span> /{" "}
           {topicListQuery.data.data.length} topics done
         </div>
       </div>
 
-      <hr className="mt-4 mb-6 border-gray-700" />
+      <hr className="mb-6 mt-4 border-gray-700" />
 
-      <div className="flex-grow overflow-y-auto overscroll-y-none space-y-4">
+      <div className="flex-grow space-y-4 overflow-y-auto overscroll-y-none">
         {/* Topic List (Open Topics) */}
         {openTopics.length > 0 && (
           <>
             {openTopics}
-            <hr className="mt-4 mb-6 border-gray-700" />
+            <hr className="mb-6 mt-4 border-gray-700" />
           </>
         )}
 

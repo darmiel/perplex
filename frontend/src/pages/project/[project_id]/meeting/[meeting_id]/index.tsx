@@ -22,7 +22,9 @@ export default function ProjectPage() {
 
   return (
     <>
-      <div className={`${navigationBorderRight} flex-initial w-[25rem] bg-section-darker p-6 space-y-4`}>
+      <div
+        className={`${navigationBorderRight} w-[25rem] flex-initial space-y-4 bg-section-darker p-6`}
+      >
         <MeetingList projectID={projectID} selectedMeetingID={meetingID} />
       </div>
 

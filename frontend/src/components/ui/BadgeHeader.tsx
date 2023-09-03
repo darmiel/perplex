@@ -13,7 +13,7 @@ export default function BadgeHeader({
     <h1 className={`${className} flex items-center space-x-2`}>
       <span>{title}</span>
       <div
-        className={`inline-flex items-center justify-center w-6 h-6 text-xs font-bold ${badgeColors} rounded-full`}
+        className={`inline-flex h-6 w-6 items-center justify-center text-xs font-bold ${badgeColors} rounded-full`}
       >
         {badge}
       </div>

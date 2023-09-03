@@ -54,7 +54,7 @@ export function includesFold(haystack: string, needle: string): boolean {
 // eslint-disable-next-line
 export const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
   <button
-    className="w-full border border-neutral-600 bg-neutral-800 rounded-lg p-2"
+    className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
     onClick={onClick}
     // @ts-ignore
     ref={ref}

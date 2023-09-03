@@ -102,7 +102,7 @@ export default function ActionOverview({ action }: { action: Action }) {
 
       <OverviewContainer>
         <OverviewContent>
-          <div className="flex space-x-2 items-center mb-4">
+          <div className="mb-4 flex items-center space-x-2">
             {/* Priority Edit */}
             {isEdit ? (
               <PriorityPicker
@@ -134,7 +134,7 @@ export default function ActionOverview({ action }: { action: Action }) {
               </>
             ) : (
               dueDate && (
-                <div className="w-fit px-2 py-1 text-sm flex space-x-2 items-center bg-neutral-700 rounded-md">
+                <div className="flex w-fit items-center space-x-2 rounded-md bg-neutral-700 px-2 py-1 text-sm">
                   <BsCalendar />
                   <span>
                     <RelativeDate date={dueDate} />
@@ -146,10 +146,10 @@ export default function ActionOverview({ action }: { action: Action }) {
           </div>
 
           {/* Description Edit */}
-          <div className="text-neutral-500 p-2 bg-neutral-900">
+          <div className="bg-neutral-900 p-2 text-neutral-500">
             {isEdit ? (
               <textarea
-                className="w-full h-40 bg-transparent"
+                className="h-40 w-full bg-transparent"
                 defaultValue={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
               />
@@ -158,7 +158,7 @@ export default function ActionOverview({ action }: { action: Action }) {
             )}
           </div>
 
-          <Hr className="mt-4 mb-6" />
+          <Hr className="mb-6 mt-4" />
 
           <CommentSuite
             projectID={action.project_id}

@@ -11,7 +11,7 @@ export default function ModalContainer({
 }) {
   return (
     <div
-      className={`bg-neutral-900 border border-neutral-700 rounded-lg p-10 space-y-8 ${className}`}
+      className={`space-y-8 rounded-lg border border-neutral-700 bg-neutral-900 p-10 ${className}`}
     >
       {title && <h1 className="text-2xl font-bold">{title}</h1>}
       {children}

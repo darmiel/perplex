@@ -59,7 +59,7 @@ export default function ActionList({
         )}
       </div>
 
-      <Hr className="mt-4 mb-6 border-gray-700" />
+      <Hr className="mb-6 mt-4 border-gray-700" />
 
       <div className="flex flex-col space-y-4">
         {data.data.map((action) => (

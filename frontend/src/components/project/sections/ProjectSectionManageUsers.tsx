@@ -45,7 +45,7 @@ export default function ProjectSectionManageUsers({
       <UserTagList users={projectUsersQuery.data.data} />
 
       <Button
-        className="w-full mt-4"
+        className="mt-4 w-full"
         onClick={() => setShowUserControl(true)}
         icon={<BsPerson />}
         disabled={!isOwner}

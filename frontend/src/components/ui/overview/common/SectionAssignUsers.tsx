@@ -42,9 +42,9 @@ export default function SectionAssignUsers({
     <div className="flex flex-col space-y-2">
       {/* Display a List of Users which can be removed */}
       {users.map((user) => (
-        <div key={user.id} className="flex justify-between items-center">
+        <div key={user.id} className="flex items-center justify-between">
           <Flex x={2}>
-            <UserAvatar className="rounded-full h-6 w-6" userID={user.id} />
+            <UserAvatar className="h-6 w-6 rounded-full" userID={user.id} />
             <span>{user.name}</span>
           </Flex>
           <button
@@ -73,14 +73,14 @@ export default function SectionAssignUsers({
           borderRadius: "0.5rem",
         }}
       >
-        <div className="w-72 py-2 space-y-2">
+        <div className="w-72 space-y-2 py-2">
           <Flex span justify="between">
             <h3 className="font-semibold text-neutral-300">Assign Users</h3>
             <Link href={`/project/${projectID}`}>
               <Flex
                 span
                 x={1}
-                className="px-2 py-1 rounded-md border border-transparent bg-neutral-800 transition duration-300 ease-in-out group hover:bg-transparent hover:border-neutral-800"
+                className="group rounded-md border border-transparent bg-neutral-800 px-2 py-1 transition duration-300 ease-in-out hover:border-neutral-800 hover:bg-transparent"
               >
                 <span className="group-hover:animate-spin">
                   <BsGear />
@@ -93,7 +93,7 @@ export default function SectionAssignUsers({
           <Divider />
 
           {/* Display Users */}
-          <div className="space-y-2 max-h-60 overflow-y-auto">
+          <div className="max-h-60 space-y-2 overflow-y-auto">
             {projectUsersQuery.isLoading ? (
               <>Loading Users...</>
             ) : projectUsersQuery.isError ? (
@@ -105,13 +105,13 @@ export default function SectionAssignUsers({
                 <Fragment key={user.id}>
                   {index !== 0 && <Divider />}
                   <button
-                    className="w-full flex space-x-2 px-2 py-2 rounded-md items-center transition duration-300 ease-in-out bg-transparent hover:bg-neutral-800 group"
+                    className="group flex w-full items-center space-x-2 rounded-md bg-transparent px-2 py-2 transition duration-300 ease-in-out hover:bg-neutral-800"
                     onClick={() => loadingUser !== user.id && onAssign(user)}
                     disabled={isLoading}
                   >
                     {/* User Avatar */}
                     <UserAvatar
-                      className="rounded-full h-6 w-6"
+                      className="h-6 w-6 rounded-full"
                       userID={user.id}
                     />
 
@@ -134,7 +134,7 @@ export default function SectionAssignUsers({
 
       <button
         data-tooltip-id="assign-users"
-        className="border border-neutral-500 text-neutral-500 rounded-full text-sm px-3 py-1 flex flex-row items-center"
+        className="flex flex-row items-center rounded-full border border-neutral-500 px-3 py-1 text-sm text-neutral-500"
       >
         <div className="flex flex-row items-center justify-center space-x-2">
           <BsPersonAdd />

@@ -102,9 +102,9 @@ export default function MeetingOverview({
 
   if (wasDeleted) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <div className="flex flex-col space-y-4 p-6 border border-red-500 bg-red-500 bg-opacity-10 rounded-md">
-          <h1 className="text-red-500 text-2xl font-semibold">
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
+          <h1 className="text-2xl font-semibold text-red-500">
             Meeting not found
           </h1>
           <p className="text-neutral-300">
@@ -139,7 +139,7 @@ export default function MeetingOverview({
         isEdit={isEdit}
       />
 
-      <span className="text-neutral-500 mb-3">
+      <span className="mb-3 text-neutral-500">
         {isEdit ? (
           <div className="mb-3">
             <ReactDatePicker
@@ -153,7 +153,7 @@ export default function MeetingOverview({
             />
           </div>
         ) : (
-          <span className="flex space-x-2 items-center">
+          <span className="flex items-center space-x-2">
             <span>
               <RelativeDate date={date} />
             </span>
@@ -164,10 +164,10 @@ export default function MeetingOverview({
 
       <OverviewContainer>
         <OverviewContent>
-          <div className="text-neutral-500 p-2 bg-neutral-900">
+          <div className="bg-neutral-900 p-2 text-neutral-500">
             {isEdit ? (
               <textarea
-                className="w-full h-40 bg-transparent"
+                className="h-40 w-full bg-transparent"
                 defaultValue={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
               />
@@ -176,7 +176,7 @@ export default function MeetingOverview({
             )}
           </div>
 
-          <hr className="mt-4 mb-6 border-gray-700" />
+          <hr className="mb-6 mt-4 border-gray-700" />
 
           <CommentSuite
             projectID={projectID}
@@ -184,14 +184,14 @@ export default function MeetingOverview({
             commentEntityID={meetingID}
           />
 
-          <hr className="mt-4 mb-6 border-gray-700" />
+          <hr className="mb-6 mt-4 border-gray-700" />
 
           <TopicList projectID={projectID} meetingID={meetingID} />
         </OverviewContent>
         <OverviewSide>
           <OverviewSection name="Actions">
             {!isEdit ? (
-              <div className="flex space-x-2 items-center">
+              <div className="flex items-center space-x-2">
                 <Button
                   className="w-full text-sm"
                   icon={<BsPen />}
@@ -202,8 +202,8 @@ export default function MeetingOverview({
                 <Button
                   className={
                     confirmDelete
-                      ? "w-full bg-red-500 hover:bg-red-600 text-white text-sm"
-                      : "w-full text-red-500 text-sm"
+                      ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
+                      : "w-full text-sm text-red-500"
                   }
                   icon={<BsTrash />}
                   onClick={deleteMeeting}

@@ -19,10 +19,10 @@ export default function MeetingTopicPage({
     true,
   )
   return (
-    <div className="flex flex-row h-full overflow-y-auto">
+    <div className="flex h-full flex-row overflow-y-auto">
       {showTopicList ? (
         <div
-          className={`${navigationBorderRight} flex-initial w-[21rem] bg-section-darker p-6`}
+          className={`${navigationBorderRight} w-[21rem] flex-initial bg-section-darker p-6`}
         >
           <TopicList
             projectID={projectID}
@@ -33,12 +33,12 @@ export default function MeetingTopicPage({
         </div>
       ) : (
         <div
-          className={`${navigationBorderRight} flex-initial w-[4rem] bg-section-darker p-6 space-y-4`}
+          className={`${navigationBorderRight} w-[4rem] flex-initial space-y-4 bg-section-darker p-6`}
         >
-          <h2 className="text-center mt-20 text-neutral-400 -rotate-90">
+          <h2 className="mt-20 -rotate-90 text-center text-neutral-400">
             <button
               onClick={() => setShowTopicList(true)}
-              className="bg-neutral-900 border border-neutral-600 rounded-md px-4 py-1 flex justify-center items-center space-x-2"
+              className="flex items-center justify-center space-x-2 rounded-md border border-neutral-600 bg-neutral-900 px-4 py-1"
             >
               <div>Topics</div>
               <BsArrowDown color="gray" size="1em" />
@@ -47,7 +47,7 @@ export default function MeetingTopicPage({
         </div>
       )}
 
-      <div className="flex-auto bg-neutral-950 p-6 overflow-y-auto">
+      <div className="flex-auto overflow-y-auto bg-neutral-950 p-6">
         <TopicOverview
           key={topicID}
           projectID={projectID}

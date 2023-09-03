@@ -22,16 +22,16 @@ export default function ActionListItem({
   return (
     <div
       key={action.ID}
-      className={`p-3 border border-neutral-700 rounded-md hover:bg-neutral-900 ${
+      className={`rounded-md border border-neutral-700 p-3 hover:bg-neutral-900 ${
         selected ? "bg-neutral-900" : ""
       }`}
     >
-      <div className="w-full mb-2 flex justify-between items-center">
-        <div className="bg-neutral-800 rounded-md py-1 px-2 text-xs h-fit">
+      <div className="mb-2 flex w-full items-center justify-between">
+        <div className="h-fit rounded-md bg-neutral-800 px-2 py-1 text-xs">
           {action.priority_id && action.priority?.title}
         </div>
         {action.due_date?.Valid && (
-          <div className="bg-neutral-800 rounded-md py-1 px-2 text-xs h-fit flex items-center space-x-2">
+          <div className="flex h-fit items-center space-x-2 rounded-md bg-neutral-800 px-2 py-1 text-xs">
             <BsCalendar />
             <span>
               <DateString date value={new Date(action.due_date.Time)} />
@@ -42,7 +42,7 @@ export default function ActionListItem({
           {action.assigned_users?.map(
             (user, index) =>
               index < 3 && (
-                <div key={user.id} className="w-5 h-5">
+                <div key={user.id} className="h-5 w-5">
                   <UserAvatar userID={user.id} />
                 </div>
               ),

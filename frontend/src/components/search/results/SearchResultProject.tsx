@@ -18,7 +18,7 @@ export default function SearchResultProject({
     <Link
       href={href}
       key={project.ID}
-      className="flex items-center space-x-2 p-2 rounded-md hover:bg-neutral-800"
+      className="flex items-center space-x-2 rounded-md p-2 hover:bg-neutral-800"
       onClick={() => onClick()}
       onMouseOver={() => onMouseOver(href)}
     >
@@ -26,7 +26,7 @@ export default function SearchResultProject({
         <UserAvatar userID={String(project.ID)} />
       </div>
       <div className="flex flex-col">
-        <h4 className="text-sm space-x-1">
+        <h4 className="space-x-1 text-sm">
           <span className="text-white">{project.name}</span>
           <span className="text-neutral-400">
             by <ResolveUserName userID={project.owner_id} />

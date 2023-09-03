@@ -30,13 +30,13 @@ function NotificationItem({ notification }: { notification: Notification }) {
     <div
       className={`${
         isUnread ? "bg-neutral-800" : "bg-neutral-900"
-      } rounded-md px-2 py-1 flex justify-between items-center space-x-6 w-full`}
+      } flex w-full items-center justify-between space-x-6 rounded-md px-2 py-1`}
     >
-      <div className="h-full flex space-x-2">
+      <div className="flex h-full space-x-2">
         <button
           className={
             isUnread
-              ? "text-neutral-200 transition ease-in-out duration-700 hover:rotate-[360deg] hover:text-blue-500"
+              ? "text-neutral-200 transition duration-700 ease-in-out hover:rotate-[360deg] hover:text-blue-500"
               : "text-neutral-600"
           }
           onClick={() => read()}
@@ -52,11 +52,11 @@ function NotificationItem({ notification }: { notification: Notification }) {
           >
             <span>{notification.title}</span>
             {notification.suffix && (
-              <span className="text-[0.5rem] font-normal rounded-md border border-neutral-700 text-neutral-500 p-1 uppercase">
+              <span className="rounded-md border border-neutral-700 p-1 text-[0.5rem] font-normal uppercase text-neutral-500">
                 {notification.suffix}
               </span>
             )}
-            <span className="text-neutral-500 font-normal text-sm">
+            <span className="text-sm font-normal text-neutral-500">
               - <RelativeDate date={new Date(notification.CreatedAt)} />
             </span>
           </h3>
@@ -68,12 +68,12 @@ function NotificationItem({ notification }: { notification: Notification }) {
       {notification.link && (
         <Link
           href={notification.link}
-          className="bg-neutral-800 border border-neutral-600 px-2 py-1 rounded-md text-sm space-x-1 group transition-all duration-300 ease-in-out hover:border-transparent hover:bg-transparent"
+          className="group space-x-1 rounded-md border border-neutral-600 bg-neutral-800 px-2 py-1 text-sm transition-all duration-300 ease-in-out hover:border-transparent hover:bg-transparent"
           // if the user clicks on the link in the notification, mark it as read
           onClick={() => read()}
         >
           {notification.link_title && <span>{notification.link_title}</span>}
-          <span className="transition-all duration-300 ease-in-out translate inline-block group-hover:translate-x-1 group-hover:text-primary-500">
+          <span className="translate inline-block transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:text-primary-500">
             -&gt;
           </span>
         </Link>
@@ -111,9 +111,9 @@ export default function NotificationModal({
   const unreadCount = notifications.filter((n) => !n.read_at.Valid).length
 
   return (
-    <section className="bg-section-darker rounded-md border border-neutral-700 p-4 w-fit h-fit space-y-2">
-      <div className="flex space-x-2 items-center justify-between">
-        <div className="flex space-x-2 items-center">
+    <section className="h-fit w-fit space-y-2 rounded-md border border-neutral-700 bg-section-darker p-4">
+      <div className="flex items-center justify-between space-x-2">
+        <div className="flex items-center space-x-2">
           <BadgeHeader
             title="Notifications"
             badge={unreadCount}
@@ -124,7 +124,7 @@ export default function NotificationModal({
             }
           />
           <button
-            className="flex space-x-1 items-center rounded-full bg-neutral-800 px-2 transition-all hover:animate-pulse hover:px-4 hover:bg-transparent border border-transparent hover:border-neutral-700"
+            className="flex items-center space-x-1 rounded-full border border-transparent bg-neutral-800 px-2 transition-all hover:animate-pulse hover:border-neutral-700 hover:bg-transparent hover:px-4"
             onClick={() => notificationReadAllMutation.mutate()}
             disabled={
               notificationReadAllMutation.isLoading || unreadCount === 0
@@ -141,20 +141,20 @@ export default function NotificationModal({
 
           <button
             onClick={() => setUnreadOnly((prev) => !prev)}
-            className="flex space-x-2 items-center py-1 px-2 border border-neutral-800 rounded-full"
+            className="flex items-center space-x-2 rounded-full border border-neutral-800 px-2 py-1"
           >
             {unreadOnly ? <BsCheckCircleFill /> : <BsCircle />}
-            <span className="text-neutral-400 text-sm">Unread only</span>
+            <span className="text-sm text-neutral-400">Unread only</span>
           </button>
         </div>
         <button
           onClick={() => onClose?.()}
-          className="transition ease-in-out duration-300 hover:rotate-90 hover:text-red-500"
+          className="transition duration-300 ease-in-out hover:rotate-90 hover:text-red-500"
         >
           <BsX />
         </button>
       </div>
-      <div className="max-h-64 overflow-y-auto space-y-2">
+      <div className="max-h-64 space-y-2 overflow-y-auto">
         {notifications.map((notification) => (
           <NotificationItem key={notification.ID} notification={notification} />
         ))}
