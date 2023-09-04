@@ -59,7 +59,9 @@ export default function MeetingList({
   }
 
   listMeetingQuery.data.data.forEach((meeting) => {
-    tenses[getMeetingTense(new Date(meeting.start_date))].push(meeting)
+    const startDate = new Date(meeting.start_date)
+    const endDate = new Date(meeting.end_date)
+    tenses[getMeetingTense(startDate, endDate)].push(meeting)
   })
 
   const MeetingListForTense = ({ tense }: { tense: MeetingTense }) => {
@@ -103,7 +105,11 @@ export default function MeetingList({
                   }
                 >
                   <div className="flex items-center space-x-2">
-                    <MeetingTag icon date={new Date(meeting.start_date)} />
+                    <MeetingTag
+                      icon
+                      start={new Date(meeting.start_date)}
+                      end={new Date(meeting.end_date)}
+                    />
                     <div>
                       <TruncateTitle truncate={22}>
                         {meeting.name}

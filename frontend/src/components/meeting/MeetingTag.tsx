@@ -25,25 +25,27 @@ export const tagStyles = {
 
 export type MeetingTense = "past" | "future" | "ongoing"
 
-export function getMeetingTense(date: Date): MeetingTense {
+export function getMeetingTense(start: Date, end: Date): MeetingTense {
   const now = new Date()
-  if (date.getTime() < now.getTime() - 2 * 3600 * 1000) {
+  if (start.getTime() < now.getTime() && now.getTime() < end.getTime()) {
+    return "ongoing"
+  }
+  if (start.getTime() < now.getTime()) {
     return "past"
   }
-  if (date.getTime() > now.getTime() + 2 * 3600 * 1000) {
-    return "future"
-  }
-  return "ongoing"
+  return "future"
 }
 
 export default function MeetingTag({
-  date,
+  start,
+  end,
   icon = false,
 }: {
-  date: Date
+  start: Date
+  end: Date
   icon?: boolean
 }) {
-  let tag = tagStyles[getMeetingTense(date)]
+  let tag = tagStyles[getMeetingTense(start, end)]
   if (icon) {
     return <div className={tag.color}>{tag.icon}</div>
   }

@@ -55,13 +55,15 @@ export type meetingUpdateVars = {
   meetingID: number
   title: string
   description: string
-  date: Date
+  start_date: Date
+  end_date: Date
 }
 
 export type meetingCreateVars = {
   title: string
   description: string
-  date: Date
+  start_date: Date
+  end_date: Date
   __should_close: boolean
 }
 
@@ -430,12 +432,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
 
       createMutFn(projectID: number) {
-        return async ({ title, description, date }: meetingCreateVars) =>
+        return async ({
+          title,
+          description,
+          start_date,
+          end_date,
+        }: meetingCreateVars) =>
           (
             await axios.post(`/project/${projectID}/meeting`, {
               name: title,
-              description: description,
-              start_date: date,
+              description,
+              start_date,
+              end_date,
             })
           ).data
       },
@@ -457,13 +465,15 @@ export const functions = (axios: Axios, client: QueryClient) => {
           meetingID,
           title,
           description,
-          date,
+          start_date,
+          end_date,
         }: meetingUpdateVars) =>
           (
             await axios.put(`/project/${projectID}/meeting/${meetingID}`, {
               name: title,
               description: description,
-              start_date: date,
+              start_date,
+              end_date,
             })
           ).data
       },

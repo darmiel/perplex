@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { extractErrorMessage } from "@/api/util"
 import ActionList from "@/components/action/ActionList"
 import CommentSuite from "@/components/comment/CommentSuite"
+import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
 import MeetingList from "@/components/meeting/MeetingList"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
@@ -100,13 +101,14 @@ export default function ProjectPage() {
             <Hr className="mb-6 mt-4" />
 
             <div className="flex flex-row space-x-4">
+              <MeetingDragDrop projectID={projectID} />
               <div className="w-full">
                 <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
                   Meetings
                 </h1>
                 <MeetingList projectID={projectID} />
               </div>
-              <div className="w-full">
+              <div className="w-1/2">
                 <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
                   Actions
                 </h1>

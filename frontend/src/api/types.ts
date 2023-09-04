@@ -36,6 +36,7 @@ export type Meeting = {
   name: string
   description: string
   start_date: string
+  end_date: string
   creator?: User
   creator_id: string
   project_id: number

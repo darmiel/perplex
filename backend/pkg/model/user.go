@@ -107,6 +107,8 @@ type Meeting struct {
 	Description string `json:"description"`
 	// StartDate of the meeting
 	StartDate time.Time `json:"start_date"`
+	// EndDate of the meeting
+	EndDate time.Time `json:"end_date"`
 	// Topics of the meeting
 	Topics []Topic `json:"topics,omitempty"`
 	// ProjectID is the project the meeting belongs to

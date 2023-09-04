@@ -17,6 +17,7 @@ import (
 
 const MaxDescriptionLength = 1024 * 1024 // 1 MiB
 var ErrDescriptionTooLong = errors.New("description too long")
+var ErrEndBeforeStart = errors.New("end date before start date")
 
 type MeetingHandler struct {
 	srv       services.MeetingService
@@ -40,20 +41,28 @@ type meetingDto struct {
 	Name        string `validate:"required,min=1,max=128,startsnotwith= ,endsnotwith= " json:"name"`
 	Description string `json:"description"`
 	StartDate   string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"start_date"`
+	EndDate     string `validate:"required,datetime=2006-01-02T15:04:05Z07:00" json:"end_date"`
 }
 
-func (h *MeetingHandler) ValidateMeetingDto(dto *meetingDto) (*time.Time, error) {
+func (h *MeetingHandler) ValidateMeetingDto(dto *meetingDto) (*time.Time, *time.Time, error) {
 	if err := h.validator.Struct(dto); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(dto.Description) > MaxDescriptionLength {
-		return nil, ErrDescriptionTooLong
+		return nil, nil, ErrDescriptionTooLong
 	}
 	startTime, err := time.Parse(time.RFC3339, dto.StartDate)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &startTime, nil
+	endTime, err := time.Parse(time.RFC3339, dto.EndDate)
+	if err != nil {
+		return nil, nil, err
+	}
+	if endTime.Before(startTime) {
+		return nil, nil, ErrEndBeforeStart
+	}
+	return &startTime, &endTime, nil
 }
 
 // PreloadMeetingsMiddleware preloads meetings for the current project and updates the project in the locals
@@ -100,12 +109,12 @@ func (h *MeetingHandler) AddMeeting(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	startTime, err := h.ValidateMeetingDto(&payload)
+	startTime, endTime, err := h.ValidateMeetingDto(&payload)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
 	// create meeting
-	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, payload.Description, *startTime)
+	created, err := h.srv.AddMeeting(p.ID, u.UserID, payload.Name, payload.Description, *startTime, *endTime)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
@@ -146,11 +155,11 @@ func (h *MeetingHandler) EditMeeting(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	startTime, err := h.ValidateMeetingDto(&payload)
+	startTime, endTime, err := h.ValidateMeetingDto(&payload)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
 	}
-	if err = h.srv.EditMeeting(m.ID, payload.Name, payload.Description, *startTime); err != nil {
+	if err = h.srv.EditMeeting(m.ID, payload.Name, payload.Description, *startTime, *endTime); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting edited", nil))

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import DatePicker from "react-datepicker"
 
 import "react-datepicker/dist/react-datepicker.css"
@@ -8,6 +8,8 @@ import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import Button from "@/components/ui/Button"
+import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -20,11 +22,22 @@ export default function CreateMeeting({
 }) {
   const [meetingTitle, setMeetingTitle] = useState<string>("")
   const [meetingDescription, setMeetingDescription] = useState<string>("")
-  const [meetingDate, setMeetingDate] = useState<Date>(new Date())
+  const [meetingStartDate, setMeetingStartDate] = useState<Date>(new Date())
+  const [meetingEndDate, setMeetingEndDate] = useState<Date>(new Date())
 
-  const { meetings: meeting } = useAuth()
+  useEffect(() => {
+    // get days since epoch for start and end date
+    const startDateDays = Math.floor(meetingStartDate.getTime() / 86400000)
+    const endDateDays = Math.floor(meetingEndDate.getTime() / 86400000)
+    if (endDateDays < startDateDays) {
+      // set meeting end date to start date + 30 mins
+      setMeetingEndDate(new Date(meetingStartDate.getTime() + 30 * 60000))
+    }
+  }, [meetingStartDate, meetingEndDate])
 
-  const createMeetingMutation = meeting!.useCreate(
+  const { meetings } = useAuth()
+
+  const createMeetingMutation = meetings!.useCreate(
     projectID,
     ({ data }, { __should_close }) => {
       toast.success(`Meeting #${data.ID} Created`)
@@ -32,7 +45,8 @@ export default function CreateMeeting({
       // clear form
       setMeetingTitle("")
       setMeetingDescription("")
-      setMeetingDate(new Date())
+      setMeetingStartDate(new Date())
+      setMeetingEndDate(new Date())
 
       __should_close && onClose?.(data.ID)
     },
@@ -45,7 +59,8 @@ export default function CreateMeeting({
     createMeetingMutation.mutate({
       title: meetingTitle,
       description: meetingDescription,
-      date: meetingDate,
+      start_date: meetingStartDate,
+      end_date: meetingEndDate,
       __should_close: shouldClose,
     })
   }
@@ -81,23 +96,41 @@ export default function CreateMeeting({
         />
       </div>
 
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="topicDate">
-          Topic Date
-        </label>
-        <div>
-          <DatePicker
-            selected={meetingDate}
-            onChange={(date) => date && setMeetingDate(date)}
-            timeInputLabel="Time:"
-            dateFormat="MM/dd/yyyy h:mm aa"
-            customInput={<PickerCustomInput />}
-            showTimeInput
-          />
+      <Flex x={4}>
+        <div className="w-full space-y-2">
+          <label className="text-neutral-400" htmlFor="meetingDateStart">
+            Start Date
+          </label>
+          <div>
+            <DatePicker
+              selected={meetingStartDate}
+              onChange={(date) => date && setMeetingStartDate(date)}
+              timeInputLabel="Time:"
+              dateFormat="MM/dd/yyyy h:mm aa"
+              customInput={<PickerCustomInput />}
+              showTimeInput
+            />
+          </div>
         </div>
-      </div>
+        <div className="w-full space-y-2">
+          <label className="text-neutral-400" htmlFor="meetingDateEnd">
+            End Date
+          </label>
+          <div>
+            <DatePicker
+              selected={meetingEndDate}
+              onChange={(date) => date && setMeetingEndDate(date)}
+              timeInputLabel="Time:"
+              dateFormat="MM/dd/yyyy h:mm aa"
+              customInput={<PickerCustomInput />}
+              showTimeInput
+              minDate={meetingStartDate}
+            />
+          </div>
+        </div>
+      </Flex>
 
-      <hr className="border-neutral-600" />
+      <Hr />
 
       {createMeetingMutation.isError && (
         <div className="flex items-center space-x-2 text-sm font-bold text-red-500">

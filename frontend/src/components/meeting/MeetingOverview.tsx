@@ -1,6 +1,7 @@
+import { Progress } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import { BsPen, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
@@ -8,7 +9,7 @@ import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
-import MeetingTag from "@/components/meeting/MeetingTag"
+import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
@@ -35,6 +36,7 @@ export default function MeetingOverview({
   const [editTitle, setEditTitle] = useState("")
   const [editDescription, setEditDescription] = useState("")
   const [editStartDate, setEditStartDate] = useState("")
+  const [editEndDate, setEditEndDate] = useState("")
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
@@ -64,6 +66,21 @@ export default function MeetingOverview({
 
   const linkUser = meetings!.useLinkUser(projectID, meetingID, () => {})
 
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    if (meetingInfoQuery.data?.data) {
+      const interval = setInterval(() => {
+        const now = new Date().getTime()
+        setProgress(
+          (now - startDate.getTime()) /
+            (endDate.getTime() - startDate.getTime()),
+        )
+      }, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [meetingInfoQuery])
+
   if (meetingInfoQuery.isLoading) {
     return <BarLoader color="white" />
   }
@@ -76,15 +93,21 @@ export default function MeetingOverview({
   }
 
   const meeting = meetingInfoQuery.data.data
-  const date = new Date(meeting.start_date)
+  const startDate = new Date(meeting.start_date)
+  const endDate = new Date(meeting.end_date)
 
-  // past: before now - 2 hours
-  // future: after now + 2 hours
-  // ongoing: in between
   function enterEdit() {
     setEditTitle(meeting.name)
     setEditDescription(meeting.description)
+
+    // temporary fix for migration
+    const startDate = new Date(meeting.start_date)
+    const endDate = meeting.end_date ? new Date(meeting.end_date) : new Date()
+    if (endDate.getTime() < startDate.getTime()) {
+      endDate.setTime(startDate.getTime() + 30 * 60000)
+    }
     setEditStartDate(meeting.start_date)
+    setEditEndDate(endDate.toString())
 
     setIsEdit(true)
   }
@@ -133,7 +156,7 @@ export default function MeetingOverview({
         creatorID={meeting.creator_id}
         title={meeting.name}
         titleID={meeting.ID}
-        tag={<MeetingTag date={date} />}
+        tag={<MeetingTag start={startDate} end={endDate} />}
         createdAt={new Date(meeting.CreatedAt)}
         setEditTitle={setEditTitle}
         isEdit={isEdit}
@@ -143,21 +166,42 @@ export default function MeetingOverview({
         {isEdit ? (
           <div className="mb-3">
             <ReactDatePicker
+              className="w-full"
               selected={new Date(editStartDate)}
               onChange={(date) =>
                 setEditStartDate((old) => date?.toString() || old)
               }
-              showTimeSelect
-              dateFormat="Pp"
+              showTimeInput
+              customInput={<PickerCustomInput />}
+            />
+            <ReactDatePicker
+              selected={new Date(editEndDate)}
+              onChange={(date) =>
+                setEditEndDate((old) => date?.toString() || old)
+              }
+              minDate={new Date(editStartDate)}
+              showTimeInput
               customInput={<PickerCustomInput />}
             />
           </div>
         ) : (
           <span className="flex items-center space-x-2">
-            <span>
-              <RelativeDate date={date} />
+            <span>from</span>
+            <span className="text-white">
+              <RelativeDate date={startDate} />
             </span>
-            <DurationTag date={date} />
+            {startDate.getTime() < endDate.getTime() && (
+              <>
+                <DurationTag date={startDate} />
+                <span>to</span>
+                <span className="text-white">
+                  <RelativeDate date={endDate} />
+                </span>
+              </>
+            )}
+            {getMeetingTense(startDate, endDate) === "ongoing" && (
+              <Progress max={1} value={progress} />
+            )}
           </span>
         )}
       </span>
@@ -223,7 +267,8 @@ export default function MeetingOverview({
                       meetingID,
                       title: editTitle,
                       description: editDescription,
-                      date: new Date(editStartDate),
+                      start_date: new Date(editStartDate),
+                      end_date: new Date(editEndDate),
                     })
                   }
                 >
