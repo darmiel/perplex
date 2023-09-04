@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { BiSolidLogOut } from "react-icons/bi"
 import { BarLoader } from "react-spinners"
 
 import { extractErrorMessage } from "@/api/util"
@@ -7,7 +8,7 @@ import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function User() {
-  const { user, users } = useAuth()
+  const { user, users, logout } = useAuth()
 
   const [userName, setUserName] = useState<string>("")
 
@@ -96,6 +97,13 @@ export default function User() {
             }
           >
             {isUnregistered ? "Register" : "Change Name"}
+          </Button>
+          <Button
+            style="secondary"
+            icon={<BiSolidLogOut />}
+            onClick={() => logout?.()}
+          >
+            Logout
           </Button>
         </div>
       </div>
