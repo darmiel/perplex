@@ -1,13 +1,13 @@
 import { Divider, Input, useInput } from "@geist-ui/core"
-import Link from "next/link"
 import { Fragment } from "react"
-import { BsGear, BsPersonAdd, BsX } from "react-icons/bs"
+import { BsPersonAdd, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 import { Tooltip } from "react-tooltip"
 
 import { User } from "@/api/types"
 import { extractErrorMessage, includesFold } from "@/api/util"
 import Flex from "@/components/ui/layout/Flex"
+import ManageUsersButton from "@/components/ui/overview/common/ManageUsersButton"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -76,18 +76,7 @@ export default function SectionAssignUsers({
         <div className="w-72 space-y-2 py-2">
           <Flex span justify="between">
             <h3 className="font-semibold text-neutral-300">Assign Users</h3>
-            <Link href={`/project/${projectID}`}>
-              <Flex
-                span
-                x={1}
-                className="group rounded-md border border-transparent bg-neutral-800 px-2 py-1 transition duration-300 ease-in-out hover:border-neutral-800 hover:bg-transparent"
-              >
-                <span className="group-hover:animate-spin">
-                  <BsGear />
-                </span>
-                <span>Manage Users</span>
-              </Flex>
-            </Link>
+            <ManageUsersButton projectID={projectID} />
           </Flex>
           <Input placeholder="Filter Users" width="100%" {...bindings} />
           <Divider />

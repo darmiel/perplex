@@ -1,13 +1,13 @@
 import { Divider, Input, useInput } from "@geist-ui/core"
-import Link from "next/link"
 import { Fragment } from "react"
-import { BsGear, BsTag, BsX } from "react-icons/bs"
+import { BsTag, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 import { Tooltip } from "react-tooltip"
 
 import { Tag } from "@/api/types"
 import { extractErrorMessage, includesFold } from "@/api/util"
 import Flex from "@/components/ui/layout/Flex"
+import ManageTagsButton from "@/components/ui/overview/common/ManageTagsButton"
 import { TagFromType } from "@/components/ui/tag/Tag"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -73,18 +73,7 @@ export default function SectionAssignTags({
         <div className="w-72 space-y-2 py-2">
           <Flex span justify="between">
             <h3 className="font-semibold text-neutral-300">Assign Tags</h3>
-            <Link href={`/project/${projectID}`}>
-              <Flex
-                span
-                x={1}
-                className="group rounded-md border border-transparent bg-neutral-800 px-2 py-1 transition duration-300 ease-in-out hover:border-neutral-800 hover:bg-transparent"
-              >
-                <span className="group-hover:animate-spin">
-                  <BsGear />
-                </span>
-                <span>Manage Tags</span>
-              </Flex>
-            </Link>
+            <ManageTagsButton projectID={projectID} />
           </Flex>
           <Input placeholder="Filter Tags" width="100%" {...bindings} />
           <Divider />
