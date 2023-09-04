@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
 import { useState } from "react"
@@ -5,6 +6,7 @@ import {
   BsArrowLeft,
   BsArrowRight,
   BsCheck,
+  BsHouse,
   BsPen,
   BsTrash,
 } from "react-icons/bs"
@@ -19,6 +21,8 @@ import {
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
+import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
+import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
 import TopicTag from "@/components/topic/TopicTag"
@@ -228,6 +232,28 @@ export default function TopicOverview({
       <Head>
         <title>Perplex - T# {topic.title ?? "Unknown Topic"}</title>
       </Head>
+
+      <div className="mb-2">
+        <Breadcrumbs>
+          <Link href="/">
+            <Breadcrumbs.Item nextLink>
+              <BsHouse />
+            </Breadcrumbs.Item>
+          </Link>
+          <Link href={`/project/${projectID}`}>
+            <Breadcrumbs.Item nextLink>
+              <ResolveProjectName projectID={projectID} />
+            </Breadcrumbs.Item>
+          </Link>
+          <Link href={`/project/${projectID}/meeting/${meetingID}`}>
+            <Breadcrumbs.Item nextLink>
+              <ResolveMeetingName projectID={projectID} meetingID={meetingID} />
+            </Breadcrumbs.Item>
+          </Link>
+          <Breadcrumbs.Item>{topic.title}</Breadcrumbs.Item>
+        </Breadcrumbs>
+      </div>
+
       {isEdit ? (
         <div className="mb-4 flex space-x-2">
           <AckTopicTypeCard

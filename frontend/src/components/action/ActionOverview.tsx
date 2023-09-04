@@ -4,6 +4,7 @@ import {
   BsBookmarkStarFill,
   BsBookmarkX,
   BsCalendar,
+  BsHouse,
   BsPen,
 } from "react-icons/bs"
 
@@ -22,7 +23,9 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import "react-datepicker/dist/react-datepicker.css"
 
+import { Breadcrumbs } from "@geist-ui/core"
 import Head from "next/head"
+import Link from "next/link"
 import { toast } from "sonner"
 
 import { PickerCustomInput } from "@/api/util"
@@ -31,6 +34,7 @@ import ActionSectionAssigned from "@/components/action/sections/ActionSectionAss
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
 import CommentSuite from "@/components/comment/CommentSuite"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
+import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 
@@ -90,6 +94,23 @@ export default function ActionOverview({ action }: { action: Action }) {
       <Head>
         <title>Perplex - A# {action.title}</title>
       </Head>
+
+      <div className="mb-2">
+        <Breadcrumbs>
+          <Link href="/">
+            <Breadcrumbs.Item nextLink>
+              <BsHouse />
+            </Breadcrumbs.Item>
+          </Link>
+          <Link href={`/project/${action.project_id}`}>
+            <Breadcrumbs.Item nextLink>
+              <ResolveProjectName projectID={action.project_id} />
+            </Breadcrumbs.Item>
+          </Link>
+          <Breadcrumbs.Item>{action.title}</Breadcrumbs.Item>
+        </Breadcrumbs>
+      </div>
+
       <OverviewTitle
         creatorID={action.creator_id}
         title={action.title}

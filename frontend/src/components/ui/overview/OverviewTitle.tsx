@@ -17,6 +17,7 @@ export default function OverviewTitle({
   injectHeader,
   className = "",
 
+  breadcrumbs,
   children,
 }: {
   creatorID: string
@@ -31,10 +32,13 @@ export default function OverviewTitle({
   injectHeader?: ReactNode | false
   className?: string
 
+  breadcrumbs?: ReactNode
   children?: ReactNode
 }) {
   return (
     <div className={`w-full ${className}`}>
+      {breadcrumbs}
+
       <div className="flex flex-row items-center">
         <h1 className="mt-1 w-full space-x-2 text-2xl">
           {isEdit ? (

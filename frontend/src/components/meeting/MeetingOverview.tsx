@@ -1,15 +1,16 @@
-import { Progress } from "@geist-ui/core"
+import { Breadcrumbs, Progress } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import ReactDatePicker from "react-datepicker"
-import { BsPen, BsTrash } from "react-icons/bs"
+import { BsHouse, BsPen, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
+import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import TopicList from "@/components/topic/TopicList"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
@@ -151,6 +152,22 @@ export default function MeetingOverview({
       <Head>
         <title>Perplex - M# {meeting.name ?? "Unknown Project"}</title>
       </Head>
+
+      <div className="mb-2">
+        <Breadcrumbs>
+          <Link href="/">
+            <Breadcrumbs.Item nextLink>
+              <BsHouse />
+            </Breadcrumbs.Item>
+          </Link>
+          <Link href={`/project/${projectID}`}>
+            <Breadcrumbs.Item nextLink>
+              <ResolveProjectName projectID={projectID} />
+            </Breadcrumbs.Item>
+          </Link>
+          <Breadcrumbs.Item>{meeting.name}</Breadcrumbs.Item>
+        </Breadcrumbs>
+      </div>
 
       <OverviewTitle
         creatorID={meeting.creator_id}
