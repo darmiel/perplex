@@ -17,7 +17,6 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import { PriorityTag } from "@/components/ui/tag/Tag"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -33,7 +32,7 @@ import ActionTag from "@/components/action/ActionTag"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
 import CommentSuite from "@/components/comment/CommentSuite"
-import PriorityPicker from "@/components/project/priority/PriorityPicker"
+import PriorityPickerWithEdit from "@/components/project/priority/PriorityPickerWithEdit"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
@@ -124,18 +123,13 @@ export default function ActionOverview({ action }: { action: Action }) {
       <OverviewContainer>
         <OverviewContent>
           <div className="mb-4 flex items-center space-x-2">
-            {/* Priority Edit */}
-            {isEdit ? (
-              <PriorityPicker
-                projectID={action.project_id}
-                defaultValue={action.priority_id}
-                setPriorityID={setEditPriorityID}
-              />
-            ) : (
-              !!action.priority_id && (
-                <PriorityTag priority={action.priority!} />
-              )
-            )}
+            <PriorityPickerWithEdit
+              projectID={action.project_id}
+              isEdit={isEdit}
+              priorityID={action.priority_id}
+              setEditPriorityID={setEditPriorityID}
+              priority={action.priority}
+            />
 
             {/* Due Date Edit */}
             {isEdit ? (

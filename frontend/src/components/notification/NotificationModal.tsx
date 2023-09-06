@@ -1,4 +1,3 @@
-import Link from "next/link"
 import {
   BsCheck,
   BsCheckAll,
@@ -13,6 +12,7 @@ import { toast } from "sonner"
 import { Notification } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import BadgeHeader from "@/components/ui/BadgeHeader"
+import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLocalBoolState } from "@/hooks/localStorage"
@@ -66,17 +66,15 @@ function NotificationItem({ notification }: { notification: Notification }) {
 
       {/* Buttons */}
       {notification.link && (
-        <Link
+        <Button
           href={notification.link}
-          className="group space-x-1 rounded-md border border-neutral-600 bg-neutral-800 px-2 py-1 text-sm transition-all duration-300 ease-in-out hover:border-transparent hover:bg-transparent"
+          style={["neutral", "animated"]}
           // if the user clicks on the link in the notification, mark it as read
           onClick={() => read()}
         >
           {notification.link_title && <span>{notification.link_title}</span>}
-          <span className="translate inline-block transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:text-primary-500">
-            -&gt;
-          </span>
-        </Link>
+          <Button.Arrow />
+        </Button>
       )}
     </div>
   )

@@ -20,7 +20,7 @@ import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
-import PriorityPicker from "@/components/project/priority/PriorityPicker"
+import PriorityPickerWithEdit from "@/components/project/priority/PriorityPickerWithEdit"
 import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
@@ -36,7 +36,6 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import { PriorityTag } from "@/components/ui/tag/Tag"
 import UserTagList from "@/components/ui/tag/UserTagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
@@ -301,19 +300,21 @@ export default function TopicOverview({
         <OverviewContent>
           {!!topic.solution_id && (
             <>
-              <div className="w-full space-y-2 rounded-md border border-primary-500 p-4">
+              <div className="flex w-full items-center justify-between rounded-md border border-primary-500 p-4">
                 <div className="flex flex-row items-center space-x-2 text-primary-500">
                   <BsCheck />
                   <strong>Good News!</strong>
+                  <span className="text-neutral-400">
+                    This topic has a solution!
+                  </span>
                 </div>
-                <div className="text-neutral-400">
-                  This topic already has a solution!
-                </div>
-                <div className="w-fit">
-                  <Link href={`#comment-${topic.solution_id}`}>
-                    <Button raw>Go to solution</Button>
-                  </Link>
-                </div>
+                <Button
+                  href={`#comment-${topic.solution_id}`}
+                  style={["neutral", "animated"]}
+                >
+                  Go to solution
+                  <Button.Arrow />
+                </Button>
               </div>
               <Hr className="my-4" />
             </>
@@ -416,21 +417,13 @@ export default function TopicOverview({
             )}
           </OverviewSection>
           <OverviewSection name="Priority">
-            {/* Priority Edit */}
-            {isEdit ? (
-              <PriorityPicker
-                projectID={projectID}
-                defaultValue={topic.priority_id}
-                setPriorityID={setEditPriorityID}
-              />
-            ) : (
-              !!topic.priority_id &&
-              topic.priority && (
-                <span className="">
-                  <PriorityTag priority={topic.priority!} />
-                </span>
-              )
-            )}
+            <PriorityPickerWithEdit
+              projectID={projectID}
+              isEdit={isEdit}
+              priorityID={topic.priority_id}
+              setEditPriorityID={setEditPriorityID}
+              priority={topic.priority}
+            />
           </OverviewSection>
           <OverviewSection name="Tags">
             <SectionAssignTags

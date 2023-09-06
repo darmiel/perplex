@@ -9,6 +9,8 @@ const buttonStyles = {
     "border border-neutral-700 bg-neutral-900 hover:bg-neutral-950 rounded-md",
   tab: "border-b-2 border-transparent hover:border-primary-500",
   "tab-active": "border-b-2 border-primary-500",
+  animated:
+    "group w-fit text-sm text-neutral-500 transition duration-300 ease-in-out hover:border-transparent hover:text-white",
 } as const
 
 const stateStyle = {
@@ -19,7 +21,7 @@ const stateStyle = {
 export type ButtonStyle = keyof typeof buttonStyles
 
 type ButtonProps = {
-  style?: ButtonStyle
+  style?: ButtonStyle | ButtonStyle[]
   icon?: JSX.Element
   isLoading?: boolean
   onClick?: () => void
@@ -29,7 +31,7 @@ type ButtonProps = {
   href?: string
 } & PropsWithChildren
 
-export default function Button({
+function Button({
   style = "neutral",
   icon,
   isLoading = false,
@@ -45,7 +47,13 @@ export default function Button({
   // base styling
   const classNames = ["px-4 py-2 text-center"]
   // button style
-  classNames.push(buttonStyles[style])
+  if (!Array.isArray(style)) {
+    classNames.push(buttonStyles[style])
+  } else {
+    for (const s of style) {
+      classNames.push(buttonStyles[s])
+    }
+  }
   // enable / disabled state styling
   classNames.push(isDisabled ? stateStyle.disabled : stateStyle.active)
   // user styling
@@ -62,7 +70,11 @@ export default function Button({
   )
 
   return href ? (
-    <Link href={href} className={classNames.join(" ")}>
+    <Link
+      onClick={() => onClick?.()}
+      href={href}
+      className={classNames.join(" ")}
+    >
       {buttonContent}
     </Link>
   ) : raw ? (
@@ -79,3 +91,15 @@ export default function Button({
     </button>
   )
 }
+
+function Arrow() {
+  return (
+    <span className="inline-block text-neutral-600 transition group-hover:translate-x-1 group-hover:text-white motion-reduce:transform-none">
+      -&gt;
+    </span>
+  )
+}
+
+Button.Arrow = Arrow
+
+export default Button

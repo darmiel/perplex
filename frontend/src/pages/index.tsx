@@ -285,12 +285,10 @@ function DashboardMeeting() {
                 <Flex justify="between">
                   <Button
                     href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-                    className="group w-fit text-sm text-neutral-500 transition duration-300 ease-in-out hover:border-transparent hover:text-white"
+                    style={["neutral", "animated"]}
                   >
                     View Meeting
-                    <span className="inline-block text-neutral-600 transition group-hover:translate-x-1 group-hover:text-white motion-reduce:transform-none">
-                      -&gt;
-                    </span>
+                    <Button.Arrow />
                   </Button>
                   <Avatar.Group
                     count={

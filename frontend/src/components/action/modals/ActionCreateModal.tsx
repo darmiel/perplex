@@ -12,6 +12,7 @@ import { BarLoader, ClipLoader } from "react-spinners"
 import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
+import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
 import ModalContainer from "@/components/ui/modal/ModalContainer"
@@ -162,19 +163,11 @@ export default function ActionCreateModal({
               <label className="text-neutral-400" htmlFor="actionPriority">
                 Action Priority
               </label>
-              <select
+              <PriorityPicker
                 id="actionPriority"
-                className="w-fit rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                defaultValue="0"
-                onChange={(e) => setActionPriorityID(Number(e.target.value))}
-              >
-                <option value="0">No Priority</option>
-                {prioritiesQuery.data?.data.map((priority) => (
-                  <option key={priority.ID} value={priority.ID}>
-                    {priority.title}
-                  </option>
-                ))}
-              </select>
+                projectID={projectID}
+                setPriorityID={setActionPriorityID}
+              />
             </div>
 
             {/* Due Date */}

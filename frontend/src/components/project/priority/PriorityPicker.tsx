@@ -1,10 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function PriorityPicker({
+  id,
   projectID,
   defaultValue,
   setPriorityID,
 }: {
+  id?: string
   projectID: number
   defaultValue?: number
   setPriorityID: (priorityID: number) => void
@@ -16,7 +18,8 @@ export default function PriorityPicker({
   }
   return (
     <select
-      className="w-fit bg-transparent"
+      id={id}
+      className="w-fit rounded-lg border border-neutral-600 bg-neutral-800 bg-transparent p-2"
       defaultValue={defaultValue}
       onChange={(e) => setPriorityID(Number(e.target.value))}
     >
