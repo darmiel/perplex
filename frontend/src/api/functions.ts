@@ -101,6 +101,7 @@ export type topicCreateVars = {
   title: string
   description: string
   force_solution: boolean
+  priority_id: number
   __should_close: boolean
 }
 
@@ -585,6 +586,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
           title,
           description,
           force_solution,
+          priority_id,
         }: topicCreateVars) =>
           (
             await axios.post(
@@ -593,6 +595,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
                 title,
                 description,
                 force_solution,
+                priority_id,
               },
             )
           ).data

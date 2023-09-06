@@ -5,6 +5,7 @@ import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
+import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
@@ -94,6 +95,7 @@ export default function CreateTopic({
   const [topicDescription, setTopicDescription] = useState<string>("")
   const [topicType, setTopicType] = useState<TopicType>("acknowledge")
   const [topicAssigned, setTopicAssigned] = useState<string[]>([])
+  const [topicPriorityID, setTopicPriorityID] = useState<number>(0)
 
   const { topics: topic, projects: project } = useAuth()
 
@@ -140,6 +142,7 @@ export default function CreateTopic({
       title: topicTitle,
       description: topicDescription,
       force_solution: topicType === "discuss",
+      priority_id: topicPriorityID,
       __should_close: shouldClose,
     })
   }
@@ -150,15 +153,22 @@ export default function CreateTopic({
         <label className="text-neutral-400" htmlFor="topicName">
           Topic Name
         </label>
-        <input
-          id="topicName"
-          type="text"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="My awesome Topic"
-          onChange={(event) => setTopicTitle(event.target.value)}
-          value={topicTitle}
-          onKeyDown={(e) => e.key === "Enter" && create(false)}
-        />
+
+        <div className="flex items-center space-x-2">
+          <input
+            id="topicName"
+            type="text"
+            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+            placeholder="My awesome Topic"
+            onChange={(event) => setTopicTitle(event.target.value)}
+            value={topicTitle}
+            onKeyDown={(e) => e.key === "Enter" && create(false)}
+          />
+          <PriorityPicker
+            projectID={projectID}
+            setPriorityID={setTopicPriorityID}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
