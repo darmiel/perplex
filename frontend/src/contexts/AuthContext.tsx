@@ -39,6 +39,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   }
 
   const logout = () => {
+    queryClient.invalidateQueries()
     return auth.signOut()
   }
 
