@@ -309,7 +309,7 @@ export default function MeetingOverview({
           <OverviewSection name="Assigned">
             <SectionAssignUsers
               projectID={projectID}
-              users={meeting.assigned_users}
+              users={meeting.assigned_users ?? []}
               onAssign={(user) =>
                 linkUser.mutate({
                   link: true,
