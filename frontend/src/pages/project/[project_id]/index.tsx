@@ -1,3 +1,4 @@
+import { Checkbox, Chip, Tab, Tabs } from "@nextui-org/react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -5,15 +6,16 @@ import { BsPen } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
-import ActionList from "@/components/action/ActionList"
+import ActionGrid from "@/components/action/sections/ActionGrid"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
-import MeetingList from "@/components/meeting/MeetingList"
+import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -22,8 +24,20 @@ import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLocalBoolState, useLocalStrState } from "@/hooks/localStorage"
 
 export default function ProjectPage() {
+  const [tab, setTab] = useLocalStrState("project-tab/selected-tab", "meetings")
+
+  const [upcomingOnly, setUpcomingOnly] = useLocalBoolState(
+    "project-tab/meeting-upcoming-only",
+    false,
+  )
+  const [openOnly, setOpenOnly] = useLocalBoolState(
+    "project-tab/action-open-only",
+    false,
+  )
+
   const [isEdit, setIsEdit] = useState(false)
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
@@ -90,31 +104,79 @@ export default function ProjectPage() {
               <RenderMarkdown markdown={project.description} />
             </div>
 
-            <Hr className="mb-6 mt-4" />
+            <Hr className="my-6" />
 
-            <CommentSuite
-              projectID={projectID}
-              commentType="project"
-              commentEntityID={projectID}
-            />
-
-            <Hr className="mb-6 mt-4" />
-
-            <div className="flex flex-row space-x-4">
-              <MeetingDragDrop projectID={projectID} />
-              <div className="w-full">
-                <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
-                  Meetings
-                </h1>
-                <MeetingList projectID={projectID} />
-              </div>
-              <div className="w-1/2">
-                <h1 className="mb-4 w-fit rounded-md bg-neutral-800 p-2 text-xl font-semibold text-neutral-50">
-                  Actions
-                </h1>
-                <ActionList projectID={projectID} />
-              </div>
-            </div>
+            <Tabs
+              variant="light"
+              className="w-full"
+              selectedKey={tab}
+              onSelectionChange={(key) => setTab(key.toString())}
+            >
+              <Tab key="conversation" title="Conversation">
+                <CommentSuite
+                  projectID={projectID}
+                  commentType="project"
+                  commentEntityID={projectID}
+                />
+              </Tab>
+              <Tab key="meetings" title="Meetings">
+                <Flex
+                  gap={4}
+                  className="mb-6 transform flex-col rounded-md border border-neutral-700 bg-neutral-900 p-4 duration-300 hover:bg-neutral-950 md:flex-row"
+                >
+                  <MeetingDragDrop
+                    className="h-36 w-full bg-neutral-950 md:w-5/12"
+                    projectID={projectID}
+                  />
+                  <div className="w-full">
+                    <h2 className="mb-2 text-xl font-semibold">
+                      Import Meeting{" "}
+                      <Chip variant="flat" color="warning">
+                        BETA
+                      </Chip>
+                    </h2>
+                    <ul className="text-neutral-400">
+                      <li>
+                        Drag and drop a{" "}
+                        <code className="rounded-md bg-neutral-700 px-1 text-white">
+                          .ics
+                        </code>{" "}
+                        file to import a meeting.
+                      </li>
+                      <li>
+                        You can also drag and drop{" "}
+                        <span className="text-white">a Mail</span>. Perplex will
+                        try to parse the E-Mail and extract the meeting
+                        information.
+                      </li>
+                    </ul>
+                  </div>
+                </Flex>
+                <MeetingGrid
+                  upcomingOnly={upcomingOnly}
+                  projectID={projectID}
+                  slots={
+                    <Checkbox
+                      isSelected={upcomingOnly}
+                      onValueChange={setUpcomingOnly}
+                    >
+                      Upcoming Only
+                    </Checkbox>
+                  }
+                />
+              </Tab>
+              <Tab key="actions" title="Actions">
+                <ActionGrid
+                  projectID={projectID}
+                  openOnly={openOnly}
+                  slots={
+                    <Checkbox isSelected={openOnly} onValueChange={setOpenOnly}>
+                      Open Only
+                    </Checkbox>
+                  }
+                />
+              </Tab>
+            </Tabs>
           </OverviewContent>
 
           <OverviewSide>

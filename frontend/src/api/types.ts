@@ -40,7 +40,7 @@ export type Meeting = {
   creator?: User
   creator_id: string
   project_id: number
-  assigned_users: User[]
+  assigned_users?: User[]
   tags: Tag[]
 }
 

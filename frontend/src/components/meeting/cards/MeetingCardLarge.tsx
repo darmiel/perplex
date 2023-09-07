@@ -9,6 +9,7 @@ import Link from "next/link"
 
 import { Meeting } from "@/api/types"
 import MeetingChip from "@/components/meeting/chips/MeetingChips"
+import { getMeetingTenseByMeeting } from "@/components/meeting/MeetingTag"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
@@ -29,7 +30,9 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
     month: "long",
     day: "numeric",
   })
-  const isInFuture = meetingStartDate.getTime() > Date.now()
+
+  const tense = getMeetingTenseByMeeting(meeting)
+
   const endIsOnSameDayAsStart =
     meetingStartDate.toDateString() === meetingEndDate.toDateString()
   const meetingStartTime = meetingStartDate.toLocaleTimeString(undefined, {
@@ -75,9 +78,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
         </p>
 
         {/* Meeting Date */}
-        {isInFuture ? (
-          <DurationTag date={meetingStartDate} />
-        ) : (
+        {tense === "ongoing" ? (
           <Flex justify="between" className="w-full gap-2">
             <span className="whitespace-nowrap">{meetingStartTime}</span>
             <Progress
@@ -88,6 +89,8 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
             />
             <span className="whitespace-nowrap">{meetingEndTime}</span>
           </Flex>
+        ) : (
+          <DurationTag date={meetingStartDate} />
         )}
       </div>
 
@@ -116,7 +119,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
           </Flex>
         </ScrollShadow>
         <AvatarGroup max={3} size="sm">
-          {meeting.assigned_users.map((user) => (
+          {meeting.assigned_users?.map((user) => (
             <Avatar key={user.id} src={getUserAvatarURL(user.id)} />
           ))}
         </AvatarGroup>

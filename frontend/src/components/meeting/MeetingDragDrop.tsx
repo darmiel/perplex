@@ -72,7 +72,13 @@ function parseFile(file: File): Promise<Event[]> | undefined {
   })
 }
 
-export default function MeetingDragDrop({ projectID }: { projectID: number }) {
+export default function MeetingDragDrop({
+  projectID,
+  className = "w-full",
+}: {
+  projectID: number
+  className?: string
+}) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
 
@@ -103,7 +109,8 @@ export default function MeetingDragDrop({ projectID }: { projectID: number }) {
     <>
       <div
         className={clsx(
-          "flex h-32 w-full items-center justify-center rounded-md border-2 border-dashed border-neutral-700",
+          "flex h-32 items-center justify-center rounded-md border-2 border-dashed border-neutral-700",
+          className,
           {
             "border-primary-500 bg-primary-500 bg-opacity-10": isDragOver,
           },
