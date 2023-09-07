@@ -5,9 +5,11 @@ import Head from "next/head"
 import { useMemo, useState } from "react"
 import { BsSearch } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
+import { Tooltip } from "react-tooltip"
 
 import { Action, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
+import { getRandomGreeting } from "@/compat/language"
 import ActionCardLarge from "@/components/action/cards/ActionCardLarge"
 import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
 import MeetingCardLarge from "@/components/meeting/cards/MeetingCardLarge"
@@ -16,39 +18,6 @@ import BadgeHeader from "@/components/ui/BadgeHeader"
 import Hr from "@/components/ui/Hr"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 import { useAuth } from "@/contexts/AuthContext"
-
-const greetings = [
-  "Hello, ", // English
-  "Hola, ", // Spanish
-  "Bonjour, ", // French
-  "Ciao, ", // Italian
-  "Hallo, ", // German
-  "Konnichiwa, ", // Japanese
-  "Namaste, ", // Hindi
-  "Salam, ", // Arabic
-  "Nǐ hǎo, ", // Chinese (Mandarin)
-  "Annyeonghaseyo, ", // Korean
-  "Merhaba, ", // Turkish
-  "Szia, ", // Hungarian
-  "Olá, ", // Portuguese
-  "Zdravstvuyte, ", // Russian
-  "Guten Tag, ", // German
-  "Sawasdee, ", // Thai
-  "Salut, ", // Romanian
-  "Aloha, ", // Hawaiian
-  "Hej, ", // Swedish
-  "Shalom, ", // Hebrew
-  "Halo, ", // Indonesian
-  "Marhaba, ", // Arabic
-  "Hoi, ", // Dutch
-  "Ahoj, ", // Czech
-  "Kamusta, ", // Filipino
-  "Hei, ", // Norwegian
-  "Salve, ", // Latin
-  "Sveiki, ", // Latvian
-  "Salamu, ", // Swahili
-  "Dia duit, ", // Irish
-]
 
 function DashboardProjectItemActions({
   project,
@@ -206,10 +175,7 @@ function DashboardMeeting() {
 }
 
 export default function Home() {
-  const greeting = useMemo(
-    () => greetings[Math.floor(Math.random() * greetings.length)],
-    [],
-  )
+  const [greetingLanguage, greeting] = useMemo(() => getRandomGreeting(), [])
   const { user } = useAuth()
 
   if (!user) {
@@ -222,12 +188,29 @@ export default function Home() {
         <title>Perplex - Dashboard</title>
       </Head>
       <div>
-        <h1 className="text-5xl text-neutral-400">
-          {greeting}
-          <span className="font-bold text-white">
-            <ResolveUserName userID={user!.uid} />
+        <h1 className="flex items-center space-x-2 text-5xl text-neutral-400">
+          <span
+            data-tooltip-id="greeting-language-tooltip"
+            data-tooltip-content={greetingLanguage}
+            data-tooltip-place="right"
+            data-tooltip-variant="dark"
+            className="cursor-help rounded-none border border-transparent bg-transparent transition-all duration-300 ease-in-out hover:rounded-[10rem] hover:bg-white hover:px-10 hover:py-2 hover:text-xl hover:text-black"
+          >
+            {greeting},
           </span>
-          !
+          <span>
+            <span className="font-bold text-white">
+              <ResolveUserName userID={user!.uid} />
+            </span>
+            <span>!</span>
+          </span>
+          <Tooltip
+            id="greeting-language-tooltip"
+            style={{
+              backgroundColor: "black",
+              color: "blueviolet",
+            }}
+          />
         </h1>
         <Hr className="my-8" />
       </div>
