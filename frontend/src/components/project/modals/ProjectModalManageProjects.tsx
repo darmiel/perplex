@@ -88,6 +88,7 @@ function ModalList({
               placeholder="My awesome Project"
               onChange={(event) => setProjectNameSearch(event.target.value)}
               value={projectNameSearch}
+              autoComplete="off"
             />
           </div>
 
@@ -171,6 +172,7 @@ function ModalList({
                   placeholder="My awesome Project"
                   onChange={(event) => setCreateName(event.target.value)}
                   value={createName}
+                  autoComplete="off"
                 />
               </div>
               <div className="space-y-2">
@@ -293,6 +295,7 @@ function ModalDelete({
             placeholder={project.name}
             onChange={(event) => setConfirmDeleteText(event.target.value)}
             value={confirmDeleteText}
+            autoComplete="off"
           />
           <Button
             style="neutral"

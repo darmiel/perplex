@@ -58,6 +58,7 @@ export default function ProjectModalManageUsers({
           placeholder="darmiel"
           onChange={(event) => setUserNameSearch(event.target.value)}
           value={userNameSearch}
+          autoComplete="off"
         />
       </div>
 

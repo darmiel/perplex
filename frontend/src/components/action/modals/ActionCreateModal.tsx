@@ -138,6 +138,7 @@ export default function ActionCreateModal({
               placeholder="My awesome Action"
               onChange={(event) => setActionTitle(event.target.value)}
               value={actionTitle}
+              autoComplete="off"
             />
           </div>
 

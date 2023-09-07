@@ -163,6 +163,7 @@ export default function CreateTopic({
             onChange={(event) => setTopicTitle(event.target.value)}
             value={topicTitle}
             onKeyDown={(e) => e.key === "Enter" && create(false)}
+            autoComplete="off"
           />
           <PriorityPicker
             projectID={projectID}

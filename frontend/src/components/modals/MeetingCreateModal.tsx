@@ -79,6 +79,7 @@ export default function CreateMeeting({
           onChange={(event) => setMeetingTitle(event.target.value)}
           value={meetingTitle}
           onKeyDown={(e) => e.key === "Enter" && create(false)}
+          autoComplete="off"
         />
       </div>
 

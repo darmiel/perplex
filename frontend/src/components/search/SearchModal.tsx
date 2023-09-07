@@ -117,6 +117,7 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
           onKeyDown={onKeyDown}
+          autoComplete="off"
         />
         {searchResultQuery.isFetching && (
           <PuffLoader color="gray" size="1.3em" />

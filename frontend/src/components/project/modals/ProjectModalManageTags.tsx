@@ -99,6 +99,7 @@ export default function ProjectModalManageTags({
           placeholder="My awesome Tag"
           onChange={(event) => setTagNameSearch(event.target.value)}
           value={tagNameSearch}
+          autoComplete="off"
         />
       </div>
 
@@ -130,13 +131,15 @@ export default function ProjectModalManageTags({
                       placeholder="My awesome Tag"
                       onChange={(event) => setEditTitle(event.target.value)}
                       value={editTitle}
+                      autoComplete="off"
                     />
                     <input
-                      type="text"
-                      className="w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+                      type="color"
+                      className="h-11 w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
                       placeholder="#ff0000"
                       onChange={(event) => setEditColor(event.target.value)}
                       value={editColor}
+                      autoComplete="off"
                     />
                   </div>
                 ) : (
@@ -195,13 +198,15 @@ export default function ProjectModalManageTags({
           onChange={(e) => setCreateName(e.target.value)}
           placeholder="My awesome Tag"
           className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          autoComplete="off"
         />
         <input
-          type="text"
+          type="color"
           value={createColor}
           onChange={(e) => setCreateColor(e.target.value)}
           placeholder="#ff0000"
-          className="w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          className="h-11 w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          autoComplete="off"
         />
         <Button
           onClick={() =>

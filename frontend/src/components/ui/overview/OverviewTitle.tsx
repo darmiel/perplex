@@ -46,6 +46,7 @@ export default function OverviewTitle({
               className="w-full border-b border-gray-700 bg-transparent font-bold focus:outline-none"
               defaultValue={title}
               onChange={(e) => setEditTitle(e.target.value)}
+              autoComplete="off"
             />
           ) : (
             <span className="font-bold">{title}</span>
