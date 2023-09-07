@@ -1,10 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { Fragment, ReactNode, Ref, useRef } from "react"
+import { Fragment, ReactNode, Ref, useRef, useState } from "react"
 import {
   BsBell,
   BsBellFill,
+  BsGear,
   BsGithub,
   BsHouse,
   BsPersonCheck,
@@ -16,7 +17,9 @@ import { PopupActions } from "reactjs-popup/dist/types"
 import PerplexLogo from "@/../public/perplex.svg"
 import { navigationBorderRight } from "@/api/classes"
 import NotificationModal from "@/components/notification/NotificationModal"
+import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -48,6 +51,8 @@ function NavbarItem({
 }
 
 export default function Navbar() {
+  const [showManageProjects, setShowManageProjects] = useState(false)
+
   const { projects, users } = useAuth()
 
   const router = useRouter()
@@ -120,6 +125,27 @@ export default function Navbar() {
                 </Tooltip>
               </Fragment>
             ))}
+
+            <li className="flex w-full items-center justify-center px-3 py-2">
+              <button
+                onClick={() => setShowManageProjects(true)}
+                className="group flex h-10 w-10 animate-pulse items-center justify-center rounded-md bg-neutral-700 bg-opacity-0 p-2 text-lg text-neutral-400 transition duration-300 hover:scale-105 hover:bg-opacity-100 hover:text-white"
+              >
+                <span className="group-hover:animate-spin">
+                  <BsGear />
+                </span>
+              </button>
+            </li>
+
+            {/* Manage Projects */}
+            <ModalPopup
+              open={showManageProjects}
+              setOpen={setShowManageProjects}
+            >
+              <ProjectModalManageProjects
+                onClose={() => setShowManageProjects(false)}
+              />
+            </ModalPopup>
           </div>
         </ul>
       </div>

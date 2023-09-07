@@ -2,23 +2,19 @@
 
 import { Input, Page, useInput } from "@geist-ui/core"
 import Head from "next/head"
-import Link from "next/link"
-import { Fragment, useMemo, useState } from "react"
-import { BsArrowDown, BsArrowUp, BsGear, BsSearch } from "react-icons/bs"
+import { useMemo, useState } from "react"
+import { BsSearch } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { Action, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import ActionListItemSmall from "@/components/action/ActionListItemSmall"
+import ActionCardLarge from "@/components/action/cards/ActionCardLarge"
 import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
 import MeetingCardLarge from "@/components/meeting/cards/MeetingCardLarge"
-import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import BadgeHeader from "@/components/ui/BadgeHeader"
-import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 const greetings = [
@@ -56,9 +52,11 @@ const greetings = [
 
 function DashboardProjectItemActions({
   project,
+  filter,
   onActionClick,
 }: {
   project: Project
+  filter: string
   onActionClick: (action: Action) => void
 }) {
   const [showActions, setShowActions] = useState(false)
@@ -74,82 +72,34 @@ function DashboardProjectItemActions({
     )
   }
   const hasActions = actionListQuery.data.data.length > 0
+  const filteredActions = actionListQuery.data.data.filter(
+    (action) =>
+      !filter ||
+      action.title.toLowerCase().includes(filter.toLowerCase()) ||
+      action.description.toLowerCase().includes(filter.toLowerCase()),
+  )
+  if (filteredActions.length === 0) {
+    return undefined
+  }
   return (
     <>
-      <div className="flex flex-col space-y-1 border-l-4 border-l-primary-600 bg-neutral-950 px-2 py-2 text-neutral-400">
-        <p className="space-x-1">
-          {hasActions ? (
-            <span className="text-white">
-              {actionListQuery.data.data.length}
-            </span>
-          ) : (
-            "No "
-          )}
-          <span>open Actions assigned to you</span>
-        </p>
-
-        {hasActions && (
-          <Button
-            className="w-fit text-xs"
-            onClick={() => setShowActions((old) => !old)}
-            icon={showActions ? <BsArrowUp /> : <BsArrowDown />}
-          >
-            {showActions ? "Hide" : "Show"} Actions
-          </Button>
-        )}
+      <BadgeHeader title={project.name} badge={filteredActions.length} />
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {filteredActions.map((action) => (
+          <ActionCardLarge
+            key={action.ID}
+            onClick={() => onActionClick(action)}
+            action={action}
+          />
+        ))}
       </div>
-      {showActions && (
-        <div className="flex flex-col space-y-4">
-          {actionListQuery.data.data.map((action) => (
-            <div
-              key={action.ID}
-              onClick={() => onActionClick(action)}
-              className="flex w-full max-w-sm flex-col space-x-2 space-y-1 rounded-md border border-neutral-700 bg-neutral-900 p-3 hover:bg-neutral-950"
-            >
-              <ActionListItemSmall action={action} />
-            </div>
-          ))}
-        </div>
-      )}
     </>
   )
 }
 
-function DashboardProjectItem({
-  project,
-  onActionClick,
-}: {
-  project: Project
-  onActionClick: (action: Action) => void
-}) {
-  return (
-    <section className="flex h-fit flex-col justify-start space-y-2 overflow-y-auto rounded-md p-4">
-      <Link
-        className="flex items-center space-x-4"
-        href={`/project/${project.ID}`}
-        key={project.ID}
-      >
-        <UserAvatar userID={String(project.ID)} />
-        <div className="flex flex-col space-y-0">
-          <h2 className="text-xl font-semibold">{project.name}</h2>
-          <p className="space-x-1">
-            <span className="text-neutral-400">Created by</span>
-            <span>
-              <ResolveUserName userID={project.owner_id} />
-            </span>
-          </p>
-        </div>
-      </Link>
-      <DashboardProjectItemActions
-        project={project}
-        onActionClick={onActionClick}
-      />
-    </section>
-  )
-}
-
 function ProjectList() {
-  const [showManageProjects, setShowManageProjects] = useState(false)
+  const { state: search, bindings: searchBindings } = useInput("")
+
   const [showActionPeek, setShowActionPeek] = useState(false)
   const [actionPeekItem, setActionPeekItem] = useState<Action | null>(null)
 
@@ -166,7 +116,15 @@ function ProjectList() {
   }
   const projects = projectListQuery.data.data
   return (
-    <>
+    <section className="space-y-4">
+      <h1 className="text-2xl font-semibold">Actions Assigned to You</h1>
+      <Input
+        icon={<BsSearch />}
+        placeholder="Search in Actions..."
+        width="100%"
+        {...searchBindings}
+      />
+
       {/* Quick Peek Action */}
       <ModalPopup
         open={showActionPeek && !!actionPeekItem}
@@ -180,39 +138,20 @@ function ProjectList() {
         />
       </ModalPopup>
 
-      {/* Manage Projects */}
-      <ModalPopup open={showManageProjects} setOpen={setShowManageProjects}>
-        <ProjectModalManageProjects
-          onClose={() => setShowManageProjects(false)}
-        />
-      </ModalPopup>
-
-      <div className="flex items-center space-x-4">
-        <BadgeHeader title="Projects" badge={projects.length} />
-        <button onClick={() => setShowManageProjects(true)} className="group">
-          <span className="flex animate-pulse items-center space-x-2 rounded-md bg-neutral-700 bg-opacity-0 px-2 py-1 text-xs text-neutral-400 transition duration-300 hover:scale-105 hover:bg-opacity-100 hover:text-white">
-            <span className="inline-block group-hover:animate-spin">
-              <BsGear />
-            </span>
-            <span>Manage Projects</span>
-          </span>
-        </button>
-      </div>
-      <div className="flex w-full flex-row space-x-2">
-        {projects.map((project, index) => (
-          <Fragment key={index}>
-            {!!index && <Hr />}
-            <DashboardProjectItem
-              project={project}
-              onActionClick={(action) => {
-                setActionPeekItem(action)
-                setShowActionPeek(true)
-              }}
-            />
-          </Fragment>
+      <div className="flex w-full flex-col space-y-2">
+        {projects.map((project) => (
+          <DashboardProjectItemActions
+            key={project.ID}
+            project={project}
+            onActionClick={(action) => {
+              setActionPeekItem(action)
+              setShowActionPeek(true)
+            }}
+            filter={search}
+          />
         ))}
       </div>
-    </>
+    </section>
   )
 }
 

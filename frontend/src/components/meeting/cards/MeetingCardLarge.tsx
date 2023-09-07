@@ -50,10 +50,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       hour12: false,
     })
   return (
-    <div
-      key={meeting.ID}
-      className="flex w-full flex-col space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
-    >
+    <div className="flex w-full flex-col space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30">
       <div>
         {/* Project Header */}
         <Link
