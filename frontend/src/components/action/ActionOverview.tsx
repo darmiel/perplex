@@ -181,7 +181,7 @@ export default function ActionOverview({ action }: { action: Action }) {
             commentEntityID={action.ID}
           />
         </OverviewContent>
-        <OverviewSide className="w-3/12">
+        <OverviewSide>
           <OverviewSection name="Actions">
             {!isEdit ? (
               <div className="flex space-x-2">
