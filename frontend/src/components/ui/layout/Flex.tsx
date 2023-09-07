@@ -1,6 +1,7 @@
 export default function Flex({
   span = false,
   col = false,
+  gap,
   x,
   y,
   justify,
@@ -9,6 +10,7 @@ export default function Flex({
 }: {
   x?: number
   y?: number
+  gap?: number
   span?: boolean
   col?: boolean
   justify?: "start" | "end" | "center" | "between" | "around" | "evenly"
@@ -16,6 +18,7 @@ export default function Flex({
   className?: string
 }) {
   const classNames = ["flex items-center"]
+  gap !== undefined && classNames.push(`gap-${gap}`)
   justify && classNames.push(`justify-${justify}`)
   col && classNames.push("flex-col")
   x !== undefined && classNames.push(`space-x-${x}`)

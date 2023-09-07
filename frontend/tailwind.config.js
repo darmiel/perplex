@@ -18,7 +18,10 @@ module.exports = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
-        primary: colors.purple,
+        primary: {
+          DEFAULT: colors.purple[600],
+          ...colors.purple,
+        },
         secondary: colors.yellow,
         "section-darkest": "#0A0A0A",
         "section-darker": "#141414",
@@ -26,7 +29,12 @@ module.exports = {
       },
     },
   },
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      defaultTheme: "dark",
+      addCommonColors: true,
+    }),
+  ],
   safelist: [
     {
       pattern: /justify-.+/,

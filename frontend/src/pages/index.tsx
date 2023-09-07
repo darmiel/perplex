@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, Breadcrumbs, Input, Page, useInput } from "@geist-ui/core"
+import { Input, Page, useInput } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
 import { Fragment, useMemo, useState } from "react"
@@ -11,17 +11,14 @@ import { Action, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionListItemSmall from "@/components/action/ActionListItemSmall"
 import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
+import MeetingCardLarge from "@/components/meeting/cards/MeetingCardLarge"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
-import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
-import { RelativeDate } from "@/components/ui/DateString"
-import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
-import Flex from "@/components/ui/layout/Flex"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-import UserAvatar, { getUserAvatarURL } from "@/components/user/UserAvatar"
+import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 const greetings = [
@@ -261,57 +258,9 @@ function DashboardMeeting() {
               !search ||
               meeting.name.toLowerCase().includes(search.toLowerCase()),
           )
-          .map((meeting) => {
-            const meetingDate = new Date(meeting.start_date)
-            return (
-              <div
-                key={meeting.ID}
-                // className="space-y-1 bg-neutral-900 hover:bg-neutral-950 border border-neutral-700 rounded-md max-w-sm"
-                className="flex w-full flex-col space-y-1 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30"
-              >
-                <Breadcrumbs>
-                  <Breadcrumbs.Item href={`/project/${meeting.project_id}`}>
-                    <ResolveProjectName projectID={meeting.project_id} />
-                  </Breadcrumbs.Item>
-                </Breadcrumbs>
-                <h3 className="text-lg font-semibold">{meeting.name}</h3>
-                <p className="flex items-center space-x-2 text-neutral-400">
-                  <span>
-                    <RelativeDate date={new Date(meeting.start_date)} />
-                  </span>
-                  {/* Show time remaining until meeting starts */}
-                  <DurationTag date={meetingDate} />
-                </p>
-                <Flex justify="between">
-                  <Button
-                    href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-                    style={["neutral", "animated"]}
-                  >
-                    View Meeting
-                    <Button.Arrow />
-                  </Button>
-                  <Avatar.Group
-                    count={
-                      meeting.assigned_users.length > 3
-                        ? meeting.assigned_users.length - 3
-                        : undefined
-                    }
-                  >
-                    {meeting.assigned_users.map(
-                      (user, index) =>
-                        index < 3 && (
-                          <Avatar
-                            key={user.id}
-                            src={getUserAvatarURL(user.id)}
-                            stacked
-                          />
-                        ),
-                    )}
-                  </Avatar.Group>
-                </Flex>
-              </div>
-            )
-          })}
+          .map((meeting) => (
+            <MeetingCardLarge key={meeting.ID} meeting={meeting} />
+          ))}
       </div>
     </section>
   )

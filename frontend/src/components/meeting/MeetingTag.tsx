@@ -1,5 +1,6 @@
 import { BsForward, BsPlay, BsRewind } from "react-icons/bs"
 
+import { Meeting } from "@/api/types"
 import Tag from "@/components/ui/tag/Tag"
 
 export const tagStyles = {
@@ -34,6 +35,13 @@ export function getMeetingTense(start: Date, end: Date): MeetingTense {
     return "past"
   }
   return "future"
+}
+
+export function getMeetingTenseByMeeting(meeting: Meeting): MeetingTense {
+  const start = new Date(meeting.start_date)
+  const end = new Date(meeting.end_date)
+
+  return getMeetingTense(start, end)
 }
 
 export default function MeetingTag({
