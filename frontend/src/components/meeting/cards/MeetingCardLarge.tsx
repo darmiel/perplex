@@ -53,7 +53,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       hour12: false,
     })
   return (
-    <div className="flex w-full flex-col space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30">
+    <div className="flex w-full flex-col justify-between space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30">
       <div>
         {/* Project Header */}
         <Link
@@ -66,7 +66,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
         {/* Meeting Name */}
         <Link href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}>
           <Flex gap={2}>
-            <h1 className="text-lg font-semibold">{meeting.name}</h1>
+            <h1 className="text-start text-lg font-semibold">{meeting.name}</h1>
             <MeetingChip meeting={meeting} />
           </Flex>
         </Link>
