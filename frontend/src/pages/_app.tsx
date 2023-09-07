@@ -1,4 +1,5 @@
 import { GeistProvider } from "@geist-ui/core"
+import { NextUIProvider } from "@nextui-org/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata } from "next"
@@ -49,7 +50,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <>
+    <NextUIProvider>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link href={PerplexLogo.src} rel="icon" />
@@ -66,7 +67,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
               </ModalPopup>
 
               {/*<Register>*/}
-              <main className="bg-darker flex flex-1 overflow-y-auto">
+              <main className="bg-darker dark flex flex-1 overflow-y-auto">
                 <Component {...pageProps} />
               </main>
 
@@ -77,6 +78,6 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
           </AuthProvider>
         </GeistProvider>
       </QueryClientProvider>
-    </>
+    </NextUIProvider>
   )
 }

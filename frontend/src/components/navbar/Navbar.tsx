@@ -63,14 +63,14 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`${navigationBorderRight} flex w-16 flex-col justify-between bg-section-darkest`}
+      className={`${navigationBorderRight} sticky top-0 z-50 flex h-full max-h-screen w-16 flex-col justify-between bg-section-darkest`}
     >
-      <div>
+      <div className="flex flex-grow flex-col overflow-y-auto">
         <div className="w-full p-4">
           <Image src={PerplexLogo} alt="Logo" />
         </div>
 
-        <ul className="mt-6 flex flex-col space-y-4">
+        <ul className="mt-6 flex flex-grow flex-col space-y-4 overflow-y-auto">
           {/* Dashboard Link */}
           <NavbarItem href="/">
             <BsHouse />
@@ -78,45 +78,49 @@ export default function Navbar() {
           </NavbarItem>
 
           {/* Project List */}
-          {p.map((project, index) => (
-            <Fragment key={index}>
-              <NavbarItem
-                key={index}
-                href={`/project/${project.ID}`}
-                tooltip_id={`tooltip-project-${project.ID}`}
-                selected={String(project.ID) === projectID}
-              >
-                <UserAvatar
-                  userID={String(project.ID)}
-                  className={`${
-                    String(project.ID) === projectID ? "" : "grayscale"
-                  } w-full rounded-[50%] transition duration-150 ease-in-out hover:scale-110 hover:rounded-md hover:grayscale-0`}
-                />
-              </NavbarItem>
-              <Tooltip
-                id={`tooltip-project-${project.ID}`}
-                place="right"
-                offset={10}
-                variant="dark"
-                opacity={1.0}
-                style={{
-                  backgroundColor: "black",
-                  zIndex: 999999999,
-                }}
-              >
-                <span className="flex items-center space-x-1">
-                  <span className="font-semibold">{project.name}</span>
-                  <span className="text-neutral-400">#{project.ID}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <span className="text-neutral-400">Created by</span>
-                  <span>
-                    <ResolveUserName userID={project.owner_id} />
+          <div className="no-scrollbar z-50 flex-grow">
+            {p.map((project, index) => (
+              <Fragment key={index}>
+                <NavbarItem
+                  key={index}
+                  href={`/project/${project.ID}`}
+                  tooltip_id={`tooltip-project-${project.ID}`}
+                  selected={String(project.ID) === projectID}
+                >
+                  <UserAvatar
+                    userID={String(project.ID)}
+                    className={`${
+                      String(project.ID) === projectID ? "" : "grayscale"
+                    } w-full rounded-[50%] transition duration-150 ease-in-out hover:scale-110 hover:rounded-md hover:grayscale-0`}
+                  />
+                </NavbarItem>
+                <Tooltip
+                  id={`tooltip-project-${project.ID}`}
+                  place="right"
+                  offset={10}
+                  variant="dark"
+                  opacity={1.0}
+                  style={{
+                    zIndex: 999999,
+                  }}
+                  className="bg-section-darker"
+                  closeOnScroll={false}
+                  clickable
+                >
+                  <span className="flex items-center space-x-1">
+                    <span className="font-semibold">{project.name}</span>
+                    <span className="text-neutral-400">#{project.ID}</span>
                   </span>
-                </span>
-              </Tooltip>
-            </Fragment>
-          ))}
+                  <span className="flex items-center space-x-1">
+                    <span className="text-neutral-400">Created by</span>
+                    <span>
+                      <ResolveUserName userID={project.owner_id} />
+                    </span>
+                  </span>
+                </Tooltip>
+              </Fragment>
+            ))}
+          </div>
         </ul>
       </div>
       <div>
