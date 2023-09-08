@@ -19,10 +19,12 @@ export default function ModalPopup({
         width: "fit-content",
       }}
       overlayStyle={{
-        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
       }}
       open={open}
       onClose={() => setOpen(false)}
+      closeOnDocumentClick={false}
+      closeOnEscape={true}
     >
       {children}
     </Popup>

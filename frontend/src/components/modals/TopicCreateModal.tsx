@@ -1,16 +1,24 @@
+import {
+  Avatar,
+  AvatarGroup,
+  Checkbox,
+  Input,
+  Textarea,
+} from "@nextui-org/react"
 import { useState } from "react"
 import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
 import { GoDiscussionClosed } from "react-icons/go"
-import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
+import { User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
-import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
-import TagList from "@/components/ui/tag/TagList"
+import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
+import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
+import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 type TopicType = "acknowledge" | "discuss"
@@ -89,13 +97,15 @@ export default function CreateTopic({
 }: {
   projectID: number
   meetingID: number
-  onClose: (newTopicID: number) => void
+  onClose: (newTopicID?: number) => void
 }) {
   const [topicTitle, setTopicTitle] = useState<string>("")
   const [topicDescription, setTopicDescription] = useState<string>("")
   const [topicType, setTopicType] = useState<TopicType>("acknowledge")
-  const [topicAssigned, setTopicAssigned] = useState<string[]>([])
-  const [topicPriorityID, setTopicPriorityID] = useState<number>(0)
+  const [topicPriorityID, setTopicPriorityID] = useState(0)
+  const [topicAssignedNew, setTopicAssignedNew] = useState<User[]>([])
+
+  const [createAnother, setCreateAnother] = useState(false)
 
   const { topics: topic, projects: project } = useAuth()
 
@@ -105,10 +115,10 @@ export default function CreateTopic({
     projectID,
     meetingID,
     ({ data }, { __should_close }) => {
-      for (const userID of topicAssigned) {
+      for (const user of topicAssignedNew) {
         assignMutation.mutate({
           link: true,
-          userID: userID,
+          userID: user.id,
           topicID: data.ID,
         })
       }
@@ -126,12 +136,12 @@ export default function CreateTopic({
   // users in project
   const projectInfoQuery = project!.useUserList(projectID)
 
-  function addUser(userID: string) {
-    setTopicAssigned((old) => [...old, userID])
+  function addUser(user: User) {
+    setTopicAssignedNew((old) => [...old, user])
   }
 
-  function removeUser(userID: string) {
-    setTopicAssigned((old) => old.filter((u) => u !== userID))
+  function removeUser(user: User) {
+    setTopicAssignedNew((old) => old.filter((u) => u.id !== user.id))
   }
 
   function create(shouldClose: boolean) {
@@ -148,20 +158,20 @@ export default function CreateTopic({
   }
 
   return (
-    <ModalContainer title="Create Topic">
+    <div
+      className={`space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
+    >
+      <h1 className="text-xl font-semibold">Create New Topic</h1>
       <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="topicName">
-          Topic Name
-        </label>
-
-        <div className="flex items-center space-x-2">
-          <input
-            id="topicName"
+        <Flex x={2}>
+          <Input
             type="text"
-            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-            placeholder="My awesome Topic"
-            onChange={(event) => setTopicTitle(event.target.value)}
+            variant="bordered"
+            label="Topic Name"
+            isClearable
             value={topicTitle}
+            onValueChange={setTopicTitle}
+            placeholder="My awesome Topic"
             onKeyDown={(e) => e.key === "Enter" && create(false)}
             autoComplete="off"
           />
@@ -169,63 +179,62 @@ export default function CreateTopic({
             projectID={projectID}
             setPriorityID={setTopicPriorityID}
           />
-        </div>
+        </Flex>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="topicDescription">
-          Topic Description
-        </label>
-        <textarea
-          id="topicDescription"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="(Markdown is supported)"
-          rows={10}
-          onChange={(event) => setTopicDescription(event.target.value)}
-          value={topicDescription}
+      <Textarea
+        minRows={2}
+        maxRows={10}
+        label="Topic Description"
+        placeholder="This is a description (Markdown is supported)"
+        value={topicDescription}
+        onChange={(event) => setTopicDescription(event.target.value)}
+        variant="bordered"
+        description="Markdown is supported"
+      />
+
+      <Flex x={4}>
+        <AckTopicTypeCard
+          selected={topicType === "acknowledge"}
+          onClick={() => setTopicType("acknowledge")}
         />
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="topicType">
-          Topic Type
-        </label>
-        <div className="flex flex-row space-x-4">
-          <AckTopicTypeCard
-            selected={topicType === "acknowledge"}
-            onClick={() => setTopicType("acknowledge")}
-          />
-          <DiscussTopicTypeCard
-            selected={topicType === "discuss"}
-            onClick={() => setTopicType("discuss")}
-          />
-        </div>
-      </div>
+        <DiscussTopicTypeCard
+          selected={topicType === "discuss"}
+          onClick={() => setTopicType("discuss")}
+        />
+      </Flex>
 
       {/* Assign Users */}
-      <div className="space-y-2">
-        <span className="text-neutral-400">Assign</span>
-        <div className="flex max-w-xl flex-row space-x-4">
-          {projectInfoQuery.isLoading ? (
-            <BarLoader color="white" />
-          ) : (
-            <TagList>
-              {projectInfoQuery.data?.data.map((user, key) => (
-                <CheckableCardContainer
-                  key={key}
-                  checked={topicAssigned.includes(user.id)}
-                  onToggle={(toggled) =>
-                    toggled ? addUser(user.id) : removeUser(user.id)
-                  }
-                >
-                  {user.name}
-                </CheckableCardContainer>
-              ))}
-            </TagList>
-          )}
-        </div>
-      </div>
-      <hr className="border-neutral-600" />
+      <Flex x={2} className="rounded-md bg-neutral-900 p-3">
+        <TooltipAssignUsers
+          projectID={projectID}
+          onAssign={addUser}
+          onUnassign={removeUser}
+          users={topicAssignedNew}
+          showCheckmark
+        />
+        {topicAssignedNew.length <= 0 ? (
+          <span className="text-neutral-400">No users assigned</span>
+        ) : (
+          <span className="text-neutral-400">
+            <span className="text-white">{topicAssignedNew.length}</span> users
+            assigned
+          </span>
+        )}
+        <AvatarGroup max={8}>
+          {topicAssignedNew.map((user, key) => (
+            <Avatar
+              key={key}
+              src={getUserAvatarURL(user.id)}
+              name={user.name}
+              size="sm"
+            />
+          ))}
+        </AvatarGroup>
+      </Flex>
+
+      <Hr />
+
       {createTopicMutation.isError && (
         <div className="flex items-center space-x-2 text-sm font-bold text-red-500">
           <div>
@@ -234,23 +243,24 @@ export default function CreateTopic({
           <div>{extractErrorMessage(createTopicMutation.error)}</div>
         </div>
       )}
-      <div className="flex flex-row justify-end space-x-4">
-        <Button
-          style="secondary"
-          isLoading={createTopicMutation.isLoading}
-          onClick={() => create(true)}
-        >
-          Save and Close
+      <div className="flex flex-row justify-between space-x-4">
+        <Button style="neutral" onClick={onClose}>
+          Close
         </Button>
 
-        <Button
-          style="primary"
-          isLoading={createTopicMutation.isLoading}
-          onClick={() => create(false)}
-        >
-          Save and Create New
-        </Button>
+        <Flex x={2}>
+          <Checkbox isSelected={createAnother} onValueChange={setCreateAnother}>
+            Create Another?
+          </Checkbox>
+          <Button
+            style="secondary"
+            isLoading={createTopicMutation.isLoading}
+            onClick={() => create(!createAnother)}
+          >
+            Create
+          </Button>
+        </Flex>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

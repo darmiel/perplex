@@ -117,11 +117,12 @@ export default function TopicList({
         <CreateTopic
           projectID={projectID}
           meetingID={meetingID}
-          onClose={(newTopicID: number) => {
+          onClose={(newTopicID?: number) => {
             setShowCreateTopic(false)
-            router.push(
-              `/project/${projectID}/meeting/${meetingID}/topic/${newTopicID}`,
-            )
+            newTopicID &&
+              router.push(
+                `/project/${projectID}/meeting/${meetingID}/topic/${newTopicID}`,
+              )
           }}
         />
       </ModalPopup>

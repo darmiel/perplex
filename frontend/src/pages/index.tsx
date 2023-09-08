@@ -52,7 +52,7 @@ export default function Home() {
         </h1>
         <Hr className="my-8" />
       </div>
-      <div className="h-full max-h-full">
+      <div className="h-fit min-h-full">
         <MeetingGrid upcomingOnly />
         <Hr className="my-4" />
         <ActionGrid />

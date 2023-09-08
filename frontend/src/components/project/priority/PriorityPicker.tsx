@@ -1,4 +1,25 @@
+import { Select, SelectItem } from "@nextui-org/react"
+
+import { Priority } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
+import Flex from "@/components/ui/layout/Flex"
 import { useAuth } from "@/contexts/AuthContext"
+
+function PrioritySelectItemContents({ priority }: { priority: Priority }) {
+  return (
+    <Flex justify="between">
+      <span>{priority.title}</span>
+      {priority.color && (
+        <div
+          className="h-3 w-3 rounded-full"
+          style={{
+            backgroundColor: priority.color,
+          }}
+        ></div>
+      )}
+    </Flex>
+  )
+}
 
 export default function PriorityPicker({
   id,
@@ -16,11 +37,43 @@ export default function PriorityPicker({
   if (projectPrioritiesQuery.isLoading) {
     return <div>Loading...</div>
   }
+  if (projectPrioritiesQuery.isError) {
+    return <div>Error: {extractErrorMessage(projectPrioritiesQuery.error)}</div>
+  }
   return (
-    <select
-      id={id}
-      className="w-fit rounded-lg border border-neutral-600 bg-neutral-800 bg-transparent p-2"
+    <Select
+      items={projectPrioritiesQuery.data.data}
+      variant="bordered"
+      label="Priority"
+      placeholder="Select a priority"
+      renderValue={(items) =>
+        items.map(
+          (item) =>
+            item.data && (
+              <PrioritySelectItemContents
+                key={item.data.ID}
+                priority={item.data}
+              />
+            ),
+        )
+      }
       defaultValue={defaultValue}
+      onSelectionChange={(item) => {
+        if (item !== "all" && item.size > 0) {
+          item.forEach((item) => setPriorityID(Number(item)))
+        } else {
+          setPriorityID(0)
+        }
+      }}
+    >
+      {(priority) => (
+        <SelectItem variant="faded" key={priority.ID} value={priority.ID}>
+          <PrioritySelectItemContents priority={priority} />
+        </SelectItem>
+      )}
+    </Select>
+    /*
+    <select
       onChange={(e) => setPriorityID(Number(e.target.value))}
     >
       <option value="0">No Priority</option>
@@ -30,5 +83,6 @@ export default function PriorityPicker({
         </option>
       ))}
     </select>
+    */
   )
 }
