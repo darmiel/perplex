@@ -1,4 +1,4 @@
-import { Input, useInput } from "@geist-ui/core"
+import { Input } from "@nextui-org/react"
 import { ReactNode, useState } from "react"
 import { BsSearch } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
@@ -21,8 +21,7 @@ export default function ActionGrid({
   openOnly?: boolean
   slots?: ReactNode
 }) {
-  const { state: search, bindings: searchBindings } = useInput("")
-
+  const [filter, setFilter] = useState("")
   const [showActionPeek, setShowActionPeek] = useState(false)
   const [actionPeekItem, setActionPeekItem] = useState<Action | null>(null)
 
@@ -60,10 +59,12 @@ export default function ActionGrid({
         {slots}
       </Flex>
       <Input
-        icon={<BsSearch />}
-        placeholder="Search in Actions..."
+        variant="bordered"
+        value={filter}
+        onValueChange={setFilter}
+        startContent={<BsSearch />}
+        placeholder={`Search in Topics...`}
         width="100%"
-        {...searchBindings}
       />
 
       {/* Quick Peek Action */}
@@ -88,7 +89,7 @@ export default function ActionGrid({
               setActionPeekItem(action)
               setShowActionPeek(true)
             }}
-            filter={search}
+            filter={filter}
             openOnly={openOnly}
           />
         ))}

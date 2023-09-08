@@ -1,9 +1,9 @@
-import { Input, useInput } from "@geist-ui/core"
-import { ReactNode } from "react"
+import { Input } from "@nextui-org/react"
+import { ReactNode, useState } from "react"
 import { BsSearch } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
-import { extractErrorMessage } from "@/api/util"
+import { extractErrorMessage, includesFold } from "@/api/util"
 import MeetingCardLarge from "@/components/meeting/cards/MeetingCardLarge"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Flex from "@/components/ui/layout/Flex"
@@ -18,7 +18,7 @@ export function MeetingGrid({
   upcomingOnly?: boolean
   slots?: ReactNode
 }) {
-  const { state: search, bindings: searchBindings } = useInput("")
+  const [filter, setFilter] = useState("")
 
   if (!upcomingOnly && projectID === undefined) {
     throw new Error("projectID must be defined if upcomingMeetings is false")
@@ -50,7 +50,9 @@ export function MeetingGrid({
     )
     .filter(
       (meeting) =>
-        !search || meeting.name.toLowerCase().includes(search.toLowerCase()),
+        !filter ||
+        includesFold(meeting.name, filter) ||
+        includesFold(meeting.description, filter),
     )
 
   // sort meetings by start date
@@ -71,10 +73,12 @@ export function MeetingGrid({
         {slots}
       </Flex>
       <Input
-        icon={<BsSearch />}
+        variant="bordered"
+        value={filter}
+        onValueChange={setFilter}
+        startContent={<BsSearch />}
         placeholder={`Search in ${title}...`}
         width="100%"
-        {...searchBindings}
       />
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {meetings?.map((meeting) => (

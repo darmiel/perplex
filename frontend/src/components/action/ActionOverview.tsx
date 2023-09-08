@@ -22,9 +22,7 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import "react-datepicker/dist/react-datepicker.css"
 
-import { Breadcrumbs } from "@geist-ui/core"
 import Head from "next/head"
-import Link from "next/link"
 import { toast } from "sonner"
 
 import { PickerCustomInput } from "@/api/util"
@@ -36,6 +34,7 @@ import PriorityPickerWithEdit from "@/components/project/priority/PriorityPicker
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
+import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
 
 export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
@@ -96,16 +95,12 @@ export default function ActionOverview({ action }: { action: Action }) {
 
       <div className="mb-2">
         <Breadcrumbs>
-          <Link href="/">
-            <Breadcrumbs.Item nextLink>
-              <BsHouse />
-            </Breadcrumbs.Item>
-          </Link>
-          <Link href={`/project/${action.project_id}`}>
-            <Breadcrumbs.Item nextLink>
-              <ResolveProjectName projectID={action.project_id} />
-            </Breadcrumbs.Item>
-          </Link>
+          <Breadcrumbs.Item href="/">
+            <BsHouse />
+          </Breadcrumbs.Item>
+          <Breadcrumbs.Item href={`/project/${action.project_id}`}>
+            <ResolveProjectName projectID={action.project_id} />
+          </Breadcrumbs.Item>
           <Breadcrumbs.Item>{action.title}</Breadcrumbs.Item>
         </Breadcrumbs>
       </div>

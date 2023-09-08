@@ -1,11 +1,9 @@
-import { Tabs } from "@geist-ui/core"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsArchive, BsArrowDown } from "react-icons/bs"
+import { BsArrowDown } from "react-icons/bs"
 
 import { navigationBorderRight } from "@/api/classes"
 import MeetingList from "@/components/meeting/MeetingList"
-import MeetingNotePage from "@/components/meeting/MeetingNotePage"
 import MeetingTopicPage from "@/components/meeting/MeetingTopicPage"
 import { useLocalBoolState } from "@/hooks/localStorage"
 
@@ -75,47 +73,11 @@ export default function ProjectPage() {
         </div>
       )}
 
-      <Tabs
-        className="overflow-y-auto [&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:!pt-0"
-        value={tab}
-        onChange={(newTab) => {
-          setTab(newTab)
-          // update URL
-          router.push(
-            {
-              query: {
-                ...router.query,
-                tab: newTab,
-              },
-            },
-            undefined,
-            { shallow: true },
-          )
-        }}
-        width="100%"
-        height="100%"
-        align="center"
-        hideBorder
-      >
-        <Tabs.Item
-          label={
-            <>
-              <BsArchive />
-              Topics
-            </>
-          }
-          value="Topics"
-        >
-          <MeetingTopicPage
-            projectID={projectID}
-            meetingID={meetingID}
-            topicID={topicID}
-          />
-        </Tabs.Item>
-        <Tabs.Item label="Notes" value="Notes">
-          <MeetingNotePage />
-        </Tabs.Item>
-      </Tabs>
+      <MeetingTopicPage
+        projectID={projectID}
+        meetingID={meetingID}
+        topicID={topicID}
+      />
     </>
   )
 }

@@ -1,4 +1,3 @@
-import { Breadcrumbs } from "@geist-ui/core"
 import Head from "next/head"
 import Link from "next/link"
 import { useState } from "react"
@@ -37,6 +36,7 @@ import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import UserTagList from "@/components/ui/tag/UserTagList"
+import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -234,21 +234,15 @@ export default function TopicOverview({
 
       <div className="mb-2">
         <Breadcrumbs>
-          <Link href="/">
-            <Breadcrumbs.Item nextLink>
-              <BsHouse />
-            </Breadcrumbs.Item>
-          </Link>
-          <Link href={`/project/${projectID}`}>
-            <Breadcrumbs.Item nextLink>
-              <ResolveProjectName projectID={projectID} />
-            </Breadcrumbs.Item>
-          </Link>
-          <Link href={`/project/${projectID}/meeting/${meetingID}`}>
-            <Breadcrumbs.Item nextLink>
-              <ResolveMeetingName projectID={projectID} meetingID={meetingID} />
-            </Breadcrumbs.Item>
-          </Link>
+          <Breadcrumbs.Item href="/">
+            <BsHouse />
+          </Breadcrumbs.Item>
+          <Breadcrumbs.Item href={`/project/${projectID}`}>
+            <ResolveProjectName projectID={projectID} />
+          </Breadcrumbs.Item>
+          <Breadcrumbs.Item href={`/project/${projectID}/meeting/${meetingID}`}>
+            <ResolveMeetingName projectID={projectID} meetingID={meetingID} />
+          </Breadcrumbs.Item>
           <Breadcrumbs.Item>{topic.title}</Breadcrumbs.Item>
         </Breadcrumbs>
       </div>

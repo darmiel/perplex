@@ -1,6 +1,6 @@
-import { Divider, Input, useInput } from "@geist-ui/core"
-import { Fragment } from "react"
-import { BsPersonAdd, BsX } from "react-icons/bs"
+import { Divider, Input } from "@nextui-org/react"
+import { Fragment, useState } from "react"
+import { BsPersonAdd, BsSearch, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 import { Tooltip } from "react-tooltip"
 
@@ -25,14 +25,16 @@ export default function SectionAssignUsers({
   loadingUser?: string // the User ID which is loading
 }) {
   const { projects } = useAuth()
-  const { state: filterText, bindings } = useInput("")
+  const [filter, setFilter] = useState("")
 
   // get users for the project
   const projectUsersQuery = projects!.useUserList(projectID)
 
   const displayUsersToAdd =
     projectUsersQuery.data?.data.filter((user) => {
-      if (filterText && !includesFold(user.name, filterText)) return false
+      if (filter && !includesFold(user.name, filter)) {
+        return false
+      }
       return !users.map((u) => u.id).includes(user.id)
     }) ?? []
 
@@ -78,7 +80,14 @@ export default function SectionAssignUsers({
             <h3 className="font-semibold text-neutral-300">Assign Users</h3>
             <ManageUsersButton projectID={projectID} />
           </Flex>
-          <Input placeholder="Filter Users" width="100%" {...bindings} />
+          <Input
+            variant="bordered"
+            value={filter}
+            onValueChange={setFilter}
+            startContent={<BsSearch />}
+            placeholder={`Search in Topics...`}
+            width="100%"
+          />
           <Divider />
 
           {/* Display Users */}

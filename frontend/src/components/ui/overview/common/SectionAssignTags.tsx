@@ -1,6 +1,6 @@
-import { Divider, Input, useInput } from "@geist-ui/core"
-import { Fragment } from "react"
-import { BsTag, BsX } from "react-icons/bs"
+import { Divider, Input } from "@nextui-org/react"
+import { Fragment, useState } from "react"
+import { BsSearch, BsTag, BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 import { Tooltip } from "react-tooltip"
 
@@ -25,14 +25,16 @@ export default function SectionAssignTags({
   loadingTag?: number // the Tag ID which is loading
 }) {
   const { tags: tagsDB } = useAuth()
-  const { state: filterText, bindings } = useInput("")
+  const [filter, setFilter] = useState("")
 
   // get tags for the project
   const projectTagsQuery = tagsDB!.useList(projectID)
 
   const displayTagsToAdd =
     projectTagsQuery.data?.data.filter((tag) => {
-      if (filterText && !includesFold(tag.title, filterText)) return false
+      if (filter && !includesFold(tag.title, filter)) {
+        return false
+      }
       return !tags.map((t) => t.ID).includes(tag.ID)
     }) ?? []
 
@@ -75,7 +77,14 @@ export default function SectionAssignTags({
             <h3 className="font-semibold text-neutral-300">Assign Tags</h3>
             <ManageTagsButton projectID={projectID} />
           </Flex>
-          <Input placeholder="Filter Tags" width="100%" {...bindings} />
+          <Input
+            variant="bordered"
+            value={filter}
+            onValueChange={setFilter}
+            startContent={<BsSearch />}
+            placeholder={`Search in Topics...`}
+            width="100%"
+          />
           <Divider />
 
           {/* Display Tags */}

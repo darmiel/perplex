@@ -1,6 +1,5 @@
 "use client"
 
-import { Page } from "@geist-ui/core"
 import Head from "next/head"
 import { useMemo } from "react"
 import { Tooltip } from "react-tooltip"
@@ -10,6 +9,7 @@ import ActionGrid from "@/components/action/sections/ActionGrid"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import Hr from "@/components/ui/Hr"
+import Page from "@/components/ui/layout/Page"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function Home() {

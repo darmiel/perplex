@@ -1,5 +1,4 @@
-import { Breadcrumbs, Progress } from "@geist-ui/core"
-import { Tab, Tabs } from "@nextui-org/react"
+import { Progress, Tab, Tabs } from "@nextui-org/react"
 import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -26,6 +25,7 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
+import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
@@ -164,16 +164,12 @@ export default function MeetingOverview({
 
       <div className="mb-2">
         <Breadcrumbs>
-          <Link href="/">
-            <Breadcrumbs.Item nextLink>
-              <BsHouse />
-            </Breadcrumbs.Item>
-          </Link>
-          <Link href={`/project/${projectID}`}>
-            <Breadcrumbs.Item nextLink>
-              <ResolveProjectName projectID={projectID} />
-            </Breadcrumbs.Item>
-          </Link>
+          <Breadcrumbs.Item href="/">
+            <BsHouse />
+          </Breadcrumbs.Item>
+          <Breadcrumbs.Item href={`/project/${projectID}`}>
+            <ResolveProjectName projectID={projectID} />
+          </Breadcrumbs.Item>
           <Breadcrumbs.Item>{meeting.name}</Breadcrumbs.Item>
         </Breadcrumbs>
       </div>
@@ -226,7 +222,7 @@ export default function MeetingOverview({
               </>
             )}
             {getMeetingTense(startDate, endDate) === "ongoing" && (
-              <Progress max={1} value={progress} />
+              <Progress minValue={0} maxValue={1} value={progress} />
             )}
           </span>
         )}
