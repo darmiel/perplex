@@ -16,7 +16,7 @@ export default function MeetingTopicPage({
 }) {
   const [showTopicList, setShowTopicList] = useLocalBoolState(
     "topic-overview/show-topics",
-    true,
+    false,
   )
   return (
     <div className="flex h-full flex-row overflow-y-auto">

@@ -1,20 +1,24 @@
 import { Breadcrumbs, Progress } from "@geist-ui/core"
+import { Tab, Tabs } from "@nextui-org/react"
 import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import ReactDatePicker from "react-datepicker"
-import { BsHouse, BsPen, BsTrash } from "react-icons/bs"
+import { BsHouse, BsPen, BsPlusCircleFill, BsTrash } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
+import CreateTopic from "@/components/modals/TopicCreateModal"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
-import TopicList from "@/components/topic/TopicList"
+import { TopicGrid } from "@/components/topic/section/TopicGrid"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
+import Flex from "@/components/ui/layout/Flex"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 import SectionAssignUsers from "@/components/ui/overview/common/SectionAssignUsers"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
@@ -25,6 +29,7 @@ import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLocalStrState } from "@/hooks/localStorage"
 
 export default function MeetingOverview({
   projectID,
@@ -42,9 +47,13 @@ export default function MeetingOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
-  const { meetings } = useAuth()
+  const [tab, setTab] = useLocalStrState("meeting-tab/selected-tab", "topics")
+  const [showCreateTopic, setShowCreateTopic] = useState(false)
+
+  const { meetings, topics } = useAuth()
 
   const meetingInfoQuery = meetings!.useFind(projectID, meetingID)
+  const topicListQuery = topics!.useList(projectID, meetingID)
 
   const meetingDeleteMutation = meetings!.useDelete(
     projectID,
@@ -202,7 +211,7 @@ export default function MeetingOverview({
             />
           </div>
         ) : (
-          <span className="flex items-center space-x-2">
+          <span className="flex items-center space-x-2 whitespace-nowrap">
             <span>from</span>
             <span className="text-white">
               <RelativeDate date={startDate} />
@@ -233,45 +242,77 @@ export default function MeetingOverview({
                 onChange={(e) => setEditDescription(e.target.value)}
               />
             ) : (
-              <RenderMarkdown markdown={meeting.description} />
+              <RenderMarkdown
+                markdown={meeting.description || "*No Description*"}
+              />
             )}
           </div>
 
           <hr className="mb-6 mt-4 border-gray-700" />
 
-          <CommentSuite
-            projectID={projectID}
-            commentType="meeting"
-            commentEntityID={meetingID}
-          />
-
-          <hr className="mb-6 mt-4 border-gray-700" />
-
-          <TopicList projectID={projectID} meetingID={meetingID} />
+          <Tabs
+            variant="light"
+            selectedKey={tab}
+            onSelectionChange={(key) => setTab(key.toString())}
+          >
+            <Tab key="conversation" title="Conversation">
+              <CommentSuite
+                projectID={projectID}
+                commentType="meeting"
+                commentEntityID={meetingID}
+              />
+            </Tab>
+            <Tab key="topics" title="Topics">
+              {topicListQuery.isLoading ? (
+                <span>Loading Topics...</span>
+              ) : topicListQuery.isError ? (
+                <span>Error: {extractErrorMessage(topicListQuery.error)}</span>
+              ) : (
+                <TopicGrid projectID={projectID} meetingID={meetingID} />
+              )}
+            </Tab>
+          </Tabs>
         </OverviewContent>
         <OverviewSide>
           <OverviewSection name="Actions">
             {!isEdit ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col space-y-2">
+                <Flex x={2}>
+                  <Button
+                    className="w-full text-sm"
+                    icon={<BsPen />}
+                    onClick={() => enterEdit()}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    className={
+                      confirmDelete
+                        ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
+                        : "w-full text-sm text-red-500"
+                    }
+                    icon={<BsTrash />}
+                    onClick={deleteMeeting}
+                    isLoading={meetingDeleteMutation.isLoading}
+                  >
+                    {confirmDelete ? "Confirm" : "Delete"}
+                  </Button>
+                </Flex>
                 <Button
-                  className="w-full text-sm"
-                  icon={<BsPen />}
-                  onClick={() => enterEdit()}
+                  onClick={() => setShowCreateTopic(true)}
+                  icon={<BsPlusCircleFill />}
+                  className="w-full"
                 >
-                  Edit
+                  Create Topic
                 </Button>
-                <Button
-                  className={
-                    confirmDelete
-                      ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
-                      : "w-full text-sm text-red-500"
-                  }
-                  icon={<BsTrash />}
-                  onClick={deleteMeeting}
-                  isLoading={meetingDeleteMutation.isLoading}
-                >
-                  {confirmDelete ? "Confirm" : "Delete"}
-                </Button>
+                {/* Create Topic Popup */}
+                <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
+                  <CreateTopic
+                    projectID={projectID}
+                    meetingID={meetingID}
+                    onClose={() => setShowCreateTopic(false)}
+                  />
+                </ModalPopup>
               </div>
             ) : (
               <div className="flex space-x-2">
