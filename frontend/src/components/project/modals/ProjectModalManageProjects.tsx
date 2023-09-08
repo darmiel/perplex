@@ -221,9 +221,11 @@ function ModalList({
 
       <div className="space-x-4">
         <Button onClick={onClose}>Done</Button>
-        <Button onClick={() => setShowCreate(true)} style="secondary">
-          Create New Project
-        </Button>
+        {!showCreate && (
+          <Button onClick={() => setShowCreate(true)} style="secondary">
+            Create New Project
+          </Button>
+        )}
       </div>
     </ModalContainer>
   )
