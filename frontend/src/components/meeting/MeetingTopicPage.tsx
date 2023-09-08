@@ -19,7 +19,7 @@ export default function MeetingTopicPage({
     false,
   )
   return (
-    <div className="flex h-full flex-row overflow-y-auto">
+    <div className="flex h-full w-full flex-row overflow-y-auto">
       {showTopicList ? (
         <div
           className={`${navigationBorderRight} w-[21rem] flex-initial bg-section-darker p-6`}

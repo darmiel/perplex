@@ -306,7 +306,7 @@ export default function TopicOverview({
                   href={`#comment-${topic.solution_id}`}
                   style={["neutral", "animated"]}
                 >
-                  Go to solution
+                  Go to Comment
                   <Button.Arrow />
                 </Button>
               </div>

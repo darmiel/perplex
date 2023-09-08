@@ -33,20 +33,19 @@ export default function TopicCardLarge({
         {/* Action Title */}
         <Link
           href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
-          className="flex gap-2"
         >
-          {/* Action Status */}
-          {isClosed ? (
-            <Chip variant="dot" color="success">
-              Resolved
-            </Chip>
-          ) : (
-            <Chip variant="dot" color="danger">
-              Unresolved
-            </Chip>
-          )}
-          <h1 className="block text-clip text-start text-lg font-semibold">
-            {topic.title}
+          <h1 className="block space-x-2 text-clip text-start text-lg font-medium">
+            {/* Action Status */}
+            {isClosed ? (
+              <Chip variant="dot" color="success">
+                Resolved
+              </Chip>
+            ) : (
+              <Chip variant="dot" color="danger">
+                Unresolved
+              </Chip>
+            )}
+            <span>{topic.title}</span>
           </h1>
         </Link>
       </div>
