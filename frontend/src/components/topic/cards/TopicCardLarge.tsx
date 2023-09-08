@@ -30,23 +30,24 @@ export default function TopicCardLarge({
           />
         </Link>
 
-        {/* Action Title */}
+        {/* Topic Title */}
         <Link
           href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
+          className="space-x-2"
         >
-          <h1 className="block space-x-2 text-clip text-start text-lg font-medium">
-            {/* Action Status */}
-            {isClosed ? (
-              <Chip variant="dot" color="success">
-                Resolved
-              </Chip>
-            ) : (
-              <Chip variant="dot" color="danger">
-                Unresolved
-              </Chip>
-            )}
-            <span>{topic.title}</span>
-          </h1>
+          {/* Action Status */}
+          <span className="inline-flex items-baseline">
+            <Chip
+              size="sm"
+              variant={isClosed ? "faded" : "shadow"}
+              color={isClosed ? "success" : "danger"}
+            >
+              {isClosed ? "Closed" : "Open"}
+            </Chip>
+          </span>
+          <span className="text-clip text-start text-lg font-medium">
+            {topic.title}
+          </span>
         </Link>
       </div>
 

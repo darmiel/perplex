@@ -28,7 +28,7 @@ const chips: Record<MeetingTense, ChipMeta> = {
   },
   past: {
     variant: "flat",
-    color: "secondary",
+    color: "default",
     startContent: <BsRewindCircleFill size={18} />,
     display: "Past",
   },
@@ -37,9 +37,11 @@ const chips: Record<MeetingTense, ChipMeta> = {
 export default function MeetingChip({
   tense,
   meeting,
+  hideIcon,
 }: {
   tense?: MeetingTense
   meeting?: Meeting
+  hideIcon?: boolean
 }) {
   let props: ChipMeta
   if (tense) {
@@ -49,5 +51,10 @@ export default function MeetingChip({
   } else {
     throw new Error("MeetingChip: tense or meeting must be provided")
   }
-  return <Chip {...props}>{props.display}</Chip>
+  hideIcon && delete props.startContent
+  return (
+    <Chip size="sm" {...props}>
+      {props.display}
+    </Chip>
+  )
 }

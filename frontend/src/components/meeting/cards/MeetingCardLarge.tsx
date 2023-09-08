@@ -64,11 +64,16 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
         </Link>
 
         {/* Meeting Name */}
-        <Link href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}>
-          <Flex gap={2}>
-            <h1 className="text-start text-lg font-semibold">{meeting.name}</h1>
-            <MeetingChip meeting={meeting} />
-          </Flex>
+        <Link
+          href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
+          className="space-x-2"
+        >
+          <span className="inline-flex items-baseline">
+            <MeetingChip hideIcon meeting={meeting} />
+          </span>
+          <span className="text-start text-lg font-semibold">
+            {meeting.name}
+          </span>
         </Link>
       </div>
 

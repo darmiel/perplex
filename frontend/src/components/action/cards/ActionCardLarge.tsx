@@ -41,20 +41,14 @@ export default function ActionCardLarge({
         </Link>
 
         {/* Action Title */}
-        <button onClick={() => onClick()} className="flex gap-2">
+        <button onClick={() => onClick()} className="space-x-2">
           {/* Action Status */}
-          {isClosed ? (
-            <Chip variant="flat" color="danger">
-              Closed
-            </Chip>
-          ) : (
-            <Chip variant="flat" color="success">
-              Open
-            </Chip>
-          )}
-          <h1 className="block text-clip text-start text-lg font-semibold">
+          <Chip variant="flat" color={isClosed ? "success" : "danger"}>
+            {isClosed ? "Closed" : "Open"}
+          </Chip>
+          <span className="text-start text-lg font-semibold">
             {action.title}
-          </h1>
+          </span>
         </button>
       </div>
 
