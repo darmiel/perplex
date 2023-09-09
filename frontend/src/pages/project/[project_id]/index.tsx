@@ -2,7 +2,7 @@ import { Checkbox, Chip, Tab, Tabs } from "@nextui-org/react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsPen } from "react-icons/bs"
+import { BsPen, BsPlusCircleFill } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
@@ -10,12 +10,14 @@ import ActionGrid from "@/components/action/sections/ActionGrid"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
+import CreateMeeting from "@/components/modals/MeetingCreateModal"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
 import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
@@ -41,6 +43,7 @@ export default function ProjectPage() {
   const [isEdit, setIsEdit] = useState(false)
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
+  const [showCreateMeeting, setShowCreateMeeting] = useState(false)
 
   const router = useRouter()
   const { project_id: projectIDStr } = router.query
@@ -182,14 +185,32 @@ export default function ProjectPage() {
           <OverviewSide>
             <OverviewSection name="Actions">
               {!isEdit ? (
-                <Button
-                  className="w-full text-sm"
-                  icon={<BsPen />}
-                  onClick={() => enterEdit()}
-                  disabled={!isOwner}
-                >
-                  Edit Project
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    className="w-full text-sm"
+                    icon={<BsPen />}
+                    onClick={() => enterEdit()}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => setShowCreateMeeting(true)}
+                    icon={<BsPlusCircleFill />}
+                    className="w-fit"
+                  >
+                    Create Meeting
+                  </Button>
+                  {/* Create Topic Popup */}
+                  <ModalPopup
+                    open={showCreateMeeting}
+                    setOpen={setShowCreateMeeting}
+                  >
+                    <CreateMeeting
+                      projectID={projectID}
+                      onClose={() => setShowCreateMeeting(false)}
+                    />
+                  </ModalPopup>
+                </div>
               ) : (
                 <div className="flex space-x-2">
                   <Button

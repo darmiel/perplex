@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
-import CreateTopic from "@/components/modals/TopicCreateModal"
+import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import { TopicGrid } from "@/components/topic/section/TopicGrid"
 import Button from "@/components/ui/Button"
@@ -303,7 +303,7 @@ export default function MeetingOverview({
                 </Button>
                 {/* Create Topic Popup */}
                 <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
-                  <CreateTopic
+                  <CreateTopicModal
                     projectID={projectID}
                     meetingID={meetingID}
                     onClose={() => setShowCreateTopic(false)}

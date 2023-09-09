@@ -22,15 +22,15 @@ function PrioritySelectItemContents({ priority }: { priority: Priority }) {
 }
 
 export default function PriorityPicker({
-  id,
   projectID,
   defaultValue,
   setPriorityID,
+  className = "",
 }: {
-  id?: string
   projectID: number
   defaultValue?: number
   setPriorityID: (priorityID: number) => void
+  className?: string
 }) {
   const { priorities } = useAuth()
   const projectPrioritiesQuery = priorities!.useList(projectID)
@@ -46,6 +46,7 @@ export default function PriorityPicker({
       variant="bordered"
       label="Priority"
       placeholder="Select a priority"
+      className={className}
       renderValue={(items) =>
         items.map(
           (item) =>

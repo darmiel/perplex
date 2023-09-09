@@ -11,7 +11,7 @@ import { useRouter } from "next/router"
 import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 
 import { Topic } from "@/api/types"
-import CreateTopic from "@/components/modals/TopicCreateModal"
+import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 export default function TopicList({
@@ -114,7 +114,7 @@ export default function TopicList({
 
       {/* Create Topic Popup */}
       <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
-        <CreateTopic
+        <CreateTopicModal
           projectID={projectID}
           meetingID={meetingID}
           onClose={(newTopicID?: number) => {

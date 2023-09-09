@@ -90,7 +90,7 @@ export function DiscussTopicTypeCard({
   )
 }
 
-export default function CreateTopic({
+export default function CreateTopicModal({
   projectID,
   meetingID,
   onClose,
@@ -176,6 +176,7 @@ export default function CreateTopic({
             autoComplete="off"
           />
           <PriorityPicker
+            className="w-[15rem]"
             projectID={projectID}
             setPriorityID={setTopicPriorityID}
           />

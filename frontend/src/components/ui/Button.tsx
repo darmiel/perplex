@@ -61,7 +61,7 @@ function Button({
 
   const iconContent = isLoading ? <ClipLoader color="white" size={16} /> : icon
   const buttonContent = iconContent ? (
-    <div className="flex flex-row items-center justify-center space-x-2">
+    <div className="flex flex-row items-center justify-center space-x-2 whitespace-nowrap">
       <div>{iconContent}</div>
       <div>{children}</div>
     </div>

@@ -158,21 +158,16 @@ export default function ActionCreateModal({
         </div>
         <div className="space-y-4">
           {/* Priority and Due Date */}
-          <div className="flex space-x-4">
+          <div className="flex items-end space-x-4">
             {/* Priority */}
-            <div className="flex flex-col space-y-2">
-              <label className="text-neutral-400" htmlFor="actionPriority">
-                Action Priority
-              </label>
-              <PriorityPicker
-                id="actionPriority"
-                projectID={projectID}
-                setPriorityID={setActionPriorityID}
-              />
-            </div>
+            <PriorityPicker
+              className="w-[15rem]"
+              projectID={projectID}
+              setPriorityID={setActionPriorityID}
+            />
 
             {/* Due Date */}
-            <div className="space-y-2">
+            <div className="w-full space-y-2">
               <label className="text-neutral-400" htmlFor="topicDate">
                 Action Due Date
               </label>
