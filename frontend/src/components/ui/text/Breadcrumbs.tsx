@@ -9,10 +9,10 @@ function BreadcrumbsItem({
   children: ReactNode
 }) {
   if (!href) {
-    return <span className="text-neutral-400">{children}</span>
+    return <span className="text-white">{children}</span>
   }
   return (
-    <Link href={href} className="text-white">
+    <Link href={href} className="text-neutral-400 hover:text-primary-400">
       {children}
     </Link>
   )
