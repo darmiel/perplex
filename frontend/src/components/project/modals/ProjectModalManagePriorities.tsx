@@ -52,7 +52,7 @@ export default function ProjectModalManagePriorities({
   )
 
   const createPriorityMut = priorities!.useCreate(projectID, ({ data }) => {
-    toast.success(`Priority #{data.ID} created`)
+    toast.success(`Priority #${data.ID} created`)
     setCreateName("")
     setCreateColor("")
     setCreateWeight(0)

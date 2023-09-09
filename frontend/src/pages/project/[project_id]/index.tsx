@@ -103,8 +103,18 @@ export default function ProjectPage() {
 
         <OverviewContainer>
           <OverviewContent>
-            <div className="bg-neutral-900 p-2 text-neutral-500">
-              <RenderMarkdown markdown={project.description} />
+            <div className="bg-neutral-900 p-4 text-neutral-500">
+              {isEdit ? (
+                <textarea
+                  className="w-full bg-transparent focus:outline-none"
+                  defaultValue={project.description}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                />
+              ) : (
+                <RenderMarkdown
+                  markdown={project.description || "*(no description)*"}
+                />
+              )}
             </div>
 
             <Hr className="my-6" />
