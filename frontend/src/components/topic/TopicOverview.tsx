@@ -22,8 +22,8 @@ import {
 import PriorityPickerWithEdit from "@/components/project/priority/PriorityPickerWithEdit"
 import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
-import TopicSectionActions from "@/components/topic/section/TopicSectionActions"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
+import TopicSectionLinkedActions from "@/components/topic/section/TopicSectionLinkedActions"
 import TopicTag from "@/components/topic/TopicTag"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Button from "@/components/ui/Button"
@@ -339,7 +339,7 @@ export default function TopicOverview({
                 />
               </div>
 
-              <TopicSectionActions
+              <TopicSectionLinkedActions
                 key={topic.ID}
                 actions={listTopicsForActionsQuery.data?.data ?? []}
                 projectID={projectID}

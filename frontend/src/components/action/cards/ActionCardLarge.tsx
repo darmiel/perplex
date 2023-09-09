@@ -11,9 +11,13 @@ import { getUserAvatarURL } from "@/components/user/UserAvatar"
 export default function ActionCardLarge({
   action,
   onClick,
+  className = "w-full",
+  hideProjectName,
 }: {
   action: Action
   onClick: () => void
+  className?: string
+  hideProjectName?: boolean
 }) {
   const actionDueDate = action.due_date.Valid
     ? new Date(action.due_date.Time)
@@ -30,32 +34,39 @@ export default function ActionCardLarge({
       : undefined
   const isClosed = action.closed_at.Valid
   return (
-    <div className="flex w-full flex-col justify-between space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30">
+    <div
+      className={`flex ${className} flex-col justify-between space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30`}
+    >
       <div>
         {/* Project Header */}
-        <Link
-          className="text-default-400 flex items-center gap-2"
-          href={`/project/${action.project_id}`}
-        >
-          <ResolveProjectName projectID={action.project_id} />
-        </Link>
+        {!hideProjectName && (
+          <Link
+            className="text-default-400 flex items-center gap-2"
+            href={`/project/${action.project_id}`}
+          >
+            <ResolveProjectName projectID={action.project_id} />
+          </Link>
+        )}
 
         {/* Action Title */}
-        <button onClick={() => onClick()} className="space-x-2">
+        <button
+          onClick={() => onClick()}
+          className="w-full space-x-2 overflow-hidden text-ellipsis whitespace-nowrap text-start"
+        >
           {/* Action Status */}
           <Chip variant="flat" color={isClosed ? "success" : "danger"}>
             {isClosed ? "Closed" : "Open"}
           </Chip>
-          <span className="text-start text-lg font-semibold">
-            {action.title}
-          </span>
+          <span className="text-lg font-semibold">{action.title}</span>
         </button>
       </div>
 
-      <p className="flex items-center gap-2 text-neutral-400">
+      <p className="flex w-full items-center gap-2 whitespace-nowrap text-neutral-400">
         {actionDueDate && actionDueDateStr ? (
           <>
-            {actionDueDateStr}
+            <span className="overflow-hidden text-ellipsis">
+              {actionDueDateStr}
+            </span>
             <DurationTag date={actionDueDate} />
           </>
         ) : (

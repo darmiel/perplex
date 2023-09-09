@@ -1,17 +1,20 @@
 import { useState } from "react"
 
 import { extractErrorMessage } from "@/api/util"
-import TopicCard from "@/components/topic/TopicCard"
 import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
 
+import { Accordion, AccordionItem, ScrollShadow } from "@nextui-org/react"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
 
 import { Topic } from "@/api/types"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
+import TopicCardLarge from "@/components/topic/cards/TopicCardLarge"
+import BadgeHeader from "@/components/ui/BadgeHeader"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 
 export default function TopicList({
@@ -52,16 +55,27 @@ export default function TopicList({
   const showTopicListWithFilter = (filter: (topic: Topic) => boolean) => {
     return topicListQuery.data.data.filter(filter).map((topic) => (
       <div key={topic.ID}>
-        <TopicCard
-          topic={topic}
-          projectID={projectID}
-          meetingID={meetingID}
-          active={selectedTopicID === topic.ID}
-        />
+        <Link
+          href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
+        >
+          <TopicCardLarge
+            checkable
+            compact
+            hideMeetingName
+            topic={topic}
+            projectID={projectID}
+            className={
+              selectedTopicID === topic.ID
+                ? "border-primary-500 bg-neutral-900"
+                : ""
+            }
+          />
+        </Link>
       </div>
     ))
   }
   const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
+  const closedTopics = showTopicListWithFilter((topic) => topic.closed_at.Valid)
 
   return (
     <ul className="flex h-full flex-grow flex-col space-y-4  overflow-y-auto">
@@ -99,18 +113,26 @@ export default function TopicList({
 
       <hr className="mb-6 mt-4 border-gray-700" />
 
-      <div className="flex-grow space-y-4 overflow-y-auto overscroll-y-none">
-        {/* Topic List (Open Topics) */}
-        {openTopics.length > 0 && (
-          <>
-            {openTopics}
-            <hr className="mb-6 mt-4 border-gray-700" />
-          </>
-        )}
-
-        {/* Topic List (Closed Topics) */}
-        {showTopicListWithFilter((topic) => topic.closed_at.Valid)}
-      </div>
+      <ScrollShadow hideScrollBar className="h-full">
+        <Accordion selectionMode="multiple" defaultSelectedKeys="all">
+          <AccordionItem
+            key="open-topics"
+            title={
+              <BadgeHeader title="Open Topics" badge={openTopics.length} />
+            }
+          >
+            <div className="gap-4 space-y-4">{openTopics}</div>
+          </AccordionItem>
+          <AccordionItem
+            key="closed-topics"
+            title={
+              <BadgeHeader title="Closed Topics" badge={closedTopics.length} />
+            }
+          >
+            <div className="gap-4 space-y-4">{closedTopics}</div>
+          </AccordionItem>
+        </Accordion>
+      </ScrollShadow>
 
       {/* Create Topic Popup */}
       <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>

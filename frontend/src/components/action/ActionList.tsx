@@ -4,7 +4,7 @@ import { BsArrowLeft, BsListTask } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
 import { extractErrorMessage } from "@/api/util"
-import ActionListItem from "@/components/action/ActionListItem"
+import ActionCardLarge from "@/components/action/cards/ActionCardLarge"
 import ActionCreateModal from "@/components/action/modals/ActionCreateModal"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
@@ -67,9 +67,15 @@ export default function ActionList({
             href={`/project/${projectID}/action/${action.ID}`}
             key={action.ID}
           >
-            <ActionListItem
+            <ActionCardLarge
+              hideProjectName
+              className={
+                selectedActionID === action.ID
+                  ? "border-primary-500 bg-neutral-900"
+                  : ""
+              }
               action={action}
-              selected={action.ID === selectedActionID}
+              onClick={() => {}}
             />
           </Link>
         ))}

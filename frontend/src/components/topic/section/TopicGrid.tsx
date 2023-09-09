@@ -13,10 +13,12 @@ export function TopicGrid({
   projectID,
   meetingID,
   slots,
+  hideMeetingName = false,
 }: {
   projectID: number
   meetingID: number
   slots?: ReactNode
+  hideMeetingName?: boolean
 }) {
   const { topics: topicsDB } = useAuth()
   const topicListQuery = topicsDB!.useList(projectID, meetingID)
@@ -62,7 +64,12 @@ export function TopicGrid({
       />
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {topics.map((topic) => (
-          <TopicCardLarge key={topic.ID} projectID={projectID} topic={topic} />
+          <TopicCardLarge
+            key={topic.ID}
+            hideMeetingName={hideMeetingName}
+            projectID={projectID}
+            topic={topic}
+          />
         ))}
       </div>
     </section>

@@ -3,14 +3,13 @@ import { useState } from "react"
 import { BsArrowDown } from "react-icons/bs"
 
 import { navigationBorderRight } from "@/api/classes"
-import MeetingList from "@/components/meeting/MeetingList"
-import MeetingTopicPage from "@/components/meeting/MeetingTopicPage"
+import TopicList from "@/components/topic/TopicList"
+import TopicOverview from "@/components/topic/TopicOverview"
 import { useLocalBoolState } from "@/hooks/localStorage"
 
 export default function ProjectPage() {
-  // collapse meeting list (true by default)
-  const [showMeetingList, setShowMeetingList] = useLocalBoolState(
-    "topic-overview/show-meetings",
+  const [showTopicList, setShowTopicList] = useLocalBoolState(
+    "topic-overview/show-topics",
     false,
   )
 
@@ -46,38 +45,43 @@ export default function ProjectPage() {
 
   return (
     <>
-      {showMeetingList ? (
-        <div
-          className={`${navigationBorderRight} flex h-full max-h-full w-[25rem] flex-col space-y-4 border-r border-r-neutral-800 bg-section-darker p-6`}
-        >
-          <MeetingList
+      <div className="flex h-full w-full flex-row overflow-y-auto">
+        {showTopicList ? (
+          <div
+            className={`${navigationBorderRight} w-[21rem] flex-initial bg-section-darker p-6`}
+          >
+            <TopicList
+              projectID={projectID}
+              meetingID={meetingID}
+              selectedTopicID={topicID}
+              onCollapse={() => setShowTopicList(false)}
+            />
+          </div>
+        ) : (
+          <div
+            className={`${navigationBorderRight} w-[4rem] flex-initial space-y-4 bg-section-darker p-6`}
+          >
+            <h2 className="mt-20 -rotate-90 text-center text-neutral-400">
+              <button
+                onClick={() => setShowTopicList(true)}
+                className="flex items-center justify-center space-x-2 rounded-md border border-neutral-600 bg-neutral-900 px-4 py-1"
+              >
+                <div>Topics</div>
+                <BsArrowDown color="gray" size="1em" />
+              </button>
+            </h2>
+          </div>
+        )}
+
+        <div className="flex-auto overflow-y-auto bg-neutral-950 p-6">
+          <TopicOverview
+            key={topicID}
             projectID={projectID}
-            selectedMeetingID={meetingID}
-            displayCollapse={true}
-            onCollapse={() => setShowMeetingList(false)}
+            meetingID={meetingID}
+            topicID={topicID}
           />
         </div>
-      ) : (
-        <div
-          className={`${navigationBorderRight} w-[4rem] flex-initial space-y-4 bg-section-darker`}
-        >
-          <h2 className="mt-24 -rotate-90 text-center text-neutral-400">
-            <button
-              onClick={() => setShowMeetingList(true)}
-              className="flex items-center justify-center space-x-2 rounded-md border border-neutral-600 bg-neutral-900 px-4 py-1 "
-            >
-              <div>Meetings</div>
-              <BsArrowDown color="gray" size="1em" />
-            </button>
-          </h2>
-        </div>
-      )}
-
-      <MeetingTopicPage
-        projectID={projectID}
-        meetingID={meetingID}
-        topicID={topicID}
-      />
+      </div>
     </>
   )
 }

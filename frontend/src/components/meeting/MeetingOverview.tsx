@@ -264,7 +264,11 @@ export default function MeetingOverview({
               ) : topicListQuery.isError ? (
                 <span>Error: {extractErrorMessage(topicListQuery.error)}</span>
               ) : (
-                <TopicGrid projectID={projectID} meetingID={meetingID} />
+                <TopicGrid
+                  hideMeetingName
+                  projectID={projectID}
+                  meetingID={meetingID}
+                />
               )}
             </Tab>
           </Tabs>
