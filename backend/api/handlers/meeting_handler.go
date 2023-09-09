@@ -68,7 +68,7 @@ func (h *MeetingHandler) ValidateMeetingDto(dto *meetingDto) (*time.Time, *time.
 // PreloadMeetingsMiddleware preloads meetings for the current project and updates the project in the locals
 func (h *MeetingHandler) PreloadMeetingsMiddleware(ctx *fiber.Ctx) error {
 	p := ctx.Locals("project").(model.Project)
-	if err := h.projSrv.Extend(&p, "Meetings"); err != nil {
+	if err := h.projSrv.Extend(&p, "Meetings", "Meetings.Tags", "Meetings.AssignedUsers"); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
 	ctx.Locals("project", p)
