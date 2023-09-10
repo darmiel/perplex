@@ -303,7 +303,7 @@ export default function TopicOverview({
                   </span>
                 </div>
                 <Button
-                  href={`#comment-${topic.solution_id}`}
+                  href={`#comment-topic-${topic.solution_id}`}
                   style={["neutral", "animated"]}
                 >
                   Jump to Comment
