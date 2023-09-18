@@ -17,10 +17,10 @@ export default function Flex({
   children: React.ReactNode
   className?: string
 }) {
-  const classNames = ["flex items-center"]
+  const classNames = ["flex"]
   gap !== undefined && classNames.push(`gap-${gap}`)
   justify && classNames.push(`justify-${justify}`)
-  col && classNames.push("flex-col")
+  col ? classNames.push("flex-col") : classNames.push("items-center")
   x !== undefined && classNames.push(`space-x-${x}`)
   y !== undefined && classNames.push(`space-y-${y}`)
   className && classNames.push(className)

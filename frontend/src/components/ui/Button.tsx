@@ -102,4 +102,12 @@ function Arrow() {
 
 Button.Arrow = Arrow
 
+Button.ArrowLeft = function ArrowLeft() {
+  return (
+    <span className="inline-block text-neutral-600 transition group-hover:-translate-x-1 group-hover:text-white motion-reduce:transform-none">
+      &lt;-
+    </span>
+  )
+}
+
 export default Button

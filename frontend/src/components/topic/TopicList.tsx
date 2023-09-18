@@ -6,16 +6,96 @@ import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
 
-import { Accordion, AccordionItem, ScrollShadow } from "@nextui-org/react"
+import {
+  Accordion,
+  AccordionItem,
+  Checkbox,
+  Chip,
+  ScrollShadow,
+} from "@nextui-org/react"
+import clsx from "clsx"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { BsArrowLeft, BsPlusCircle } from "react-icons/bs"
+import { BsPlusCircle } from "react-icons/bs"
 
 import { Topic } from "@/api/types"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
-import TopicCardLarge from "@/components/topic/cards/TopicCardLarge"
 import BadgeHeader from "@/components/ui/BadgeHeader"
+import Flex from "@/components/ui/layout/Flex"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+
+function TopicListItem({
+  topic,
+  projectID,
+  selected = false,
+}: {
+  topic: Topic
+  projectID: number
+  selected?: boolean
+}) {
+  const { user, topics } = useAuth()
+  const toggleTopicMutation = topics!.useStatus(
+    projectID,
+    topic.meeting_id,
+    () => {},
+  )
+
+  const isAssignedToUser = topic.assigned_users.some((u) => u.id === user?.uid)
+  return (
+    <Flex
+      col
+      className={clsx(
+        "rounded-md border border-transparent p-2 transition duration-150 ease-in-out",
+        "hover:border-neutral-800 hover:bg-neutral-900",
+        {
+          "bg-neutral-800": selected,
+        },
+      )}
+    >
+      <Flex>
+        <Checkbox
+          isIndeterminate={toggleTopicMutation.isLoading}
+          isSelected={topic.closed_at.Valid}
+          onValueChange={(checked) => {
+            toggleTopicMutation.mutate({
+              topicID: topic.ID,
+              close: checked,
+            })
+          }}
+        />
+        <h2
+          className={clsx("truncate text-neutral-200", {
+            "mr-1": isAssignedToUser,
+          })}
+        >
+          {topic.title}
+          <span className="text-sm text-neutral-500"> #{topic.ID}</span>
+        </h2>
+        {isAssignedToUser && (
+          <span className="ml-auto h-3 w-3 animate-pulse rounded-full bg-primary-600"></span>
+        )}
+      </Flex>
+      {topic.tags?.length > 0 && (
+        <ScrollShadow orientation="horizontal" hideScrollBar className="mt-1">
+          <Flex gap={1}>
+            {topic.tags.map((tag) => (
+              <Chip
+                key={tag.ID}
+                className="whitespace-nowrap"
+                variant="bordered"
+                style={{
+                  borderColor: tag.color,
+                }}
+              >
+                {tag.title}
+              </Chip>
+            ))}
+          </Flex>
+        </ScrollShadow>
+      )}
+    </Flex>
+  )
+}
 
 export default function TopicList({
   projectID,
@@ -58,17 +138,10 @@ export default function TopicList({
         <Link
           href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
         >
-          <TopicCardLarge
-            checkable
-            compact
-            hideMeetingName
-            topic={topic}
+          <TopicListItem
             projectID={projectID}
-            className={
-              selectedTopicID === topic.ID
-                ? "border-primary-500 bg-neutral-900"
-                : ""
-            }
+            topic={topic}
+            selected={selectedTopicID === topic.ID}
           />
         </Link>
       </div>
@@ -89,8 +162,8 @@ export default function TopicList({
           Create Topic
         </Button>
         {onCollapse && (
-          <Button onClick={onCollapse} style="neutral">
-            <BsArrowLeft color="gray" size="1em" />
+          <Button onClick={onCollapse} style="animated">
+            <Button.ArrowLeft />
           </Button>
         )}
       </div>
@@ -121,7 +194,7 @@ export default function TopicList({
               <BadgeHeader title="Open Topics" badge={openTopics.length} />
             }
           >
-            <div className="gap-4 space-y-4">{openTopics}</div>
+            <div className="gap-4 space-y-0">{openTopics}</div>
           </AccordionItem>
           <AccordionItem
             key="closed-topics"
@@ -129,7 +202,7 @@ export default function TopicList({
               <BadgeHeader title="Closed Topics" badge={closedTopics.length} />
             }
           >
-            <div className="gap-4 space-y-4">{closedTopics}</div>
+            <div className="gap-4 space-y-2">{closedTopics}</div>
           </AccordionItem>
         </Accordion>
       </ScrollShadow>
