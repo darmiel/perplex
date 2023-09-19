@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"github.com/darmiel/perplex/pkg/lexorank"
 	"gorm.io/gorm"
 	"time"
 )
@@ -91,6 +92,8 @@ type Topic struct {
 	Priority Priority `json:"priority,omitempty"`
 	// Tags contains all tags of the topic
 	Tags []Tag `gorm:"many2many:topic_tag_assignments" json:"tags"`
+	// LexoRank is the sorting rank of the topic
+	LexoRank lexorank.Rank `json:"lexo_rank"`
 }
 
 func (t Topic) CheckProjectOwnership(projectID uint) bool {
