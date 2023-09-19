@@ -1,3 +1,5 @@
+import { Input, ScrollShadow } from "@nextui-org/react"
+import clsx from "clsx"
 import { useState } from "react"
 import {
   BsArrowLeft,
@@ -13,7 +15,6 @@ import { Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -74,92 +75,98 @@ function ModalList({
   )
 
   return (
-    <ModalContainer title="Manage Projects">
-      <div className="flex w-full space-x-10">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-neutral-400" htmlFor="prioritySearch">
-              Search Project
-            </label>
-            <input
-              id="prioritySearch"
-              type="text"
-              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-              placeholder="My awesome Project"
-              onChange={(event) => setProjectNameSearch(event.target.value)}
-              value={projectNameSearch}
-              autoComplete="off"
-            />
-          </div>
+    <div
+      className={clsx(
+        "w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4",
+        {
+          "w-[60rem]": showCreate,
+        },
+      )}
+    >
+      <h1 className="text-xl font-semibold">Manage Projects</h1>
 
-          <div className="flex flex-col space-y-4">
-            {filteredProjects.length > 0 ? (
-              filteredProjects
-                // display projects
-                .map((project) => (
-                  <div
-                    key={project.ID}
-                    className="flex items-center justify-between space-x-4 rounded-md border border-neutral-600 p-4"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <UserAvatar userID={String(project.ID)} />
-                      <div className="flex flex-col">
-                        <span>{project.name}</span>
-                        {project.owner_id === user?.uid && (
-                          <span className="w-fit rounded-sm bg-blue-600 p-1 text-xs font-semibold uppercase">
-                            Owner
-                          </span>
-                        )}
-                      </div>
+      <Input
+        variant="bordered"
+        label="Search Project"
+        onValueChange={setProjectNameSearch}
+        value={projectNameSearch}
+        autoComplete="off"
+        startContent={<BsSearch />}
+      />
+
+      <div className="flex w-full space-x-10">
+        <ScrollShadow className="flex max-h-96 w-full flex-col space-y-2">
+          {filteredProjects.length > 0 ? (
+            filteredProjects
+              // display projects
+              .map((project) => (
+                <div
+                  key={project.ID}
+                  className={clsx(
+                    "flex items-center justify-between space-x-2 rounded-md p-2",
+                    "transition-colors duration-150 ease-in-out hover:bg-neutral-900",
+                  )}
+                >
+                  <div className="flex items-center space-x-4">
+                    <UserAvatar userID={String(project.ID)} />
+                    <div className="flex flex-col">
+                      <span>{project.name}</span>
+                      {project.owner_id === user?.uid && (
+                        <span className="w-fit rounded-sm bg-blue-600 p-1 text-xs font-semibold uppercase">
+                          Owner
+                        </span>
+                      )}
                     </div>
-                    {project.owner_id !== user?.uid ? (
-                      <Button
-                        style="neutral"
-                        onClick={() => leaveProject(project)}
-                        isLoading={leaveProjectMutation.isLoading}
-                        icon={<BsDoorOpen />}
-                        className={
-                          confirmLeave === project.ID
-                            ? "bg-red-600 hover:bg-red-700"
-                            : ""
-                        }
-                      >
-                        {confirmLeave === project.ID ? "Confirm" : "Leave"}
-                      </Button>
-                    ) : (
-                      <Button
-                        style="neutral"
-                        onClick={() => showDeleteConfirmation(project)}
-                        icon={<BsTrash />}
-                        className={
-                          confirmDelete === project.ID
-                            ? "bg-red-600 hover:bg-red-700"
-                            : ""
-                        }
-                      >
-                        {confirmDelete === project.ID ? "Confirm" : "Delete"}
-                      </Button>
-                    )}
                   </div>
-                ))
-            ) : (
-              <div className="flex flex-col space-y-2 rounded-md border border-primary-500 p-4">
-                <div className="flex items-center space-x-2 text-lg">
-                  <BsSearch />
-                  <span>No Results</span>
+
+                  {/* Project Actions */}
+                  {project.owner_id !== user?.uid ? (
+                    <Button
+                      style="animated"
+                      onClick={() => leaveProject(project)}
+                      isLoading={leaveProjectMutation.isLoading}
+                      icon={<BsDoorOpen />}
+                      className={
+                        confirmLeave === project.ID
+                          ? "bg-red-600 hover:bg-red-700"
+                          : ""
+                      }
+                    >
+                      {confirmLeave === project.ID ? "Confirm" : "Leave"}
+                    </Button>
+                  ) : (
+                    <Button
+                      style="animated"
+                      onClick={() => showDeleteConfirmation(project)}
+                      icon={<BsTrash />}
+                      className={
+                        confirmDelete === project.ID
+                          ? "bg-red-600 hover:bg-red-700"
+                          : ""
+                      }
+                    >
+                      {confirmDelete === project.ID ? "Confirm" : "Delete"}
+                    </Button>
+                  )}
                 </div>
-                <span className="text-neutral-400">
-                  Don&apos;t worry, you can still
-                </span>
-                <Button className="w-fit" onClick={() => setShowCreate(true)}>
-                  Create a Project
-                </Button>
+              ))
+          ) : (
+            <div className="flex flex-col space-y-2 rounded-md border border-primary-500 p-4">
+              <div className="flex items-center space-x-2 text-lg">
+                <BsSearch />
+                <span>No Results</span>
               </div>
-            )}
-          </div>
-        </div>
+              <span className="text-neutral-400">
+                Don&apos;t worry, you can still
+              </span>
+              <Button className="w-fit" onClick={() => setShowCreate(true)}>
+                Create a Project
+              </Button>
+            </div>
+          )}
+        </ScrollShadow>
         {showCreate && (
-          <div className="flex flex-col space-y-4 rounded-md border border-neutral-700 p-5">
+          <div className="flex w-[40rem] flex-col space-y-4 rounded-md border border-neutral-700 p-5">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-neutral-400" htmlFor="createProjectName">
@@ -227,7 +234,7 @@ function ModalList({
           </Button>
         )}
       </div>
-    </ModalContainer>
+    </div>
   )
 }
 
@@ -251,7 +258,10 @@ function ModalDelete({
   const triggerReady = confirmDeleteText.trim() === project.name.trim()
 
   return (
-    <ModalContainer title={`Delete Project #${project.ID}`}>
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
+    >
+      <h1 className="text-xl font-semibold">{`Delete Project #${project.ID}`}</h1>
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-2 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-4 text-red-500">
           <div className="flex items-center space-x-2">
@@ -315,7 +325,7 @@ function ModalDelete({
           </Button>
         </div>
       </div>
-    </ModalContainer>
+    </div>
   )
 }
 

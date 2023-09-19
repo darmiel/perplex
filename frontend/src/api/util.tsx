@@ -4,6 +4,8 @@ import { toast } from "sonner"
 
 import { BackendResponse } from "@/api/types"
 
+import "react-datepicker/dist/react-datepicker.css"
+
 export function extractErrorMessage(error: unknown): string {
   if (
     error instanceof AxiosError ||
@@ -59,6 +61,6 @@ export const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
     // @ts-ignore
     ref={ref}
   >
-    {value}
+    {value || "Select Date"}
   </button>
 ))

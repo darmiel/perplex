@@ -10,7 +10,7 @@ import ActionGrid from "@/components/action/sections/ActionGrid"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
-import CreateMeeting from "@/components/modals/MeetingCreateModal"
+import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
@@ -215,7 +215,7 @@ export default function ProjectPage() {
                     open={showCreateMeeting}
                     setOpen={setShowCreateMeeting}
                   >
-                    <CreateMeeting
+                    <MeetingCreateModal
                       projectID={projectID}
                       onClose={() => setShowCreateMeeting(false)}
                     />

@@ -29,12 +29,14 @@ type ButtonProps = {
   className?: string
   raw?: boolean
   href?: string
+  noBaseStyle?: boolean
 } & PropsWithChildren
 
 function Button({
   style = "neutral",
   icon,
   isLoading = false,
+  noBaseStyle = false,
   onClick,
   disabled,
   className = "",
@@ -45,7 +47,8 @@ function Button({
   const isDisabled = disabled || isLoading
 
   // base styling
-  const classNames = ["px-4 py-2 text-center"]
+  const classNames = []
+  !noBaseStyle && classNames.push("px-4 py-2 text-center")
   // button style
   if (!Array.isArray(style)) {
     classNames.push(buttonStyles[style])

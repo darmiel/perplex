@@ -11,7 +11,7 @@ import MeetingTag, {
   MeetingTense,
   tagStyles,
 } from "@/components/meeting/MeetingTag"
-import CreateMeeting from "@/components/modals/MeetingCreateModal"
+import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
 import Button from "@/components/ui/Button"
 import CardContainer from "@/components/ui/card/CardContainer"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
@@ -154,11 +154,12 @@ export default function MeetingList({
 
       {/* Create Meeting Popup */}
       <ModalPopup open={showCreateMeeting} setOpen={setShowCreateMeeting}>
-        <CreateMeeting
+        <MeetingCreateModal
           projectID={projectID}
-          onClose={(newMeetingID: number) => {
+          onClose={(newMeetingID?: number) => {
             setShowCreateMeeting(false)
-            router.push(`/project/${projectID}/meeting/${newMeetingID}`)
+            newMeetingID &&
+              router.push(`/project/${projectID}/meeting/${newMeetingID}`)
           }}
         />
       </ModalPopup>

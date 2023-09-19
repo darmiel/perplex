@@ -19,6 +19,7 @@ export default function TooltipAssignUsers({
   onUnassign,
   hideButton,
   showCheckmark,
+  offset,
 }: {
   users: User[]
   projectID: number
@@ -27,6 +28,7 @@ export default function TooltipAssignUsers({
   onUnassign?: (user: User) => void
   hideButton?: boolean
   showCheckmark?: boolean
+  offset?: number
 }) {
   const [filter, setFilter] = useState("")
 
@@ -51,6 +53,7 @@ export default function TooltipAssignUsers({
       <Tooltip
         id="assign-users"
         place="left"
+        offset={offset}
         clickable
         openOnClick
         style={{
