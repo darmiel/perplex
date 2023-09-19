@@ -45,6 +45,9 @@ function TopicListItem({
     <Flex
       col
       className={clsx(
+        {
+          "border-l-3 border-l-primary-500": isAssignedToUser,
+        },
         "rounded-md border border-transparent p-2 transition duration-150 ease-in-out",
         "hover:border-neutral-800 hover:bg-neutral-900",
         {
@@ -52,47 +55,42 @@ function TopicListItem({
         },
       )}
     >
-      <Flex>
-        <Checkbox
-          isIndeterminate={toggleTopicMutation.isLoading}
-          isSelected={topic.closed_at.Valid}
-          onValueChange={(checked) => {
-            toggleTopicMutation.mutate({
-              topicID: topic.ID,
-              close: checked,
-            })
-          }}
-        />
-        <h2
-          className={clsx("truncate text-neutral-200", {
-            "mr-1": isAssignedToUser,
-          })}
-        >
-          {topic.title}
-          <span className="text-sm text-neutral-500"> #{topic.ID}</span>
-        </h2>
-        {isAssignedToUser && (
-          <span className="ml-auto h-3 w-3 animate-pulse rounded-full bg-primary-600"></span>
+      <div className="ml-1">
+        <Flex>
+          <Checkbox
+            isIndeterminate={toggleTopicMutation.isLoading}
+            isSelected={topic.closed_at.Valid}
+            onValueChange={(checked) => {
+              toggleTopicMutation.mutate({
+                topicID: topic.ID,
+                close: checked,
+              })
+            }}
+          />
+          <h2 className={clsx("truncate text-neutral-200", {})}>
+            {topic.title}
+            <span className="text-sm text-neutral-500"> #{topic.ID}</span>
+          </h2>
+        </Flex>
+        {topic.tags?.length > 0 && (
+          <ScrollShadow orientation="horizontal" hideScrollBar className="mt-1">
+            <Flex gap={1}>
+              {topic.tags.map((tag) => (
+                <Chip
+                  key={tag.ID}
+                  className="whitespace-nowrap"
+                  variant="bordered"
+                  style={{
+                    borderColor: tag.color,
+                  }}
+                >
+                  {tag.title}
+                </Chip>
+              ))}
+            </Flex>
+          </ScrollShadow>
         )}
-      </Flex>
-      {topic.tags?.length > 0 && (
-        <ScrollShadow orientation="horizontal" hideScrollBar className="mt-1">
-          <Flex gap={1}>
-            {topic.tags.map((tag) => (
-              <Chip
-                key={tag.ID}
-                className="whitespace-nowrap"
-                variant="bordered"
-                style={{
-                  borderColor: tag.color,
-                }}
-              >
-                {tag.title}
-              </Chip>
-            ))}
-          </Flex>
-        </ScrollShadow>
-      )}
+      </div>
     </Flex>
   )
 }
@@ -152,12 +150,12 @@ export default function TopicList({
 
   return (
     <ul className="flex h-full flex-grow flex-col space-y-4  overflow-y-auto">
-      <div className="flex space-x-2">
+      <Flex justify="between">
         <Button
           onClick={() => setShowCreateTopic(true)}
-          style="neutral"
+          style="animated"
           icon={<BsPlusCircle color="gray" size="1em" />}
-          className="w-full"
+          className="w-fit"
         >
           Create Topic
         </Button>
@@ -166,10 +164,10 @@ export default function TopicList({
             <Button.ArrowLeft />
           </Button>
         )}
-      </div>
+      </Flex>
 
       {/* ProgressBar */}
-      <div>
+      <div className="px-4">
         <div className="h-2.5 w-full rounded-full bg-gray-700">
           <div
             className="h-2.5 rounded-full bg-primary-600"
@@ -186,7 +184,7 @@ export default function TopicList({
 
       <hr className="mb-6 mt-4 border-gray-700" />
 
-      <ScrollShadow hideScrollBar className="h-full">
+      <ScrollShadow hideScrollBar className="h-full p-2">
         <Accordion selectionMode="multiple" defaultSelectedKeys="all">
           <AccordionItem
             key="open-topics"
@@ -194,7 +192,7 @@ export default function TopicList({
               <BadgeHeader title="Open Topics" badge={openTopics.length} />
             }
           >
-            <div className="gap-4 space-y-0">{openTopics}</div>
+            <div className="gap-4 space-y-1">{openTopics}</div>
           </AccordionItem>
           <AccordionItem
             key="closed-topics"
@@ -202,7 +200,7 @@ export default function TopicList({
               <BadgeHeader title="Closed Topics" badge={closedTopics.length} />
             }
           >
-            <div className="gap-4 space-y-2">{closedTopics}</div>
+            <div className="gap-4 space-y-1">{closedTopics}</div>
           </AccordionItem>
         </Accordion>
       </ScrollShadow>

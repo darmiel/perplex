@@ -48,7 +48,7 @@ export default function ProjectPage() {
       <div className="flex h-full w-full flex-row overflow-y-auto">
         {showTopicList ? (
           <div
-            className={`${navigationBorderRight} w-[21rem] flex-initial bg-section-darker p-6`}
+            className={`${navigationBorderRight} w-[21rem] flex-initial bg-section-darker p-2`}
           >
             <TopicList
               projectID={projectID}
