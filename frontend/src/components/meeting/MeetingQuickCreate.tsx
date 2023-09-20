@@ -9,7 +9,6 @@ import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function MeetingQuickCreate({
@@ -56,7 +55,11 @@ export default function MeetingQuickCreate({
   }
 
   return (
-    <ModalContainer title={`Found ${events.length} events`} className="!p-4">
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
+    >
+      <h1 className="text-xl font-semibold">{`Found ${events.length} events`}</h1>
+
       <div className="flex max-h-56 flex-col gap-2 overflow-y-auto">
         {events.map((event, index) => {
           const isChecked = checked.includes(index)
@@ -115,14 +118,17 @@ export default function MeetingQuickCreate({
           )
         })}
       </div>
-      <Button
-        style={checked.length === 0 ? "neutral" : "primary"}
-        disabled={checked.length === 0}
-        isLoading={meetingCreateMut.isLoading}
-        onClick={() => createSelected()}
-      >
-        Import {checked.length} Meetings and Close
-      </Button>
-    </ModalContainer>
+      <Flex justify="between">
+        <Button onClick={() => onCreate()}>Cancel</Button>
+        <Button
+          style={checked.length === 0 ? "neutral" : "primary"}
+          disabled={checked.length === 0}
+          isLoading={meetingCreateMut.isLoading}
+          onClick={() => createSelected()}
+        >
+          Import {checked.length} Meetings and Close
+        </Button>
+      </Flex>
+    </div>
   )
 }

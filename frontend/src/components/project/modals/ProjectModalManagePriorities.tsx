@@ -1,12 +1,13 @@
+import { Chip, Input, ScrollShadow } from "@nextui-org/react"
+import clsx from "clsx"
 import { useState } from "react"
-import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
+import { BsCheck, BsDice5, BsPen, BsSearch, BsTrash, BsX } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { Priority } from "@/api/types"
-import { extractErrorMessage } from "@/api/util"
+import { extractErrorMessage, includesFold } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ProjectModalManagePriorities({
@@ -99,96 +100,90 @@ export default function ProjectModalManagePriorities({
   }
 
   return (
-    <ModalContainer
-      title={`Manage Priorities in Project #${projectID}`}
-      className="w-[40rem]"
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
     >
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="prioritySearch">
-          Search Priority
-        </label>
-        <input
-          id="prioritySearch"
-          type="text"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="Urgent"
-          onChange={(event) => setPriorityNameSearch(event.target.value)}
-          value={priorityNameSearch}
-          autoComplete="off"
-        />
-      </div>
+      <h1 className="text-xl font-semibold">{`Manage Priorities in Project #${projectID}`}</h1>
 
-      <Hr />
+      <Input
+        variant="bordered"
+        label="Search Priority"
+        onValueChange={setPriorityNameSearch}
+        value={priorityNameSearch}
+        autoComplete="off"
+        startContent={<BsSearch />}
+      />
 
-      <div className="flex flex-col space-y-4">
+      <ScrollShadow className="flex max-h-96 flex-col space-y-2">
         {listPrioritiesQuery.data.data
           // filter priorities by name (lower case search)
           .filter(
             (tag) =>
               !priorityNameSearch ||
-              tag.title
-                .toLowerCase()
-                .includes(priorityNameSearch.toLowerCase()),
+              includesFold(tag.title, priorityNameSearch),
           )
           // display priorities
           .map((priority) => (
             <div
               key={priority.ID}
-              className={`flex items-center justify-between rounded-md border p-4`}
-              style={{
-                borderColor: priority.color || "gray",
-              }}
+              className={clsx(
+                "flex items-center justify-between space-x-2 rounded-md p-2",
+                "transition-colors duration-150 ease-in-out hover:bg-neutral-900",
+              )}
             >
-              <div className="w-2/3">
-                {editMode === priority.ID ? (
-                  <div className="flex flex-row space-x-2">
-                    <input
-                      type="text"
-                      className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                      placeholder="My awesome Priority"
-                      onChange={(event) => setEditTitle(event.target.value)}
-                      value={editTitle}
-                      autoComplete="off"
-                    />
-                    <input
-                      type="color"
-                      className="h-11 w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                      placeholder="#ff0000"
-                      onChange={(event) => setEditColor(event.target.value)}
-                      value={editColor}
-                      autoComplete="off"
-                    />
-                    <input
-                      type="number"
-                      className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                      placeholder="0"
-                      onChange={(event) =>
-                        setEditWeight(Number(event.target.value))
-                      }
-                      value={editWeight}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-4">
-                    <h2
-                      className="rounded-md px-4 py-2 text-white"
-                      style={{ backgroundColor: priority.color || "gray" }}
-                    >
-                      {priority.title}
-                    </h2>
-                    <span className="text-neutral-400">{priority.color}</span>
-                    <span className="text-primary-400">{priority.weight}</span>
-                  </div>
-                )}
-              </div>
+              {editMode === priority.ID ? (
+                <div className="flex flex-grow flex-row space-x-2">
+                  <Input
+                    type="text"
+                    variant="bordered"
+                    className="w-full"
+                    placeholder="My awesome Priority"
+                    onValueChange={setEditTitle}
+                    value={editTitle}
+                    autoComplete="off"
+                  />
+                  <Input
+                    type="color"
+                    variant="bordered"
+                    className="h-11 w-24"
+                    placeholder="#ff0000"
+                    onChange={(event) => setEditColor(event.target.value)}
+                    value={editColor}
+                    autoComplete="off"
+                  />
+                  <Input
+                    type="number"
+                    variant="bordered"
+                    className="w-24"
+                    placeholder="0"
+                    onChange={(event) =>
+                      setEditWeight(Number(event.target.value))
+                    }
+                    value={String(editWeight)}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <Chip
+                    variant="bordered"
+                    style={{
+                      borderColor: priority.color,
+                      color: priority.color,
+                    }}
+                  >
+                    {priority.title}
+                  </Chip>
+                  <span className="text-neutral-400">{priority.weight}</span>
+                </div>
+              )}
               <div className="space-x-2">
                 {editMode === priority.ID ? (
                   <>
-                    <Button style="neutral" onClick={() => setEditMode(null)}>
+                    <Button style="animated" onClick={() => setEditMode(null)}>
                       <BsX />
                     </Button>
                     <Button
-                      style="primary"
+                      style="animated"
                       onClick={() => editPriority(priority)}
                       isLoading={editPriorityMut.isLoading}
                     >
@@ -198,14 +193,15 @@ export default function ProjectModalManagePriorities({
                 ) : (
                   <>
                     <Button
-                      style="neutral"
+                      style="animated"
+                      className="text-red-500"
                       onClick={() => removePriority(priority)}
                       isLoading={removePriorityMut.isLoading}
                     >
                       {confirmDelete === priority.ID ? "Confirm" : <BsTrash />}
                     </Button>
                     <Button
-                      style="secondary"
+                      style="animated"
                       onClick={() => editPriority(priority)}
                       isLoading={editPriorityMut.isLoading}
                     >
@@ -216,31 +212,49 @@ export default function ProjectModalManagePriorities({
               </div>
             </div>
           ))}
-      </div>
+      </ScrollShadow>
 
-      <div className="flex space-x-2">
-        <input
+      <div className="flex items-center space-x-2">
+        <Input
           type="text"
+          variant="bordered"
           value={createName}
-          onChange={(e) => setCreateName(e.target.value)}
-          placeholder="My awesome Tag"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          onValueChange={setCreateName}
+          placeholder="My awesome Priority"
+          className="w-full"
           autoComplete="off"
         />
-        <input
-          type="color"
-          value={createColor}
-          onChange={(e) => setCreateColor(e.target.value)}
-          placeholder="#ff0000"
-          className="h-11 w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          autoComplete="off"
-        />
-        <input
+        <Input
           type="number"
-          value={createWeight}
+          variant="bordered"
+          value={String(createWeight)}
           onChange={(e) => setCreateWeight(Number(e.target.value))}
           placeholder="0"
-          className="w-1/4 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          className="w-36"
+        />
+        <Input
+          startContent={
+            <Button
+              noBaseStyle
+              style="animated"
+              className="px-1 py-1"
+              onClick={() => {
+                const randomColor = `#${Math.floor(
+                  Math.random() * 16777215,
+                ).toString(16)}`
+                setCreateColor(randomColor)
+              }}
+            >
+              <BsDice5 />
+            </Button>
+          }
+          type="color"
+          variant="bordered"
+          value={createColor}
+          onValueChange={setCreateColor}
+          placeholder="#ff0000"
+          className="w-36"
+          autoComplete="off"
         />
         <Button
           onClick={() =>
@@ -255,11 +269,12 @@ export default function ProjectModalManagePriorities({
           Create
         </Button>
       </div>
+
       <Hr />
 
       <div className="flex flex-row justify-between space-x-4">
         <Button onClick={() => onClose?.()}>Close</Button>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker"
 
 import "react-datepicker/dist/react-datepicker.css"
 
+import { Checkbox, Input, Textarea } from "@nextui-org/react"
 import { BsTriangle } from "react-icons/bs"
 import { toast } from "sonner"
 
@@ -10,20 +11,21 @@ import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
 
-export default function CreateMeeting({
+export default function MeetingCreateModal({
   projectID,
   onClose,
 }: {
   projectID: number
-  onClose: (newMeetingID: number) => void
+  onClose: (newMeetingID?: number) => void
 }) {
   const [meetingTitle, setMeetingTitle] = useState<string>("")
   const [meetingDescription, setMeetingDescription] = useState<string>("")
   const [meetingStartDate, setMeetingStartDate] = useState<Date>(new Date())
   const [meetingEndDate, setMeetingEndDate] = useState<Date>(new Date())
+
+  const [createAnother, setCreateAnother] = useState(false)
 
   useEffect(() => {
     // get days since epoch for start and end date
@@ -66,36 +68,33 @@ export default function CreateMeeting({
   }
 
   return (
-    <ModalContainer title="Create Meeting">
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="meetingTitle">
-          Meeting Title
-        </label>
-        <input
-          id="meetingTitle"
-          type="text"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="My awesome Meeting"
-          onChange={(event) => setMeetingTitle(event.target.value)}
-          value={meetingTitle}
-          onKeyDown={(e) => e.key === "Enter" && create(false)}
-          autoComplete="off"
-        />
-      </div>
+    <div
+      className={`space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
+    >
+      <h1 className="text-xl font-semibold">Create New Meeting</h1>
 
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="meetingDescription">
-          Meeting Description
-        </label>
-        <textarea
-          id="meetingDescription"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="(Markdown is supported)"
-          rows={10}
-          onChange={(event) => setMeetingDescription(event.target.value)}
-          value={meetingDescription}
-        />
-      </div>
+      <Input
+        type="text"
+        variant="bordered"
+        label="Meeting Name"
+        isClearable
+        value={meetingTitle}
+        onValueChange={setMeetingTitle}
+        placeholder="My awesome Meeting"
+        onKeyDown={(e) => e.key === "Enter" && create(false)}
+        autoComplete="off"
+      />
+
+      <Textarea
+        minRows={2}
+        maxRows={10}
+        label="Meeting Description"
+        placeholder="This is a description (Markdown is supported)"
+        value={meetingDescription}
+        onValueChange={setMeetingDescription}
+        variant="bordered"
+        description="Markdown is supported"
+      />
 
       <Flex x={4}>
         <div className="w-full space-y-2">
@@ -141,23 +140,24 @@ export default function CreateMeeting({
           <div>{extractErrorMessage(createMeetingMutation.error)}</div>
         </div>
       )}
-      <div className="flex flex-row justify-end space-x-4">
-        <Button
-          style="secondary"
-          isLoading={createMeetingMutation.isLoading}
-          onClick={() => create(true)}
-        >
-          Save and Close
+      <div className="flex flex-row justify-between space-x-4">
+        <Button style="neutral" onClick={() => onClose(undefined)}>
+          Close
         </Button>
 
-        <Button
-          style="primary"
-          isLoading={createMeetingMutation.isLoading}
-          onClick={() => create(false)}
-        >
-          Save and Create New
-        </Button>
+        <Flex x={2}>
+          <Checkbox isSelected={createAnother} onValueChange={setCreateAnother}>
+            Create Another?
+          </Checkbox>
+          <Button
+            style="secondary"
+            isLoading={createMeetingMutation.isLoading}
+            onClick={() => create(!createAnother)}
+          >
+            Create
+          </Button>
+        </Flex>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

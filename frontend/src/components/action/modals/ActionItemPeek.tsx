@@ -1,3 +1,4 @@
+import { ScrollShadow } from "@nextui-org/react"
 import Link from "next/link"
 
 import { Action } from "@/api/types"
@@ -7,7 +8,6 @@ import ResolveUserName from "@/components/resolve/ResolveUserName"
 import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { PriorityTag, TagContainer } from "@/components/ui/tag/Tag"
 import TagList from "@/components/ui/tag/TagList"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
@@ -20,7 +20,9 @@ export default function ActionPeekModal({
   onClose: () => void
 }) {
   return (
-    <ModalContainer title="">
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
+    >
       <div className="flex flex-col space-y-4">
         <div className="flex items-center space-x-2">
           <ActionTag action={action} />
@@ -57,14 +59,16 @@ export default function ActionPeekModal({
           <RenderMarkdown markdown={action.description || "*no description*"} />
         </div>
 
-        <CommentSuite
-          projectID={action.project_id}
-          commentType="action"
-          commentEntityID={action.ID}
-        />
+        <ScrollShadow className="max-h-64">
+          <CommentSuite
+            projectID={action.project_id}
+            commentType="action"
+            commentEntityID={action.ID}
+          />
+        </ScrollShadow>
 
         <div className="flex justify-between">
-          <Button style="secondary" onClick={onClose}>
+          <Button style="neutral" onClick={onClose}>
             Close
           </Button>
           <Link
@@ -75,6 +79,6 @@ export default function ActionPeekModal({
           </Link>
         </div>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

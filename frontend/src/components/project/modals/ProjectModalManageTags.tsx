@@ -1,12 +1,13 @@
+import { Chip, Input, ScrollShadow } from "@nextui-org/react"
+import clsx from "clsx"
 import { useState } from "react"
-import { BsCheck, BsPen, BsTrash, BsX } from "react-icons/bs"
+import { BsCheck, BsDice5, BsPen, BsSearch, BsTrash, BsX } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { Tag } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ProjectModalManageTags({
@@ -42,7 +43,7 @@ export default function ProjectModalManageTags({
   })
 
   const createTagMut = tags!.useCreate(projectID, ({ data }) => {
-    toast.success(`Tag (#{data.ID}) created`)
+    toast.success(`Tag #${data.ID} created`)
   })
 
   if (projectTagsQuery.isLoading) {
@@ -84,28 +85,21 @@ export default function ProjectModalManageTags({
   }
 
   return (
-    <ModalContainer
-      title={`Manage Tags in Project #${projectID}`}
-      className="w-[40rem]"
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
     >
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="tagSearch">
-          Search Tag
-        </label>
-        <input
-          id="tagSearch"
-          type="text"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="My awesome Tag"
-          onChange={(event) => setTagNameSearch(event.target.value)}
-          value={tagNameSearch}
-          autoComplete="off"
-        />
-      </div>
+      <h1 className="text-xl font-semibold">Manage Tags</h1>
 
-      <Hr />
+      <Input
+        variant="bordered"
+        label="Search Tags"
+        onValueChange={setTagNameSearch}
+        value={tagNameSearch}
+        autoComplete="off"
+        startContent={<BsSearch />}
+      />
 
-      <div className="flex flex-col space-y-4">
+      <ScrollShadow className="flex max-h-96 flex-col space-y-2">
         {projectTagsQuery.data.data
           // filter tags by name (lower case search)
           .filter(
@@ -117,51 +111,51 @@ export default function ProjectModalManageTags({
           .map((tag) => (
             <div
               key={tag.ID}
-              className={`flex items-center justify-between rounded-md border p-4`}
-              style={{
-                borderColor: tag.color,
-              }}
+              className={clsx(
+                "flex items-center justify-between space-x-2 rounded-md p-2",
+                "transition-colors duration-150 ease-in-out hover:bg-neutral-900",
+              )}
             >
-              <div>
-                {editMode === tag.ID ? (
-                  <div className="flex flex-row space-x-2">
-                    <input
-                      type="text"
-                      className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                      placeholder="My awesome Tag"
-                      onChange={(event) => setEditTitle(event.target.value)}
-                      value={editTitle}
-                      autoComplete="off"
-                    />
-                    <input
-                      type="color"
-                      className="h-11 w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                      placeholder="#ff0000"
-                      onChange={(event) => setEditColor(event.target.value)}
-                      value={editColor}
-                      autoComplete="off"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-4">
-                    <h2
-                      className="rounded-md px-4 py-2 text-white"
-                      style={{ backgroundColor: tag.color }}
-                    >
-                      {tag.title}
-                    </h2>
-                    <span className="text-neutral-400">{tag.color}</span>
-                  </div>
-                )}
-              </div>
+              {editMode === tag.ID ? (
+                <div className="flex flex-grow flex-row space-x-2">
+                  <Input
+                    type="text"
+                    variant="bordered"
+                    className="w-full"
+                    placeholder="My awesome Tag"
+                    onValueChange={setEditTitle}
+                    value={editTitle}
+                    autoComplete="off"
+                  />
+                  <Input
+                    type="color"
+                    variant="bordered"
+                    className="h-11 w-24"
+                    placeholder="#ff0000"
+                    onChange={(event) => setEditColor(event.target.value)}
+                    value={editColor}
+                    autoComplete="off"
+                  />
+                </div>
+              ) : (
+                <Chip
+                  variant="bordered"
+                  style={{
+                    borderColor: tag.color,
+                    color: tag.color,
+                  }}
+                >
+                  {tag.title}
+                </Chip>
+              )}
               <div className="space-x-2">
                 {editMode === tag.ID ? (
                   <>
-                    <Button style="neutral" onClick={() => setEditMode(null)}>
+                    <Button style="animated" onClick={() => setEditMode(null)}>
                       <BsX />
                     </Button>
                     <Button
-                      style="primary"
+                      style="animated"
                       onClick={() => editTag(tag)}
                       isLoading={editTagMut.isLoading}
                     >
@@ -171,14 +165,15 @@ export default function ProjectModalManageTags({
                 ) : (
                   <>
                     <Button
-                      style="neutral"
+                      style="animated"
+                      className="text-red-500"
                       onClick={() => removeTag(tag)}
                       isLoading={removeTagMut.isLoading}
                     >
                       {confirmDelete === tag.ID ? "Confirm" : <BsTrash />}
                     </Button>
                     <Button
-                      style="secondary"
+                      style="animated"
                       onClick={() => editTag(tag)}
                       isLoading={editTagMut.isLoading}
                     >
@@ -189,23 +184,40 @@ export default function ProjectModalManageTags({
               </div>
             </div>
           ))}
-      </div>
+      </ScrollShadow>
 
       <div className="flex space-x-2">
-        <input
+        <Input
           type="text"
+          variant="bordered"
           value={createName}
-          onChange={(e) => setCreateName(e.target.value)}
+          onValueChange={setCreateName}
           placeholder="My awesome Tag"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          className="w-full"
           autoComplete="off"
         />
-        <input
+        <Input
+          startContent={
+            <Button
+              noBaseStyle
+              style="animated"
+              className="px-1 py-1"
+              onClick={() => {
+                const randomColor = `#${Math.floor(
+                  Math.random() * 16777215,
+                ).toString(16)}`
+                setCreateColor(randomColor)
+              }}
+            >
+              <BsDice5 />
+            </Button>
+          }
           type="color"
+          variant="bordered"
           value={createColor}
-          onChange={(e) => setCreateColor(e.target.value)}
+          onValueChange={setCreateColor}
           placeholder="#ff0000"
-          className="h-11 w-1/2 rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+          className="h-11 w-36"
           autoComplete="off"
         />
         <Button
@@ -225,6 +237,6 @@ export default function ProjectModalManageTags({
       <div className="flex flex-row justify-between space-x-4">
         <Button onClick={() => onClose?.()}>Close</Button>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

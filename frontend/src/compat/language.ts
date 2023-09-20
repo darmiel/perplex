@@ -21,7 +21,7 @@ export const greetings: Record<string, string> = {
   Czech: "Ahoj",
   Danish: "Hej",
   Dutch: "Hallo",
-  English: "Hello&nbsp;",
+  English: "Hello",
   Estonian: "Tere",
   Ewe: "Hello",
   Farsi: "Sal\u0101m",

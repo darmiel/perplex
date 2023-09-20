@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"github.com/darmiel/perplex/pkg/lexorank"
 	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
 	"time"
@@ -55,6 +56,13 @@ func (m *topicService) AddTopic(
 		}
 		priorityIDCreate = &priorityID
 	}
+	// find how many topics have been created for the meeting
+	var count int64
+	if err = m.DB.Model(&model.Topic{}).
+		Where("meeting_id = ?", meetingID).
+		Count(&count).Error; err != nil {
+		return nil, err
+	}
 	res = &model.Topic{
 		Title:         title,
 		Description:   description,
@@ -62,6 +70,7 @@ func (m *topicService) AddTopic(
 		ForceSolution: forceSolution,
 		MeetingID:     meetingID,
 		PriorityID:    priorityIDCreate,
+		LexoRank:      lexorank.GetAlphabetForIndex(count),
 	}
 	err = m.DB.Create(res).Error
 	return
@@ -83,6 +92,7 @@ func (m *topicService) GetTopic(topicID uint, preload ...string) (res *model.Top
 func (m *topicService) ListTopicsForMeeting(meetingID uint) (res []*model.Topic, err error) {
 	err = m.preload().
 		Preload("Creator").
+		Order("lexo_rank").
 		Find(&res, &model.Topic{
 			MeetingID: meetingID,
 		}).Error

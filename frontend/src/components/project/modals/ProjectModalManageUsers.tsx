@@ -1,3 +1,5 @@
+import { Input, ScrollShadow } from "@nextui-org/react"
+import clsx from "clsx"
 import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
 import { toast } from "sonner"
@@ -5,7 +7,6 @@ import { toast } from "sonner"
 import useDebounce from "@/components/Debounce"
 import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -43,28 +44,21 @@ export default function ProjectModalManageUsers({
   }, [debounce])
 
   return (
-    <ModalContainer
-      title={`Manage Users in Project #${projectID}`}
-      className="w-[40rem]"
+    <div
+      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
     >
-      <div className="space-y-2">
-        <label className="text-neutral-400" htmlFor="userNameSearch">
-          Search User
-        </label>
-        <input
-          id="userNameSearch"
-          type="text"
-          className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-          placeholder="darmiel"
-          onChange={(event) => setUserNameSearch(event.target.value)}
-          value={userNameSearch}
-          autoComplete="off"
-        />
-      </div>
+      <h1 className="text-xl font-semibold">Manage Users</h1>
 
-      <Hr />
+      <Input
+        variant="bordered"
+        label="Search User"
+        placeholder="darmiel"
+        onValueChange={setUserNameSearch}
+        value={userNameSearch}
+        autoComplete="off"
+      />
 
-      <div className="flex flex-col space-y-4">
+      <ScrollShadow className="flex max-h-96 flex-col space-y-2">
         {listUsersQuery.data?.data.map((user) => {
           const isAlreadyInProject = projectUsersQuery.data?.data.some(
             (projectUser) => projectUser.id === user.id,
@@ -72,23 +66,24 @@ export default function ProjectModalManageUsers({
           return (
             <div
               key={user.id}
-              className={`${
-                !isAlreadyInProject ? "bg-neutral-800" : ""
-              } flex items-center justify-between rounded-md border border-neutral-600 p-4`}
+              className={clsx(
+                "flex items-center justify-between rounded-md border border-transparent bg-transparent px-4 py-2",
+                "transition-colors duration-150 ease-in-out hover:bg-neutral-900",
+              )}
             >
               <div className="flex items-center space-x-4">
                 <UserAvatar userID={user.id} />
                 <div className="flex flex-col">
                   <span>{user.name}</span>
                   {isAlreadyInProject && (
-                    <span className="text-neutral-400">
+                    <span className="text-neutral-500">
                       User is already in project
                     </span>
                   )}
                 </div>
               </div>
               <Button
-                style={isAlreadyInProject ? "neutral" : "primary"}
+                style={isAlreadyInProject ? "animated" : "neutral"}
                 disabled={loggedUser?.uid === user.id}
                 onClick={() =>
                   addRemoveUserMutation.mutate({
@@ -103,7 +98,7 @@ export default function ProjectModalManageUsers({
             </div>
           )
         })}
-      </div>
+      </ScrollShadow>
 
       <Hr />
 
@@ -138,6 +133,6 @@ export default function ProjectModalManageUsers({
           </Button>
         </div>
       </div>
-    </ModalContainer>
+    </div>
   )
 }

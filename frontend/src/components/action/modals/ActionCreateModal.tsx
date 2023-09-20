@@ -1,3 +1,12 @@
+import {
+  Accordion,
+  AccordionItem,
+  Avatar,
+  AvatarGroup,
+  Input,
+  ScrollShadow,
+  Textarea,
+} from "@nextui-org/react"
 import { UseMutationResult } from "@tanstack/react-query"
 import { useState } from "react"
 import ReactDatePicker from "react-datepicker"
@@ -6,17 +15,22 @@ import {
   BsCheckCircleFill,
   BsCircleFill,
   BsTriangle,
+  BsX,
   BsXCircleFill,
 } from "react-icons/bs"
 import { BarLoader, ClipLoader } from "react-spinners"
 import { toast } from "sonner"
 
+import { User } from "@/api/types"
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
 import Button from "@/components/ui/Button"
 import { CheckableCardContainer } from "@/components/ui/card/CheckableCardContainer"
-import ModalContainer from "@/components/ui/modal/ModalContainer"
+import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
+import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
 import TagList from "@/components/ui/tag/TagList"
+import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 function getIconForMutation<A, B, C, D>(
@@ -56,7 +70,7 @@ export default function ActionCreateModal({
   const [actionDescription, setActionDescription] = useState<string>("")
   const [actionDueDate, setActionDueDate] = useState<string>("")
   const [actionPriorityID, setActionPriorityID] = useState<number>(0)
-  const [actionUserAssigned, setActionUserAssigned] = useState<string[]>([])
+  const [actionUserAssigned, setActionUserAssigned] = useState<User[]>([])
   const [actionTagAssigned, setActionTagsAssigned] = useState<number[]>([])
 
   const { actions, projects, tags, priorities } = useAuth()
@@ -87,11 +101,11 @@ export default function ActionCreateModal({
     }
 
     // assign users
-    for (const userID of actionUserAssigned) {
+    for (const user of actionUserAssigned) {
       linkUserToActionMut.mutate({
         link: true,
         actionID: data.ID,
-        userID,
+        userID: user.id,
       })
     }
 
@@ -105,12 +119,12 @@ export default function ActionCreateModal({
     }
   })
 
-  function addUser(userID: string) {
-    setActionUserAssigned((old) => [...old, userID])
+  function addUser(user: User) {
+    setActionUserAssigned((old) => [...old, user])
   }
 
-  function removeUser(userID: string) {
-    setActionUserAssigned((old) => old.filter((u) => u !== userID))
+  function removeUser(user: User) {
+    setActionUserAssigned((old) => old.filter((u) => u !== user))
   }
 
   function addTag(tagID: number) {
@@ -122,127 +136,132 @@ export default function ActionCreateModal({
   }
 
   return (
-    <ModalContainer
-      title={`Create Action${topicID ? ` for Topic ${topicID}` : ""}`}
+    <div
+      className={`w-[40rem] space-y-4 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
     >
-      <div className="flex space-x-10">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-neutral-400" htmlFor="actionTitle">
-              Action Title
-            </label>
-            <input
-              id="actionTitle"
-              type="text"
-              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-              placeholder="My awesome Action"
-              onChange={(event) => setActionTitle(event.target.value)}
-              value={actionTitle}
-              autoComplete="off"
-            />
-          </div>
+      <h1 className="text-xl font-semibold">{`Create Action${
+        topicID ? ` for Topic ${topicID}` : ""
+      }`}</h1>
 
-          <div className="space-y-2">
-            <label className="text-neutral-400" htmlFor="actionDescription">
-              Action Description
-            </label>
-            <textarea
-              id="actionDescription"
-              className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-              placeholder="(Markdown is supported)"
-              rows={10}
-              onChange={(event) => setActionDescription(event.target.value)}
-              value={actionDescription}
-            />
-          </div>
-        </div>
-        <div className="space-y-4">
-          {/* Priority and Due Date */}
-          <div className="flex items-end space-x-4">
-            {/* Priority */}
-            <PriorityPicker
-              className="w-[15rem]"
-              projectID={projectID}
-              setPriorityID={setActionPriorityID}
-            />
+      <Flex x={2}>
+        <Input
+          variant="bordered"
+          type="text"
+          label="Action Title"
+          placeholder="My awesome Action"
+          onValueChange={setActionTitle}
+          value={actionTitle}
+          autoComplete="off"
+        />
+        <PriorityPicker
+          className="w-[15rem]"
+          projectID={projectID}
+          setPriorityID={setActionPriorityID}
+        />
+      </Flex>
 
-            {/* Due Date */}
-            <div className="w-full space-y-2">
-              <label className="text-neutral-400" htmlFor="topicDate">
-                Action Due Date
-              </label>
-              <div className="flex items-center space-x-4">
-                <ReactDatePicker
-                  selected={actionDueDate ? new Date(actionDueDate) : undefined}
-                  onChange={(date) => setActionDueDate(date?.toString() || "")}
-                  timeInputLabel="Time:"
-                  dateFormat="MM/dd/yyyy h:mm aa"
-                  customInput={<PickerCustomInput />}
-                  showTimeInput
-                />
-                {actionDueDate && (
-                  <Button onClick={() => setActionDueDate("")}>
-                    No Due Date
-                  </Button>
+      <Textarea
+        minRows={2}
+        maxRows={10}
+        label="Action Description"
+        placeholder="This is a description (Markdown is supported)"
+        value={actionDescription}
+        onValueChange={setActionDescription}
+        variant="bordered"
+        description="Markdown is supported"
+      />
+
+      {/* Assign Users */}
+      <Flex x={2} className="rounded-md bg-neutral-900 p-3">
+        <TooltipAssignUsers
+          projectID={projectID}
+          onAssign={addUser}
+          onUnassign={removeUser}
+          users={actionUserAssigned}
+          showCheckmark
+          offset={60}
+        />
+        {actionUserAssigned.length <= 0 ? (
+          <span className="text-neutral-400">No users assigned</span>
+        ) : (
+          <span className="text-neutral-400">
+            <span className="text-white">{actionUserAssigned.length}</span>{" "}
+            users assigned
+          </span>
+        )}
+        <AvatarGroup max={8}>
+          {actionUserAssigned.map((user, key) => (
+            <Avatar
+              key={key}
+              src={getUserAvatarURL(user.id)}
+              name={user.name}
+              size="sm"
+            />
+          ))}
+        </AvatarGroup>
+      </Flex>
+
+      <Accordion>
+        <AccordionItem key="advanced" title="More Options" isCompact>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <span className="whitespace-nowrap text-neutral-400">
+                Due Date:
+              </span>
+              <ReactDatePicker
+                selected={actionDueDate ? new Date(actionDueDate) : undefined}
+                onChange={(date) => setActionDueDate(date?.toString() || "")}
+                timeInputLabel="Time:"
+                dateFormat="MM/dd/yyyy h:mm aa"
+                customInput={<PickerCustomInput />}
+                showTimeInput
+              />
+              {actionDueDate && (
+                <Button
+                  noBaseStyle
+                  style="animated"
+                  onClick={() => setActionDueDate("")}
+                >
+                  <BsX />
+                </Button>
+              )}
+            </div>
+
+            {/* Assign Tags */}
+            <div className="flex items-start space-x-2">
+              <span className="whitespace-nowrap text-neutral-400">
+                Assign Tags:
+              </span>
+              <div className="flex max-w-xl flex-row space-x-4">
+                {tagsQuery.isLoading ? (
+                  <BarLoader color="white" />
+                ) : (
+                  <ScrollShadow hideScrollBar className="max-h-36">
+                    <TagList>
+                      {tagsQuery.data?.data.map((tag, key) => (
+                        <CheckableCardContainer
+                          key={key}
+                          htmlStyle={{
+                            borderColor: tag.color ?? "gray",
+                          }}
+                          checked={actionTagAssigned.includes(tag.ID)}
+                          onToggle={(toggled) =>
+                            toggled ? addTag(tag.ID) : removeTag(tag.ID)
+                          }
+                        >
+                          {tag.title}
+                        </CheckableCardContainer>
+                      ))}
+                    </TagList>
+                  </ScrollShadow>
                 )}
               </div>
             </div>
           </div>
+        </AccordionItem>
+      </Accordion>
 
-          {/* Assign Tags */}
-          <div className="max-w-md space-y-2">
-            <span className="text-neutral-400">Assign Tags</span>
-            <div className="flex max-w-xl flex-row space-x-4">
-              {tagsQuery.isLoading ? (
-                <BarLoader color="white" />
-              ) : (
-                <TagList>
-                  {tagsQuery.data?.data.map((tag, key) => (
-                    <CheckableCardContainer
-                      key={key}
-                      htmlStyle={{
-                        borderColor: tag.color ?? "gray",
-                      }}
-                      checked={actionTagAssigned.includes(tag.ID)}
-                      onToggle={(toggled) =>
-                        toggled ? addTag(tag.ID) : removeTag(tag.ID)
-                      }
-                    >
-                      {tag.title}
-                    </CheckableCardContainer>
-                  ))}
-                </TagList>
-              )}
-            </div>
-          </div>
-
-          {/* Assign Users */}
-          <div className="max-w-md space-y-2">
-            <span className="text-neutral-400">Assign Users</span>
-            <div className="flex max-w-xl flex-row space-x-4">
-              {usersQuery.isLoading ? (
-                <BarLoader color="white" />
-              ) : (
-                <TagList>
-                  {usersQuery.data?.data.map((user, key) => (
-                    <CheckableCardContainer
-                      key={key}
-                      checked={actionUserAssigned.includes(user.id)}
-                      onToggle={(toggled) =>
-                        toggled ? addUser(user.id) : removeUser(user.id)
-                      }
-                    >
-                      {user.name}
-                    </CheckableCardContainer>
-                  ))}
-                </TagList>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr className="border-neutral-600" />
+      <Hr />
 
       <ol className="flex w-full items-center justify-between text-center text-sm font-medium text-gray-400">
         <li className="flex items-center space-x-2">
@@ -311,6 +330,6 @@ export default function ActionCreateModal({
           Create
         </Button>
       </div>
-    </ModalContainer>
+    </div>
   )
 }
