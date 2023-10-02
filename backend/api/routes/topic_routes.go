@@ -18,6 +18,10 @@ func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler, middleware
 	specific.Post("/status", handler.SetStatusChecked)
 	specific.Delete("/status", handler.SetStatusUnchecked)
 
+	specific.Get("/subscribe", handler.IsSubscribed)
+	specific.Post("/subscribe", handler.SubscribeUser)
+	specific.Delete("/subscribe", handler.UnsubscribeUser)
+
 	// user linking
 	userGroup := specific.Group("/user/:user_id")
 	userGroup.Use("/", middlewares.UserLocalsMiddleware)

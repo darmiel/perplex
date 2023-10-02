@@ -116,6 +116,10 @@ export type topicLinkTagVars = {
   link: boolean
 }
 
+export type topicSubscribeVars = {
+  subscribe: boolean
+}
+
 // ======================
 // Project Tag Types
 // ======================
@@ -641,6 +645,48 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       linkTagMutKey(projectID: number, meetingID: number) {
         return [{ projectID }, { meetingID }, "topic-link-tag-mut"]
+      },
+
+      isSubscribedQueryFn(
+        projectID: number,
+        meetingID: number,
+        topicID: number,
+      ) {
+        return async () =>
+          (
+            await axios.get(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/subscribe`,
+            )
+          ).data
+      },
+      isSubscribedQueryKey(
+        projectID: number,
+        meetingID: number,
+        topicID: number,
+      ) {
+        return [
+          { projectID },
+          { meetingID },
+          { topicID },
+          "topic-subscribe-query",
+        ]
+      },
+
+      subscribeMutFn(projectID: number, meetingID: number, topicID: number) {
+        return async ({ subscribe }: topicSubscribeVars) =>
+          (
+            await axios[subscribe ? "post" : "delete"](
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/subscribe`,
+            )
+          ).data
+      },
+      subscribeMutKey(projectID: number, meetingID: number, topicID: number) {
+        return [
+          { projectID },
+          { meetingID },
+          { topicID },
+          "topic-subscribe-mut",
+        ]
       },
     },
     comments: {
@@ -1366,6 +1412,46 @@ export const functions = (axios: Axios, client: QueryClient) => {
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,
           ),
+        })
+      },
+      useIsSubscribed(projectID: number, meetingID: number, topicID: number) {
+        return useQuery<BackendResponse<boolean>>({
+          queryKey: functions.topics.isSubscribedQueryKey(
+            projectID,
+            meetingID,
+            topicID,
+          ),
+          queryFn: functions.topics.isSubscribedQueryFn(
+            projectID,
+            meetingID,
+            topicID,
+          ),
+          enabled: !!projectID && !!topicID,
+        })
+      },
+      useSubscribe(
+        projectID: number,
+        meetingID: number,
+        topicID: number,
+        callback: SuccessCallback<boolean, topicSubscribeVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, topicSubscribeVars>({
+          mutationKey: functions.topics.subscribeMutKey(
+            projectID,
+            meetingID,
+            topicID,
+          ),
+          mutationFn: functions.topics.subscribeMutFn(
+            projectID,
+            meetingID,
+            topicID,
+          ),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.topics.findQueryKey(projectID, meetingID, topicID),
+            functions.topics.listQueryKey(projectID, meetingID),
+          ),
+          onError: toastError("Cannot subscribe to Topic:"),
         })
       },
     },

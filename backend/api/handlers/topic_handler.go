@@ -201,3 +201,22 @@ func (h *TopicHandler) UnlinkUser(ctx *fiber.Ctx) error {
 	projectUser := ctx.Locals("project_user").(model.User)
 	return fiberResponseNoVal(ctx, "unlinked user", h.srv.UnlinkUser(topic.ID, projectUser.ID))
 }
+
+func (h *TopicHandler) IsSubscribed(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	subscribed, err := h.srv.IsSubscribed(topic.ID, u.UserID)
+	return fiberResponse(ctx, "is subscribed", subscribed, err)
+}
+
+func (h *TopicHandler) SubscribeUser(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	return fiberResponseNoVal(ctx, "subscribed user", h.srv.SubscribeUser(topic.ID, u.UserID))
+}
+
+func (h *TopicHandler) UnsubscribeUser(ctx *fiber.Ctx) error {
+	topic := ctx.Locals("topic").(model.Topic)
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	return fiberResponseNoVal(ctx, "unsubscribed user", h.srv.UnsubscribeUser(topic.ID, u.UserID))
+}

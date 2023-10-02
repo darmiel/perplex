@@ -158,6 +158,7 @@ func main() {
 		topicService,
 		actionService,
 		projectService,
+		userService,
 		sugar,
 		validate,
 	)

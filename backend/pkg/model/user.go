@@ -31,6 +31,8 @@ type User struct {
 	CreatedActions []Action `gorm:"foreignKey:CreatorID" json:"actions"`
 	// AssignedMeetings contains all meetings the user was assigned to
 	AssignedMeetings []Meeting `gorm:"many2many:meeting_user_assignments" json:"assigned_meetings"`
+	// SubscribedTopics contains all topics the user is subscribed to
+	SubscribedTopics []Topic `gorm:"many2many:topic_user_subscriptions" json:"subscribed_topics"`
 }
 
 // Comment represents a comment in a topic
@@ -94,6 +96,8 @@ type Topic struct {
 	Tags []Tag `gorm:"many2many:topic_tag_assignments" json:"tags"`
 	// LexoRank is the sorting rank of the topic
 	LexoRank lexorank.Rank `json:"lexo_rank"`
+	// SubscribedUsers contains all users subscribed to the topic
+	SubscribedUsers []User `gorm:"many2many:topic_user_subscriptions" json:"subscribed_users"`
 }
 
 func (t Topic) CheckProjectOwnership(projectID uint) bool {

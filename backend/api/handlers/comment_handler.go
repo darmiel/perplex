@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
 	"github.com/darmiel/perplex/pkg/model"
+	"github.com/darmiel/perplex/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/utils"
@@ -32,10 +34,12 @@ type CommentHandler struct {
 	topicSrv                  services.TopicService
 	actionSrv                 services.ActionService
 	projectSrv                services.ProjectService
+	userSrv                   services.UserService
 	logger                    *zap.SugaredLogger
 	validator                 *validator.Validate
 	commentTypes              map[string]genericCommentAddHandler
 	commentTypesListTransform map[string]func(targetID uint, comment *model.Comment)
+	commentTypesListPost      map[string][]func(targetID uint, comment *model.Comment) error
 }
 
 func NewCommentHandler(
@@ -44,6 +48,7 @@ func NewCommentHandler(
 	topicSrv services.TopicService,
 	actionSrv services.ActionService,
 	projectSrv services.ProjectService,
+	userSrv services.UserService,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *CommentHandler {
@@ -53,6 +58,7 @@ func NewCommentHandler(
 		topicSrv:   topicSrv,
 		actionSrv:  actionSrv,
 		projectSrv: projectSrv,
+		userSrv:    userSrv,
 		logger:     logger,
 		validator:  validator,
 	}
@@ -74,6 +80,79 @@ func NewCommentHandler(
 		},
 		"project": func(targetID uint, comment *model.Comment) {
 			comment.ProjectID = &targetID
+		},
+	}
+	h.commentTypesListPost = map[string][]func(targetID uint, comment *model.Comment) error{
+		"topic": {
+			func(topicID uint, comment *model.Comment) error {
+				// get topic
+				topic, err := h.topicSrv.GetTopic(topicID, "SubscribedUsers")
+				if err != nil {
+					return err
+				}
+				// get meeting
+				meeting, err := h.meetSrv.GetMeeting(topic.MeetingID)
+				if err != nil {
+					return err
+				}
+				// get project
+				project, err := h.projectSrv.FindProject(meeting.ProjectID, "Users")
+				if err != nil {
+					return err
+				}
+				// get author name
+				var authorName string
+				if author, err := h.userSrv.FindUser(comment.AuthorID); err == nil {
+					authorName = author.UserName
+				} else {
+					authorName = "Unknown"
+				}
+				// send message to all subscribed users
+				for _, u := range topic.SubscribedUsers {
+					// the author doesn't need to be notified
+					// because... well, they wrote the comment, they should know
+					if u.ID == comment.AuthorID {
+						continue
+					}
+					// check if user belongs to project
+					if _, ok := util.Any(project.Users, func(t model.User) bool {
+						return t.ID == u.ID
+					}); !ok && u.ID != project.OwnerID {
+						continue
+					}
+					// send subscription notification
+					if err = userSrv.CreateNotification(
+						u.ID,
+						fmt.Sprintf("%s commented %s", authorName, topic.Title),
+						"comment",
+						util.Truncate(comment.Content, 32),
+						fmt.Sprintf("/project/%d/meeting/%d/topic/%d#comment-%d",
+							project.ID, meeting.ID, topic.ID, comment.ID),
+						"Go to Comment",
+					); err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+			func(topicID uint, comment *model.Comment) error {
+				// check if the comment was the first comment from the user
+				comments, err := h.srv.FindComments(func(c *model.Comment) {
+					c.AuthorID = comment.AuthorID
+					c.TopicID = comment.TopicID
+				})
+				if err != nil {
+					return err
+				}
+				// we only want to subscribe to the _first_ comment
+				if len(comments) > 1 {
+					return nil
+				}
+				// we don't really care if it worked or not
+				// since the user can always subscribe manually
+				_ = h.topicSrv.SubscribeUser(topicID, comment.AuthorID)
+				return nil
+			},
 		},
 	}
 	return h
@@ -114,6 +193,7 @@ func addEntityComment[T model.Ownership](
 	targetTypeDisplay, targetID, content string,
 	getEntity func(entityID uint, projectID uint) (T, error),
 	populateComment func(comment *model.Comment, entity T),
+	post []func(targetID uint, comment *model.Comment) error,
 ) error {
 	entityID, err := strconv.Atoi(targetID)
 	if err != nil {
@@ -135,6 +215,11 @@ func addEntityComment[T model.Ownership](
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+	for _, po := range post {
+		if err = po(uint(entityID), comment); err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+	}
 	return ctx.Status(fiber.StatusCreated).
 		JSON(presenter.SuccessResponse("comment created for "+targetTypeDisplay, comment))
 }
@@ -145,7 +230,7 @@ func (h *CommentHandler) addTopicComment(ctx *fiber.Ctx, targetID, content strin
 			return h.topicSrv.GetTopic(entityID, "Meeting")
 		}, func(comment *model.Comment, entity *model.Topic) {
 			comment.TopicID = &entity.ID
-		})
+		}, h.commentTypesListPost["topic"])
 }
 
 func (h *CommentHandler) addMeetingComment(ctx *fiber.Ctx, targetID, content string) error {
@@ -155,7 +240,7 @@ func (h *CommentHandler) addMeetingComment(ctx *fiber.Ctx, targetID, content str
 		},
 		func(comment *model.Comment, entity *model.Meeting) {
 			comment.MeetingID = &entity.ID
-		})
+		}, h.commentTypesListPost["meeting"])
 }
 
 func (h *CommentHandler) addActionComment(ctx *fiber.Ctx, targetID, content string) error {
@@ -165,7 +250,7 @@ func (h *CommentHandler) addActionComment(ctx *fiber.Ctx, targetID, content stri
 		},
 		func(comment *model.Comment, entity *model.Action) {
 			comment.ActionID = &entity.ID
-		})
+		}, h.commentTypesListPost["action"])
 }
 
 func (h *CommentHandler) addProjectComment(ctx *fiber.Ctx, targetID, content string) error {
@@ -175,7 +260,7 @@ func (h *CommentHandler) addProjectComment(ctx *fiber.Ctx, targetID, content str
 		},
 		func(comment *model.Comment, entity *model.Project) {
 			comment.ProjectID = &entity.ID
-		})
+		}, h.commentTypesListPost["project"])
 }
 
 func (h *CommentHandler) AddGenericComment(ctx *fiber.Ctx) error {

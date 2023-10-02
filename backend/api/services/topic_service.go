@@ -2,8 +2,10 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/darmiel/perplex/pkg/lexorank"
 	"github.com/darmiel/perplex/pkg/model"
+	"github.com/darmiel/perplex/pkg/util"
 	"gorm.io/gorm"
 	"time"
 )
@@ -22,6 +24,9 @@ type TopicService interface {
 	UnlinkTag(topicID, tagID uint) error
 	LinkUser(topicID uint, userID string) error
 	UnlinkUser(topicID uint, userID string) error
+	SubscribeUser(topicID uint, userID string) error
+	UnsubscribeUser(topicID uint, userID string) error
+	IsSubscribed(topicID uint, userID string) (bool, error)
 }
 
 type topicService struct {
@@ -215,4 +220,42 @@ func (m *topicService) UnlinkUser(topicID uint, userID string) error {
 		Delete(&model.User{
 			ID: userID,
 		})
+}
+
+func (m *topicService) SubscribeUser(topicID uint, userID string) error {
+	fmt.Println("SubscribeUser", topicID, userID)
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("SubscribedUsers").
+		Append(&model.User{
+			ID: userID,
+		})
+}
+
+func (m *topicService) UnsubscribeUser(topicID uint, userID string) error {
+	return m.DB.Model(&model.Topic{
+		Model: gorm.Model{
+			ID: topicID,
+		},
+	}).
+		Association("SubscribedUsers").
+		Delete(&model.User{
+			ID: userID,
+		})
+}
+
+func (m *topicService) IsSubscribed(topicID uint, userID string) (bool, error) {
+	var out model.Topic
+	if err := m.DB.Preload("SubscribedUsers").Where("id = ?", topicID).First(&out).Error; err != nil {
+		return false, err
+	}
+	if _, ok := util.Any(out.SubscribedUsers, func(t model.User) bool {
+		return t.ID == userID
+	}); ok {
+		return true, nil
+	}
+	return false, nil
 }
