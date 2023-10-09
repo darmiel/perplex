@@ -1,5 +1,6 @@
 "use client"
 
+import { motion } from "framer-motion"
 import Head from "next/head"
 import { useMemo } from "react"
 import { Tooltip } from "react-tooltip"
@@ -25,14 +26,19 @@ export default function Home() {
       <Head>
         <title>Perplex - Dashboard</title>
       </Head>
-      <div>
+      <motion.div
+        animate={{
+          x: 25,
+        }}
+        className="-translate-x-[25px]"
+      >
         <h1 className="flex items-center space-x-2 text-5xl text-neutral-400">
           <span
             data-tooltip-id="greeting-language-tooltip"
             data-tooltip-content={greetingLanguage}
-            data-tooltip-place="right"
+            data-tooltip-place="bottom"
             data-tooltip-variant="dark"
-            className="cursor-help rounded-none border border-transparent bg-transparent transition-all duration-300 ease-in-out hover:rounded-[10rem] hover:bg-white hover:px-10 hover:py-2 hover:text-xl hover:text-black"
+            className="cursor-help"
           >
             {greeting},
           </span>
@@ -50,8 +56,8 @@ export default function Home() {
             }}
           />
         </h1>
-        <Hr className="my-8" />
-      </div>
+      </motion.div>
+      <Hr className="my-8" />
       <div className="h-fit min-h-full">
         <MeetingGrid upcomingOnly />
         <Hr className="my-4" />
