@@ -1,13 +1,20 @@
-import { Chip, Input, ScrollShadow } from "@nextui-org/react"
+import { Button, Chip, Input, ScrollShadow } from "@nextui-org/react"
 import clsx from "clsx"
 import { useState } from "react"
-import { BsCheck, BsDice5, BsPen, BsSearch, BsTrash, BsX } from "react-icons/bs"
+import {
+  BsCheck,
+  BsDice5,
+  BsPen,
+  BsSearch,
+  BsTrash,
+  BsTrashFill,
+  BsX,
+} from "react-icons/bs"
 import { toast } from "sonner"
 
 import { Tag } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/ui/Button"
-import Hr from "@/components/ui/Hr"
+import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ProjectModalManageTags({
@@ -85,11 +92,7 @@ export default function ProjectModalManageTags({
   }
 
   return (
-    <div
-      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
-    >
-      <h1 className="text-xl font-semibold">Manage Tags</h1>
-
+    <ModalContainerNG title="Manage Tags" onClose={onClose}>
       <Input
         variant="bordered"
         label="Search Tags"
@@ -151,34 +154,40 @@ export default function ProjectModalManageTags({
               <div className="space-x-2">
                 {editMode === tag.ID ? (
                   <>
-                    <Button style="animated" onClick={() => setEditMode(null)}>
-                      <BsX />
-                    </Button>
                     <Button
-                      style="animated"
+                      isIconOnly
+                      startContent={<BsX />}
+                      variant="bordered"
+                      onClick={() => setEditMode(null)}
+                    />
+                    <Button
+                      isIconOnly
+                      startContent={<BsCheck />}
+                      variant="bordered"
+                      color="primary"
                       onClick={() => editTag(tag)}
                       isLoading={editTagMut.isLoading}
-                    >
-                      <BsCheck />
-                    </Button>
+                    />
                   </>
                 ) : (
                   <>
                     <Button
-                      style="animated"
-                      className="text-red-500"
+                      color="danger"
+                      isIconOnly
+                      startContent={
+                        confirmDelete === tag.ID ? <BsTrashFill /> : <BsTrash />
+                      }
+                      variant={confirmDelete === tag.ID ? "solid" : "bordered"}
                       onClick={() => removeTag(tag)}
                       isLoading={removeTagMut.isLoading}
-                    >
-                      {confirmDelete === tag.ID ? "Confirm" : <BsTrash />}
-                    </Button>
+                    />
                     <Button
-                      style="animated"
+                      isIconOnly
+                      startContent={<BsPen />}
+                      variant="bordered"
                       onClick={() => editTag(tag)}
                       isLoading={editTagMut.isLoading}
-                    >
-                      <BsPen />
-                    </Button>
+                    />
                   </>
                 )}
               </div>
@@ -196,28 +205,24 @@ export default function ProjectModalManageTags({
           className="w-full"
           autoComplete="off"
         />
+        <Button
+          isIconOnly
+          startContent={<BsDice5 />}
+          variant="flat"
+          onClick={() => {
+            const randomColor = `#${Math.floor(
+              Math.random() * 16777215,
+            ).toString(16)}`
+            setCreateColor(randomColor)
+          }}
+        />
         <Input
-          startContent={
-            <Button
-              noBaseStyle
-              style="animated"
-              className="px-1 py-1"
-              onClick={() => {
-                const randomColor = `#${Math.floor(
-                  Math.random() * 16777215,
-                ).toString(16)}`
-                setCreateColor(randomColor)
-              }}
-            >
-              <BsDice5 />
-            </Button>
-          }
           type="color"
           variant="bordered"
           value={createColor}
           onValueChange={setCreateColor}
           placeholder="#ff0000"
-          className="h-11 w-36"
+          className="w-20"
           autoComplete="off"
         />
         <Button
@@ -232,11 +237,6 @@ export default function ProjectModalManageTags({
           Create
         </Button>
       </div>
-      <Hr />
-
-      <div className="flex flex-row justify-between space-x-4">
-        <Button onClick={() => onClose?.()}>Close</Button>
-      </div>
-    </div>
+    </ModalContainerNG>
   )
 }

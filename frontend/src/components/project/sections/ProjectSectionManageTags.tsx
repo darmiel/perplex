@@ -1,9 +1,10 @@
+import { Button, ScrollShadow } from "@nextui-org/react"
 import { useState } from "react"
-import { BsTag } from "react-icons/bs"
+import { BsTags } from "react-icons/bs"
 
 import ProjectModalManageTags from "@/components/project/modals/ProjectModalManageTags"
-import Button from "@/components/ui/Button"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+import OverviewSection from "@/components/ui/overview/OverviewSection"
 import TagComponent from "@/components/ui/tag/Tag"
 import TagList from "@/components/ui/tag/TagList"
 import { useAuth } from "@/contexts/AuthContext"
@@ -21,36 +22,46 @@ export default function ProjectSectionManageTags({
   const projectTagsQuery = tags!.useList(projectID)
 
   return (
-    <>
+    <OverviewSection
+      name="Project Tags"
+      badge={projectTagsQuery.data?.data.length}
+      endContent={
+        isOwner && (
+          <Button
+            size="sm"
+            startContent={<BsTags />}
+            onClick={() => setShowTagControl(true)}
+            variant="flat"
+          >
+            Manage
+          </Button>
+        )
+      }
+    >
       <ModalPopup open={showTagControl} setOpen={setShowTagControl}>
         <ProjectModalManageTags
           projectID={projectID}
           onClose={() => setShowTagControl(false)}
         />
       </ModalPopup>
-      <TagList>
-        {projectTagsQuery.isLoading
-          ? "Loading Tags..."
-          : projectTagsQuery.data?.data.map((tag) => (
-              <TagComponent
-                key={tag.ID}
-                className="text-white"
-                style={{
-                  backgroundColor: tag.color,
-                }}
-              >
-                {tag.title}
-              </TagComponent>
-            ))}
-      </TagList>
-      <Button
-        className="mt-4 w-full"
-        onClick={() => setShowTagControl(true)}
-        icon={<BsTag />}
-        disabled={!isOwner}
-      >
-        Manage Tags
-      </Button>
-    </>
+      <ScrollShadow className="max-h-36">
+        <TagList>
+          {projectTagsQuery.isLoading
+            ? "Loading Tags..."
+            : projectTagsQuery.data?.data.map((tag) => (
+                <TagComponent
+                  key={tag.ID}
+                  className="border"
+                  style={{
+                    borderColor: tag.color,
+                    color: tag.color,
+                  }}
+                >
+                  {tag.title}
+                </TagComponent>
+              ))}
+        </TagList>
+      </ScrollShadow>
+    </OverviewSection>
   )
 }

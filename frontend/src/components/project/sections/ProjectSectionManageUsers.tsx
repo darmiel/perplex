@@ -1,10 +1,11 @@
+import { Button, ScrollShadow } from "@nextui-org/react"
 import { useState } from "react"
-import { BsPerson } from "react-icons/bs"
+import { BsPersonAdd } from "react-icons/bs"
 
 import { extractErrorMessage } from "@/api/util"
 import ProjectModalManageUsers from "@/components/project/modals/ProjectModalManageUsers"
-import Button from "@/components/ui/Button"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+import OverviewSection from "@/components/ui/overview/OverviewSection"
 import UserTagList from "@/components/ui/tag/UserTagList"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -34,7 +35,22 @@ export default function ProjectSectionManageUsers({
   }
 
   return (
-    <>
+    <OverviewSection
+      name="Members"
+      badge={projectUsersQuery.data.data.length}
+      endContent={
+        isOwner && (
+          <Button
+            size="sm"
+            startContent={<BsPersonAdd />}
+            onClick={() => setShowUserControl(true)}
+            variant="flat"
+          >
+            Manage
+          </Button>
+        )
+      }
+    >
       <ModalPopup open={showUserControl} setOpen={setShowUserControl}>
         <ProjectModalManageUsers
           projectID={projectID}
@@ -42,16 +58,9 @@ export default function ProjectSectionManageUsers({
         />
       </ModalPopup>
 
-      <UserTagList users={projectUsersQuery.data.data} />
-
-      <Button
-        className="mt-4 w-full"
-        onClick={() => setShowUserControl(true)}
-        icon={<BsPerson />}
-        disabled={!isOwner}
-      >
-        Manage Users
-      </Button>
-    </>
+      <ScrollShadow className="max-h-36">
+        <UserTagList users={projectUsersQuery.data.data} />
+      </ScrollShadow>
+    </OverviewSection>
   )
 }

@@ -1,4 +1,4 @@
-import { Checkbox, Chip, Tab, Tabs } from "@nextui-org/react"
+import { Button, Checkbox, Chip, Tab, Tabs } from "@nextui-org/react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -14,7 +14,6 @@ import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
-import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
@@ -197,16 +196,17 @@ export default function ProjectPage() {
               {!isEdit ? (
                 <div className="flex space-x-2">
                   <Button
-                    className="w-full text-sm"
-                    icon={<BsPen />}
+                    className="w-fit"
+                    startContent={<BsPen />}
                     onClick={() => enterEdit()}
                   >
                     Edit
                   </Button>
                   <Button
                     onClick={() => setShowCreateMeeting(true)}
-                    icon={<BsPlusCircleFill />}
-                    className="w-fit"
+                    startContent={<BsPlusCircleFill />}
+                    className="w-full"
+                    color="primary"
                   >
                     Create Meeting
                   </Button>
@@ -224,8 +224,15 @@ export default function ProjectPage() {
               ) : (
                 <div className="flex space-x-2">
                   <Button
-                    className="w-1/2 text-sm"
-                    style="primary"
+                    className="w-fit"
+                    onClick={() => setIsEdit(false)}
+                    variant="bordered"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="w-full"
+                    color="primary"
                     isLoading={projectEditMut.isLoading}
                     onClick={() =>
                       projectEditMut.mutate({
@@ -237,13 +244,6 @@ export default function ProjectPage() {
                   >
                     Save
                   </Button>
-                  <Button
-                    className="w-1/2 text-sm"
-                    style="neutral"
-                    onClick={() => setIsEdit(false)}
-                  >
-                    Cancel
-                  </Button>
                 </div>
               )}
             </OverviewSection>
@@ -252,24 +252,18 @@ export default function ProjectPage() {
                 <FetchUserTag userID={project.owner_id} />
               </div>
             </OverviewSection>
-            <OverviewSection name="Members">
-              <ProjectSectionManageUsers
-                projectID={project.ID}
-                isOwner={isOwner}
-              />
-            </OverviewSection>
-            <OverviewSection name="Project Tags">
-              <ProjectSectionManageTags
-                projectID={project.ID}
-                isOwner={isOwner}
-              />
-            </OverviewSection>
-            <OverviewSection name="Project Priorities">
-              <ProjectSectionManagePriorities
-                projectID={project.ID}
-                isOwner={isOwner}
-              />
-            </OverviewSection>
+            <ProjectSectionManageUsers
+              projectID={project.ID}
+              isOwner={isOwner}
+            />
+            <ProjectSectionManageTags
+              projectID={project.ID}
+              isOwner={isOwner}
+            />
+            <ProjectSectionManagePriorities
+              projectID={project.ID}
+              isOwner={isOwner}
+            />
           </OverviewSide>
         </OverviewContainer>
       </div>

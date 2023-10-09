@@ -1,12 +1,13 @@
-import { Input, ScrollShadow } from "@nextui-org/react"
+import { Button, Input, ScrollShadow } from "@nextui-org/react"
 import clsx from "clsx"
 import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
 import { toast } from "sonner"
 
 import useDebounce from "@/components/Debounce"
-import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
+import Flex from "@/components/ui/layout/Flex"
+import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -44,11 +45,31 @@ export default function ProjectModalManageUsers({
   }, [debounce])
 
   return (
-    <div
-      className={`w-[40rem] space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
-    >
-      <h1 className="text-xl font-semibold">Manage Users</h1>
+    <ModalContainerNG
+      title="Manage Users"
+      onClose={onClose}
+      endContent={
+        <Flex justify="end" gap={2}>
+          <Button
+            isIconOnly
+            startContent={<BsArrowLeft />}
+            isLoading={listUsersQuery.isFetching}
+            onClick={() => setPage((page) => Math.max(1, page - 1))}
+            disabled={page <= 1}
+          />
 
+          <Button
+            isIconOnly
+            startContent={<BsArrowRight />}
+            isLoading={listUsersQuery.isFetching}
+            onClick={() =>
+              !listUsersQuery.isPreviousData && setPage((page) => page + 1)
+            }
+            disabled={listUsersQuery.data?.data.length !== 5}
+          />
+        </Flex>
+      }
+    >
       <Input
         variant="bordered"
         label="Search User"
@@ -57,6 +78,8 @@ export default function ProjectModalManageUsers({
         value={userNameSearch}
         autoComplete="off"
       />
+
+      <Hr />
 
       <ScrollShadow className="flex max-h-96 flex-col space-y-2">
         {listUsersQuery.data?.data.map((user) => {
@@ -83,7 +106,7 @@ export default function ProjectModalManageUsers({
                 </div>
               </div>
               <Button
-                style={isAlreadyInProject ? "animated" : "neutral"}
+                variant={isAlreadyInProject ? "light" : "solid"}
                 disabled={loggedUser?.uid === user.id}
                 onClick={() =>
                   addRemoveUserMutation.mutate({
@@ -99,40 +122,6 @@ export default function ProjectModalManageUsers({
           )
         })}
       </ScrollShadow>
-
-      <Hr />
-
-      <div className="flex flex-row justify-between space-x-4">
-        <Button onClick={() => onClose?.()}>Close</Button>
-
-        <div className="flex items-center space-x-4">
-          <Button
-            isLoading={listUsersQuery.isFetching}
-            onClick={() => setPage((page) => Math.max(1, page - 1))}
-            style="secondary"
-            disabled={page <= 1}
-          >
-            <div className="flex items-center space-x-2">
-              <BsArrowLeft />
-              <span>Previous</span>
-            </div>
-          </Button>
-
-          <Button
-            isLoading={listUsersQuery.isFetching}
-            onClick={() =>
-              !listUsersQuery.isPreviousData && setPage((page) => page + 1)
-            }
-            style="secondary"
-            disabled={listUsersQuery.data?.data.length !== 5}
-          >
-            <div className="flex items-center space-x-2">
-              <span>Next</span>
-              <BsArrowRight />
-            </div>
-          </Button>
-        </div>
-      </div>
-    </div>
+    </ModalContainerNG>
   )
 }

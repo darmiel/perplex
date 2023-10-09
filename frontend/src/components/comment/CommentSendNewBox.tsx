@@ -1,3 +1,4 @@
+import { Textarea } from "@nextui-org/react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -38,56 +39,45 @@ export default function CommentSendNewBox({
     sendCommentMutation.mutate({ comment: commentBoxText })
   }
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (
-      e.key === "Enter" &&
-      e.getModifierState("Meta") &&
-      !e.getModifierState("Shift")
-    ) {
-      send()
-    }
-  }
+  const error = extractErrorMessage(sendCommentMutation.error)
+  const isError = error && error !== "null"
 
   return (
     <div className={`relative ${className}`}>
-      <textarea
-        className="w-full border border-neutral-700 bg-neutral-900 px-3 py-2"
-        placeholder="Write a comment..."
-        rows={4}
-        onChange={(e) => setCommentBoxText(e.target.value)}
+      <Textarea
+        minRows={4}
+        maxRows={25}
+        label="Write a comment"
         value={commentBoxText}
-        onKeyDown={onKeyDown}
-      ></textarea>
+        onValueChange={setCommentBoxText}
+        onKeyDown={(e) => {
+          if (
+            e.key === "Enter" &&
+            e.getModifierState("Meta") &&
+            !e.getModifierState("Shift")
+          ) {
+            send()
+          }
+        }}
+        variant="bordered"
+        description="Markdown is supported"
+        errorMessage={isError ? error : undefined}
+        color={isError ? "danger" : "default"}
+      />
 
-      <div className="absolute bottom-6 right-4 flex flex-row items-center justify-center">
-        {/* Show error message above the textbox */}
-        {sendCommentMutation.isError && (
-          <div className="mr-4 text-red-500">
-            <pre>{extractErrorMessage(sendCommentMutation.error)}</pre>
-          </div>
-        )}
-        {/* Show success message above the textbox */}
-        {sendCommentMutation.isSuccess && (
-          <div className="mr-4 text-green-500">Comment sent!</div>
-        )}
-        {/* Show loading message above the textbox */}
-        {sendCommentMutation.isLoading && (
-          <div className="mr-4 text-gray-500">Sending comment...</div>
-        )}
-        <div>
-          <Button
-            style="primary"
-            isLoading={sendCommentMutation.isLoading}
-            onClick={() => send()}
-            icon={
-              <span className="rounded-md bg-neutral-800 px-2 py-1">
-                ⌘ + Enter
-              </span>
-            }
-          >
-            Send
-          </Button>
-        </div>
+      <div className="absolute bottom-9 right-4 flex flex-row items-center justify-center">
+        <Button
+          style="primary"
+          isLoading={sendCommentMutation.isLoading}
+          onClick={() => send()}
+          icon={
+            <span className="rounded-md bg-neutral-800 px-2 py-1">
+              ⌘ + Enter
+            </span>
+          }
+        >
+          Send
+        </Button>
       </div>
     </div>
   )
