@@ -11,7 +11,7 @@ export default function ModalContainerNG({
   endContent,
   onClose,
 }: {
-  title: string
+  title: string | ReactNode
   children: ReactNode
   endContent?: ReactNode
   onClose?: () => void
@@ -21,7 +21,11 @@ export default function ModalContainerNG({
       {/* Header */}
       <div className={clsx("bg-neutral-900 px-4 py-3")}>
         <Flex justify="between">
-          <h1 className="text-lg font-semibold">{title}</h1>
+          {typeof title === "string" ? (
+            <h1 className="text-lg font-semibold">{title}</h1>
+          ) : (
+            title
+          )}
           {onClose && (
             <Button
               isIconOnly

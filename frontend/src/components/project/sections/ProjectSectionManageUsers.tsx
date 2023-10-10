@@ -1,4 +1,4 @@
-import { Button, ScrollShadow } from "@nextui-org/react"
+import { Button, ScrollShadow, Tooltip } from "@nextui-org/react"
 import { useState } from "react"
 import { BsPersonAdd } from "react-icons/bs"
 
@@ -40,14 +40,16 @@ export default function ProjectSectionManageUsers({
       badge={projectUsersQuery.data.data.length}
       endContent={
         isOwner && (
-          <Button
-            size="sm"
-            startContent={<BsPersonAdd />}
-            onClick={() => setShowUserControl(true)}
-            variant="flat"
-          >
-            Manage
-          </Button>
+          <Tooltip content="Manage Users in Project">
+            <Button
+              size="sm"
+              startContent={<BsPersonAdd />}
+              onClick={() => setShowUserControl(true)}
+              variant="flat"
+            >
+              Manage
+            </Button>
+          </Tooltip>
         )
       }
     >

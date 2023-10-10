@@ -1,5 +1,12 @@
-import { Button } from "@nextui-org/react"
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Textarea,
+  Tooltip,
+} from "@nextui-org/react"
 import Head from "next/head"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import {
@@ -159,13 +166,10 @@ export default function TopicOverview({
               variant="light"
               color="danger"
               startContent={<BsBack />}
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                router.push(`/project/${projectID}/meeting/${meetingID}`)
-              }}
+              as={Link}
+              href={`/project/${projectID}/meeting/${meetingID}`}
             >
-              Back to Topic Overview
+              Back to Meeting Overview
             </Button>
           </div>
         </div>
@@ -283,11 +287,8 @@ export default function TopicOverview({
                 disabled={!prevTopicURL}
                 variant="light"
                 size="sm"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  router.push(prevTopicURL ?? "#")
-                }}
+                as={Link}
+                href={prevTopicURL ?? "#"}
                 startContent={<BsArrowLeft />}
                 isIconOnly
               />
@@ -295,11 +296,8 @@ export default function TopicOverview({
                 disabled={!nextTopicURL}
                 variant="light"
                 size="sm"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  router.push(nextTopicURL ?? "#")
-                }}
+                as={Link}
+                href={nextTopicURL ?? "#"}
                 startContent={<BsArrowRight />}
                 isIconOnly
               />
@@ -348,17 +346,27 @@ export default function TopicOverview({
             </>
           )}
 
-          <div className="bg-neutral-900 p-4 text-neutral-500">
+          <div className="rounded-md bg-neutral-900 p-2">
             {isEdit ? (
-              <textarea
-                className="w-full bg-transparent focus:outline-none"
+              <Textarea
+                className="w-full"
+                variant="underlined"
+                label="Edit Description"
                 defaultValue={topic.description}
-                onChange={(e) => setEditDescription(e.target.value)}
+                onValueChange={setEditDescription}
               />
             ) : (
-              <RenderMarkdown
-                markdown={topic.description || "*(no description)*"}
-              />
+              <Accordion
+                isCompact
+                variant="light"
+                defaultExpandedKeys={["description"]}
+              >
+                <AccordionItem title="Description" key="description">
+                  <RenderMarkdown
+                    markdown={topic.description || "*(no description)*"}
+                  />
+                </AccordionItem>
+              </Accordion>
             )}
           </div>
 
@@ -384,25 +392,29 @@ export default function TopicOverview({
                 >
                   Edit
                 </Button>
-                <Button
-                  isIconOnly
-                  variant={isSubscribed ? "solid" : "bordered"}
-                  startContent={isSubscribed ? <BsEyeSlash /> : <BsEyeFill />}
-                  isLoading={subscribeMut.isLoading}
-                  onClick={() =>
-                    subscribeMut.mutate({
-                      subscribe: !isSubscribed,
-                    })
-                  }
-                />
-                <Button
-                  isIconOnly
-                  startContent={confirmDelete ? <BsTrashFill /> : <BsTrash />}
-                  variant={confirmDelete ? "solid" : "bordered"}
-                  color="danger"
-                  onClick={onDeleteTopicClick}
-                  isLoading={topicDeleteMutation.isLoading}
-                />
+                <Tooltip content={isSubscribed ? "Unsubscribe" : "Subscribe"}>
+                  <Button
+                    isIconOnly
+                    variant={isSubscribed ? "solid" : "bordered"}
+                    startContent={isSubscribed ? <BsEyeSlash /> : <BsEyeFill />}
+                    isLoading={subscribeMut.isLoading}
+                    onClick={() =>
+                      subscribeMut.mutate({
+                        subscribe: !isSubscribed,
+                      })
+                    }
+                  />
+                </Tooltip>
+                <Tooltip content="Delete Topic" color="danger">
+                  <Button
+                    isIconOnly
+                    startContent={confirmDelete ? <BsTrashFill /> : <BsTrash />}
+                    variant={confirmDelete ? "solid" : "bordered"}
+                    color="danger"
+                    onClick={onDeleteTopicClick}
+                    isLoading={topicDeleteMutation.isLoading}
+                  />
+                </Tooltip>
               </div>
             ) : (
               <div className="flex space-x-2">

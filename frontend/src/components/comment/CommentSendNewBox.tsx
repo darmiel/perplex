@@ -1,10 +1,9 @@
-import { Textarea } from "@nextui-org/react"
+import { Button, Kbd, Textarea } from "@nextui-org/react"
 import { useState } from "react"
 import { toast } from "sonner"
 
 import { CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function CommentSendNewBox({
@@ -67,14 +66,10 @@ export default function CommentSendNewBox({
 
       <div className="absolute bottom-9 right-4 flex flex-row items-center justify-center">
         <Button
-          style="primary"
+          color="primary"
           isLoading={sendCommentMutation.isLoading}
           onClick={() => send()}
-          icon={
-            <span className="rounded-md bg-neutral-800 px-2 py-1">
-              ⌘ + Enter
-            </span>
-          }
+          startContent={<Kbd keys={["command", "enter"]} />}
         >
           Send
         </Button>

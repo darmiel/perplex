@@ -1,9 +1,16 @@
-import { Progress, Tab, Tabs } from "@nextui-org/react"
+import { Button, Progress, Tab, Tabs, Tooltip } from "@nextui-org/react"
 import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import ReactDatePicker from "react-datepicker"
-import { BsHouse, BsPen, BsPlusCircleFill, BsTrash } from "react-icons/bs"
+import {
+  BsBack,
+  BsHouse,
+  BsPen,
+  BsPlusCircleFill,
+  BsTrash,
+  BsTrashFill,
+} from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
@@ -13,7 +20,6 @@ import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import { TopicGrid } from "@/components/topic/section/TopicGrid"
-import Button from "@/components/ui/Button"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import Flex from "@/components/ui/layout/Flex"
@@ -78,14 +84,18 @@ export default function MeetingOverview({
 
   const [progress, setProgress] = useState(0)
 
+  let startDate: Date | undefined
+
   useEffect(() => {
     if (meetingInfoQuery.data?.data) {
       const interval = setInterval(() => {
-        const now = new Date().getTime()
-        setProgress(
-          (now - startDate.getTime()) /
-            (endDate.getTime() - startDate.getTime()),
-        )
+        if (startDate) {
+          const now = new Date().getTime()
+          setProgress(
+            (now - startDate.getTime()) /
+              (endDate.getTime() - startDate.getTime()),
+          )
+        }
       }, 1000)
       return () => clearInterval(interval)
     }
@@ -94,16 +104,33 @@ export default function MeetingOverview({
   if (meetingInfoQuery.isLoading) {
     return <BarLoader color="white" />
   }
-  if (meetingInfoQuery.isError) {
+  if (meetingInfoQuery.isError || wasDeleted) {
+    const error = extractErrorMessage(meetingInfoQuery.error)
     return (
-      <div>
-        Error: <pre>{extractErrorMessage(meetingInfoQuery.error)}</pre>
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
+          <h1 className="text-2xl font-semibold text-red-500">Error</h1>
+          <p className="text-neutral-300">
+            {error !== "null" ? error : "Meeting not found"}
+          </p>
+          <div className="flex items-center">
+            <Button
+              variant="light"
+              color="danger"
+              startContent={<BsBack />}
+              as={Link}
+              href={`/project/${projectID}`}
+            >
+              Back to Project Overview
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
 
   const meeting = meetingInfoQuery.data.data
-  const startDate = new Date(meeting.start_date)
+  startDate = new Date(meeting.start_date)
   const endDate = new Date(meeting.end_date)
 
   function enterEdit() {
@@ -131,29 +158,6 @@ export default function MeetingOverview({
     meetingDeleteMutation.mutate({
       meetingID: meetingID,
     })
-  }
-
-  if (wasDeleted) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
-          <h1 className="text-2xl font-semibold text-red-500">
-            Meeting not found
-          </h1>
-          <p className="text-neutral-300">
-            The meeting cannot be found, because you just deleted it.
-            <br />
-            That&apos;s what you wanted, right?{" "}
-            <span className="text-neutral-500">right?</span>
-          </p>
-          <div className="flex items-center">
-            <Link href={`/project/${projectID}`}>
-              <Button raw>Go to Meeting Overview</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -279,32 +283,33 @@ export default function MeetingOverview({
               <div className="flex flex-col space-y-2">
                 <Flex x={2}>
                   <Button
-                    className="w-full text-sm"
-                    icon={<BsPen />}
-                    onClick={() => enterEdit()}
+                    onClick={() => setShowCreateTopic(true)}
+                    startContent={<BsPlusCircleFill />}
+                    className="w-full"
+                    color="primary"
                   >
-                    Edit
+                    Create Topic
                   </Button>
-                  <Button
-                    className={
-                      confirmDelete
-                        ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
-                        : "w-full text-sm text-red-500"
-                    }
-                    icon={<BsTrash />}
-                    onClick={deleteMeeting}
-                    isLoading={meetingDeleteMutation.isLoading}
-                  >
-                    {confirmDelete ? "Confirm" : "Delete"}
-                  </Button>
+                  <Tooltip content="Edit Meeting">
+                    <Button
+                      isIconOnly
+                      startContent={<BsPen />}
+                      onClick={() => enterEdit()}
+                    />
+                  </Tooltip>
+                  <Tooltip content="Delete Topic" color="danger">
+                    <Button
+                      isIconOnly
+                      startContent={
+                        confirmDelete ? <BsTrashFill /> : <BsTrash />
+                      }
+                      variant={confirmDelete ? "solid" : "bordered"}
+                      color="danger"
+                      onClick={deleteMeeting}
+                      isLoading={meetingDeleteMutation.isLoading}
+                    />
+                  </Tooltip>
                 </Flex>
-                <Button
-                  onClick={() => setShowCreateTopic(true)}
-                  icon={<BsPlusCircleFill />}
-                  className="w-full"
-                >
-                  Create Topic
-                </Button>
                 {/* Create Topic Popup */}
                 <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
                   <CreateTopicModal
@@ -318,7 +323,6 @@ export default function MeetingOverview({
               <div className="flex space-x-2">
                 <Button
                   className="w-1/2 text-sm"
-                  style="primary"
                   isLoading={meetingUpdateMutation.isLoading}
                   onClick={() =>
                     meetingUpdateMutation.mutate({
@@ -334,7 +338,6 @@ export default function MeetingOverview({
                 </Button>
                 <Button
                   className="w-1/2 text-sm"
-                  style="neutral"
                   onClick={() => setIsEdit(false)}
                 >
                   Cancel
