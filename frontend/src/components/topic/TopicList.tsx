@@ -87,12 +87,11 @@ function TopicListItem({
                 })
               }}
               lineThrough={topic.closed_at.Valid}
-            >
-              <h2 className={clsx("truncate text-neutral-200", {})}>
-                {topic.title}
-                <span className="text-sm text-neutral-500"> #{topic.ID}</span>
-              </h2>
-            </Checkbox>
+            />
+            <h2 className={clsx("truncate text-neutral-200", {})}>
+              {topic.title}
+              <span className="text-sm text-neutral-500"> #{topic.ID}</span>
+            </h2>
           </Flex>
           <Flex>
             <Button

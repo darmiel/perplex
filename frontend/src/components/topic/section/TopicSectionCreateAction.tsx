@@ -1,16 +1,14 @@
+import { Button, ScrollShadow } from "@nextui-org/react"
+import clsx from "clsx"
+import Link from "next/link"
 import { useState } from "react"
-import {
-  BsEyeFill,
-  BsEyeSlash,
-  BsPlusCircleDotted,
-  BsShare,
-} from "react-icons/bs"
-import { toast } from "sonner"
+import { BsBack, BsCheck, BsPlusCircleFill, BsRecord2 } from "react-icons/bs"
 
 import ActionCreateModal from "@/components/action/modals/ActionCreateModal"
-import Button from "@/components/ui/Button"
 import Flex from "@/components/ui/layout/Flex"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+import OverviewSection from "@/components/ui/overview/OverviewSection"
+import { TruncateTitle } from "@/components/ui/text/TruncateText"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicSectionCreateAction({
@@ -25,62 +23,78 @@ export default function TopicSectionCreateAction({
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)
 
-  const { topics } = useAuth()
-  const subscribedQuery = topics!.useIsSubscribed(projectID, meetingID, topicID)
-  const subscribeMut = topics!.useSubscribe(
+  const { actions } = useAuth()
+  const listTopicsForActionsQuery = actions!.useListForTopic(
     projectID,
     meetingID,
     topicID,
-    ({ data }) =>
-      toast.success(
-        `${data ? "Subscribed to" : "Unsubscribed from"} topic #${topicID}`,
-      ),
   )
-  const isSubscribed = subscribedQuery.data?.data
 
   return (
-    <Flex col gap={2}>
-      <Flex gap={2}>
-        <Button
-          style="neutral"
-          icon={<BsPlusCircleDotted />}
-          className="w-1/2"
-          onClick={() => setShowCreateModal(true)}
-        >
-          New
-        </Button>
-        <Button
-          style="neutral"
-          icon={<BsShare />}
-          className="w-1/2"
-          onClick={() => setShowLinkModal(true)}
-          disabled={true}
-        >
-          Link
-        </Button>
-        <ModalPopup open={showCreateModal} setOpen={setShowCreateModal}>
-          <ActionCreateModal
-            onClose={() => setShowCreateModal(false)}
-            projectID={projectID}
-            meetingID={meetingID}
-            topicID={topicID}
+    <OverviewSection
+      name="Actions"
+      badge={listTopicsForActionsQuery.data?.data.length}
+      endContent={
+        <Flex gap={2}>
+          <Button
+            isIconOnly
+            startContent={<BsPlusCircleFill />}
+            size="sm"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setShowCreateModal(true)
+            }}
           />
-        </ModalPopup>
-        <ModalPopup open={showLinkModal} setOpen={setShowLinkModal}>
-          a
-        </ModalPopup>
-      </Flex>
-      <Button
-        icon={isSubscribed ? <BsEyeSlash /> : <BsEyeFill />}
-        isLoading={subscribeMut.isLoading}
-        onClick={() =>
-          subscribeMut.mutate({
-            subscribe: !isSubscribed,
-          })
-        }
-      >
-        {isSubscribed ? "Unsubscribe" : "Subscribe"}
-      </Button>
-    </Flex>
+          <Button
+            isIconOnly
+            startContent={<BsBack />}
+            size="sm"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setShowLinkModal(true)
+            }}
+          />
+        </Flex>
+      }
+    >
+      <ScrollShadow className="flex max-h-48 flex-col">
+        {listTopicsForActionsQuery.data?.data.map((action) => (
+          <Link
+            className={clsx(
+              "flex items-center gap-2 rounded-md border border-transparent p-2 transition duration-150 ease-in-out",
+              "hover:border-neutral-800 hover:bg-neutral-900",
+            )}
+            key={action.ID}
+            href={`/project/${projectID}/action/${action.ID}`}
+          >
+            <span
+              className={clsx({
+                "text-neutral-500": action.closed_at.Valid,
+                "text-red-500": !action.closed_at.Valid,
+              })}
+            >
+              {action.closed_at.Valid ? <BsCheck /> : <BsRecord2 />}
+            </span>
+            <TruncateTitle truncate={20} className="truncate">
+              {action.title}
+            </TruncateTitle>
+          </Link>
+        ))}
+      </ScrollShadow>
+
+      <ModalPopup open={showCreateModal} setOpen={setShowCreateModal}>
+        <ActionCreateModal
+          onClose={() => setShowCreateModal(false)}
+          projectID={projectID}
+          meetingID={meetingID}
+          topicID={topicID}
+        />
+      </ModalPopup>
+      <ModalPopup open={showLinkModal} setOpen={setShowLinkModal}>
+        a
+      </ModalPopup>
+    </OverviewSection>
   )
 }

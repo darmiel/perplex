@@ -1,13 +1,18 @@
+import { Button } from "@nextui-org/react"
 import Head from "next/head"
-import Link from "next/link"
+import { useRouter } from "next/router"
 import { useState } from "react"
 import {
   BsArrowLeft,
   BsArrowRight,
+  BsBack,
   BsCheck,
+  BsEyeFill,
+  BsEyeSlash,
   BsHouse,
   BsPen,
   BsTrash,
+  BsTrashFill,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
@@ -23,10 +28,7 @@ import PriorityPickerWithEdit from "@/components/project/priority/PriorityPicker
 import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
-import TopicSectionLinkedActions from "@/components/topic/section/TopicSectionLinkedActions"
 import TopicTag from "@/components/topic/TopicTag"
-import BadgeHeader from "@/components/ui/BadgeHeader"
-import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 import SectionAssignUsers from "@/components/ui/overview/common/SectionAssignUsers"
@@ -86,15 +88,11 @@ export default function TopicOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
+  const router = useRouter()
+
   const { actions, topics, comments } = useAuth()
 
   const findTopicQuery = topics!.useFind(projectID, meetingID, topicID)
-
-  const listTopicsForActionsQuery = actions!.useListForTopic(
-    projectID,
-    meetingID,
-    topicID,
-  )
 
   const topicUpdateMutation = topics!.useEdit(
     projectID,
@@ -132,13 +130,45 @@ export default function TopicOverview({
   const linkTagMut = topics!.useLinkTag(projectID, meetingID, () => {})
   const linkUserMut = topics!.useLinkUser(projectID, meetingID, () => {})
 
+  const subscribedQuery = topics!.useIsSubscribed(projectID, meetingID, topicID)
+  const subscribeMut = topics!.useSubscribe(
+    projectID,
+    meetingID,
+    topicID,
+    ({ data }) =>
+      toast.success(
+        `${data ? "Subscribed to" : "Unsubscribed from"} topic #${topicID}`,
+      ),
+  )
+  const isSubscribed = subscribedQuery.data?.data
+
   if (findTopicQuery.isLoading) {
     return <div>Loading...</div>
   }
-  if (findTopicQuery.isError) {
+  if (findTopicQuery.isError || wasDeleted) {
+    const error = extractErrorMessage(findTopicQuery.error)
     return (
-      <div>
-        Error: <pre>{extractErrorMessage(findTopicQuery.error)}</pre>
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
+          <h1 className="text-2xl font-semibold text-red-500">Error</h1>
+          <p className="text-neutral-300">
+            {error !== "null" ? error : "Topic not found"}
+          </p>
+          <div className="flex items-center">
+            <Button
+              variant="light"
+              color="danger"
+              startContent={<BsBack />}
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                router.push(`/project/${projectID}/meeting/${meetingID}`)
+              }}
+            >
+              Back to Topic Overview
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -203,29 +233,6 @@ export default function TopicOverview({
     }
   }
 
-  if (wasDeleted) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col space-y-4 rounded-md border border-red-500 bg-red-500 bg-opacity-10 p-6">
-          <h1 className="text-2xl font-semibold text-red-500">
-            Topic not found
-          </h1>
-          <p className="text-neutral-300">
-            The topic cannot be found, because you just deleted it.
-            <br />
-            That&apos;s what you wanted, right?{" "}
-            <span className="text-neutral-500">right?</span>
-          </p>
-          <div className="flex items-center">
-            <Link href={`/project/${projectID}/meeting/${meetingID}`}>
-              <Button raw>Go to Topic Overview</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col">
       <Head>
@@ -272,16 +279,30 @@ export default function TopicOverview({
         injectHeader={
           !isEdit && (
             <div className="ml-2 flex items-center space-x-2">
-              <Link href={prevTopicURL ?? "#"}>
-                <Button disabled={!prevTopicURL} raw>
-                  <BsArrowLeft />
-                </Button>
-              </Link>
-              <Link href={nextTopicURL ?? "#"}>
-                <Button disabled={!nextTopicURL} raw>
-                  <BsArrowRight />
-                </Button>
-              </Link>
+              <Button
+                disabled={!prevTopicURL}
+                variant="light"
+                size="sm"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  router.push(prevTopicURL ?? "#")
+                }}
+                startContent={<BsArrowLeft />}
+                isIconOnly
+              />
+              <Button
+                disabled={!nextTopicURL}
+                variant="light"
+                size="sm"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  router.push(nextTopicURL ?? "#")
+                }}
+                startContent={<BsArrowRight />}
+                isIconOnly
+              />
             </div>
           )
         }
@@ -303,11 +324,24 @@ export default function TopicOverview({
                   </span>
                 </div>
                 <Button
-                  href={`#comment-topic-${topic.solution_id}`}
-                  style={["neutral", "animated"]}
+                  variant="shadow"
+                  color="primary"
+                  endContent={<BsArrowRight />}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    const element = document.getElementById(
+                      `comment-topic-${topic.solution_id}`,
+                    )
+                    if (element) {
+                      element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      })
+                    }
+                  }}
                 >
                   Jump to Comment
-                  <Button.Arrow />
                 </Button>
               </div>
               <Hr className="my-4" />
@@ -328,26 +362,6 @@ export default function TopicOverview({
             )}
           </div>
 
-          {!!listTopicsForActionsQuery.data?.data.length && (
-            <>
-              <Hr className="my-4" />
-
-              <div className="mb-2">
-                <BadgeHeader
-                  title="Linked Actions"
-                  badge={listTopicsForActionsQuery.data?.data.length || 0}
-                />
-              </div>
-
-              <TopicSectionLinkedActions
-                key={topic.ID}
-                actions={listTopicsForActionsQuery.data?.data ?? []}
-                projectID={projectID}
-                topic={topic}
-              />
-            </>
-          )}
-
           <Hr className="my-4" />
 
           <CommentSuite
@@ -365,29 +379,36 @@ export default function TopicOverview({
               <div className="flex items-center space-x-2">
                 <Button
                   className="w-full text-sm"
-                  icon={<BsPen />}
+                  startContent={<BsPen />}
                   onClick={() => onEditClick()}
                 >
                   Edit
                 </Button>
                 <Button
-                  className={
-                    confirmDelete
-                      ? "w-full bg-red-500 text-sm text-white hover:bg-red-600"
-                      : "w-full text-sm text-red-500"
+                  isIconOnly
+                  variant={isSubscribed ? "solid" : "bordered"}
+                  startContent={isSubscribed ? <BsEyeSlash /> : <BsEyeFill />}
+                  isLoading={subscribeMut.isLoading}
+                  onClick={() =>
+                    subscribeMut.mutate({
+                      subscribe: !isSubscribed,
+                    })
                   }
-                  icon={<BsTrash />}
+                />
+                <Button
+                  isIconOnly
+                  startContent={confirmDelete ? <BsTrashFill /> : <BsTrash />}
+                  variant={confirmDelete ? "solid" : "bordered"}
+                  color="danger"
                   onClick={onDeleteTopicClick}
                   isLoading={topicDeleteMutation.isLoading}
-                >
-                  {confirmDelete ? "Confirm" : "Delete"}
-                </Button>
+                />
               </div>
             ) : (
               <div className="flex space-x-2">
                 <Button
                   className="w-1/2 text-sm"
-                  style="primary"
+                  color="primary"
                   onClick={() =>
                     topicUpdateMutation.mutate({
                       title: editTitle,
@@ -402,7 +423,6 @@ export default function TopicOverview({
                 </Button>
                 <Button
                   className="w-1/2 text-sm"
-                  style="neutral"
                   onClick={() => setIsEdit(false)}
                 >
                   Cancel
@@ -470,16 +490,11 @@ export default function TopicOverview({
           <OverviewSection name="Participants">
             <SectionParticipants {...topicInfoProps} />
           </OverviewSection>
-          <OverviewSection
-            name="Actions"
-            badge={listTopicsForActionsQuery.data?.data.length}
-          >
-            <TopicSectionCreateAction
-              projectID={projectID}
-              meetingID={meetingID}
-              topicID={topicID}
-            />
-          </OverviewSection>
+          <TopicSectionCreateAction
+            projectID={projectID}
+            meetingID={meetingID}
+            topicID={topicID}
+          />
         </OverviewSide>
       </OverviewContainer>
     </div>
