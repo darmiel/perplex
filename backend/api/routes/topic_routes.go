@@ -17,6 +17,7 @@ func TopicRoutes(router fiber.Router, handler *handlers.TopicHandler, middleware
 	specific.Put("/", handler.EditTopic)
 	specific.Post("/status", handler.SetStatusChecked)
 	specific.Delete("/status", handler.SetStatusUnchecked)
+	specific.Post("/order", handler.UpdateOrder)
 
 	specific.Get("/subscribe", handler.IsSubscribed)
 	specific.Post("/subscribe", handler.SubscribeUser)

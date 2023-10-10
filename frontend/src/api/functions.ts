@@ -120,6 +120,12 @@ export type topicSubscribeVars = {
   subscribe: boolean
 }
 
+export type topicUpdateOrderVars = {
+  topicID: number
+  before: number
+  after: number
+}
+
 // ======================
 // Project Tag Types
 // ======================
@@ -687,6 +693,22 @@ export const functions = (axios: Axios, client: QueryClient) => {
           { topicID },
           "topic-subscribe-mut",
         ]
+      },
+
+      updateOrderMutFn(projectID: number, meetingID: number) {
+        return async ({ topicID, before, after }: topicUpdateOrderVars) =>
+          (
+            await axios.post(
+              `/project/${projectID}/meeting/${meetingID}/topic/${topicID}/order`,
+              {
+                before,
+                after,
+              },
+            )
+          ).data
+      },
+      updateOrderMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "topic-update-order-mut"]
       },
     },
     comments: {
@@ -1452,6 +1474,21 @@ export const functions = (axios: Axios, client: QueryClient) => {
             functions.topics.listQueryKey(projectID, meetingID),
           ),
           onError: toastError("Cannot subscribe to Topic:"),
+        })
+      },
+      useUpdateOrder(
+        projectID: number,
+        meetingID: number,
+        callback: SuccessCallback<never, topicUpdateOrderVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, topicUpdateOrderVars>({
+          mutationKey: functions.topics.updateOrderMutKey(projectID, meetingID),
+          mutationFn: functions.topics.updateOrderMutFn(projectID, meetingID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.topics.listQueryKey(projectID, meetingID),
+          ),
+          onError: toastError("Cannot update Topic order:"),
         })
       },
     },

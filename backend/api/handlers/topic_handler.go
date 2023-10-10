@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
+	"github.com/darmiel/perplex/pkg/lexorank"
 	"github.com/darmiel/perplex/pkg/model"
 	"github.com/darmiel/perplex/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type TopicHandler struct {
@@ -219,4 +221,109 @@ func (h *TopicHandler) UnsubscribeUser(ctx *fiber.Ctx) error {
 	topic := ctx.Locals("topic").(model.Topic)
 	u := ctx.Locals("user").(gofiberfirebaseauth.User)
 	return fiberResponseNoVal(ctx, "unsubscribed user", h.srv.UnsubscribeUser(topic.ID, u.UserID))
+}
+
+type orderPayload struct {
+	Before int `json:"before"`
+	After  int `json:"after"`
+}
+
+var (
+	ErrNotInSameMeeting = errors.New("topics are not in the same meeting")
+)
+
+const (
+	LexoRankTop    lexorank.Rank = "aaaa"
+	LexoRankBottom lexorank.Rank = "zzzz"
+)
+
+func (h *TopicHandler) UpdateOrder(ctx *fiber.Ctx) error {
+	var payload orderPayload
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	t := ctx.Locals("topic").(model.Topic)
+
+	if payload.After == -1 {
+		h.logger.Infof("putting topic %d on top", t.ID)
+
+		// put topic on the top
+		currentFirstTopic, err := h.srv.FindLexoRankTop(t.MeetingID)
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+		} else {
+			// update lexorank for top-most topic
+			currentNewRank, err := LexoRankTop.Between(currentFirstTopic.LexoRank)
+			if err != nil {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+			if err = h.srv.SetLexoRank(currentFirstTopic.ID, currentNewRank); err != nil {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+		}
+		if err = h.srv.SetLexoRank(t.ID, LexoRankTop); err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		return fiberResponseNoVal(ctx, "order updated (top)", nil)
+	}
+
+	if payload.Before == -1 {
+		h.logger.Infof("putting topic %d on bottom", t.ID)
+
+		// put topic on the bottom
+		currentLastTopic, err := h.srv.FindLexoRankBottom(t.MeetingID)
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+		} else {
+			// update lexorank for bottom-most topic
+			currentNewRank, err := currentLastTopic.LexoRank.Between(LexoRankBottom)
+			if err != nil {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+			if err = h.srv.SetLexoRank(currentLastTopic.ID, currentNewRank); err != nil {
+				return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+			}
+		}
+		if err = h.srv.SetLexoRank(t.ID, LexoRankBottom); err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		return fiberResponseNoVal(ctx, "order updated (bottom)", nil)
+	}
+
+	h.logger.Infof("putting topic %d between %d and %d", t.ID, payload.Before, payload.After)
+
+	// put topic between two topics
+	// and check if in the same meeting
+	topicBefore, err := h.srv.GetTopic(uint(payload.Before))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	if topicBefore.MeetingID != t.MeetingID {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrNotInSameMeeting))
+	}
+	topicAfter, err := h.srv.GetTopic(uint(payload.After))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	if topicAfter.MeetingID != t.MeetingID {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrNotInSameMeeting))
+	}
+
+	h.logger.Infof("between topics: %s <> %s", topicAfter.Title, topicBefore.Title)
+
+	// calculate new lexorank between two topics
+	newRank, err := topicAfter.LexoRank.Between(topicBefore.LexoRank)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	if err = h.srv.SetLexoRank(t.ID, newRank); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+
+	h.logger.Infof("updated order for topic %d from old rank: %s to new rank: %s", t.ID, t.LexoRank, newRank)
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("order updated (between)", nil))
 }

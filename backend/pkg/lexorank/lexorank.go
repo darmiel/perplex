@@ -1,6 +1,7 @@
 package lexorank
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -12,8 +13,13 @@ const codePointZ = 'z'
 
 type Rank string
 
-func (r Rank) Between(other Rank) Rank {
-	return CalculateRankBetween(r, other)
+var ErrInvalidOrder = errors.New("invalid order")
+
+func (r Rank) Between(other Rank) (Rank, error) {
+	if r == other || strings.Compare(string(r), string(other)) > 0 {
+		return "", ErrInvalidOrder
+	}
+	return CalculateRankBetween(r, other), nil
 }
 
 const magic = 456976

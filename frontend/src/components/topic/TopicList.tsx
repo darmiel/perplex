@@ -1,7 +1,6 @@
 import { useState } from "react"
 
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/ui/Button"
 import { useAuth } from "@/contexts/AuthContext"
 
 import "reactjs-popup/dist/index.css"
@@ -9,6 +8,7 @@ import "reactjs-popup/dist/index.css"
 import {
   Accordion,
   AccordionItem,
+  Button,
   Checkbox,
   Chip,
   ScrollShadow,
@@ -16,7 +16,13 @@ import {
 import clsx from "clsx"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { BsPlusCircle } from "react-icons/bs"
+import {
+  BsArrowDown,
+  BsArrowLeft,
+  BsArrowUp,
+  BsPlusCircle,
+} from "react-icons/bs"
+import { toast } from "sonner"
 
 import { Topic } from "@/api/types"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
@@ -28,10 +34,18 @@ function TopicListItem({
   topic,
   projectID,
   selected = false,
+  beforeBeforeTopicID,
+  beforeTopicID,
+  afterAfterTopicID,
+  afterTopicID,
 }: {
   topic: Topic
   projectID: number
   selected?: boolean
+  beforeBeforeTopicID?: number
+  beforeTopicID?: number
+  afterTopicID?: number
+  afterAfterTopicID?: number
 }) {
   const { user, topics } = useAuth()
   const toggleTopicMutation = topics!.useStatus(
@@ -40,37 +54,84 @@ function TopicListItem({
     () => {},
   )
 
+  const updateOrderMutation = topics!.useUpdateOrder(
+    projectID,
+    topic.meeting_id,
+    () => toast.success("Topic order updated"),
+  )
+
   const isAssignedToUser = topic.assigned_users.some((u) => u.id === user?.uid)
   return (
     <Flex
       col
       className={clsx(
-        {
-          "border-l-3 border-l-primary-500": isAssignedToUser,
-        },
         "rounded-md border border-transparent p-2 transition duration-150 ease-in-out",
         "hover:border-neutral-800 hover:bg-neutral-900",
         {
+          "border-l-3 border-l-primary-500": isAssignedToUser,
           "bg-neutral-800": selected,
         },
       )}
     >
       <div className="ml-1">
-        <Flex>
-          <Checkbox
-            isIndeterminate={toggleTopicMutation.isLoading}
-            isSelected={topic.closed_at.Valid}
-            onValueChange={(checked) => {
-              toggleTopicMutation.mutate({
-                topicID: topic.ID,
-                close: checked,
-              })
-            }}
-          />
-          <h2 className={clsx("truncate text-neutral-200", {})}>
-            {topic.title}
-            <span className="text-sm text-neutral-500"> #{topic.ID}</span>
-          </h2>
+        <Flex justify="between">
+          <Flex>
+            <Checkbox
+              isIndeterminate={toggleTopicMutation.isLoading}
+              color={toggleTopicMutation.isLoading ? "warning" : "default"}
+              isSelected={topic.closed_at.Valid}
+              onValueChange={(checked) => {
+                toggleTopicMutation.mutate({
+                  topicID: topic.ID,
+                  close: checked,
+                })
+              }}
+              lineThrough={topic.closed_at.Valid}
+            >
+              <h2 className={clsx("truncate text-neutral-200", {})}>
+                {topic.title}
+                <span className="text-sm text-neutral-500"> #{topic.ID}</span>
+              </h2>
+            </Checkbox>
+          </Flex>
+          <Flex>
+            <Button
+              isIconOnly
+              startContent={<BsArrowUp />}
+              size="sm"
+              variant="light"
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                updateOrderMutation.mutate({
+                  topicID: topic.ID,
+                  before: afterTopicID || -1,
+                  after: afterAfterTopicID || -1,
+                })
+              }}
+              isDisabled={
+                afterAfterTopicID === undefined && afterTopicID === undefined
+              }
+            />
+            <Button
+              isIconOnly
+              startContent={<BsArrowDown />}
+              size="sm"
+              variant="light"
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                updateOrderMutation.mutate({
+                  topicID: topic.ID,
+                  before: beforeBeforeTopicID || -1,
+                  after: beforeTopicID || -1,
+                })
+              }}
+              isDisabled={
+                beforeTopicID === undefined && beforeBeforeTopicID === undefined
+              }
+            />
+          </Flex>
         </Flex>
         {topic.tags?.length > 0 && (
           <ScrollShadow orientation="horizontal" hideScrollBar className="mt-1">
@@ -131,38 +192,53 @@ export default function TopicList({
   const checkedTopicRatio = checkedTopicCount / topicListQuery.data.data.length
 
   const showTopicListWithFilter = (filter: (topic: Topic) => boolean) => {
-    return topicListQuery.data.data.filter(filter).map((topic) => (
-      <div key={topic.ID}>
-        <Link
-          href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
-        >
-          <TopicListItem
-            projectID={projectID}
-            topic={topic}
-            selected={selectedTopicID === topic.ID}
-          />
-        </Link>
-      </div>
-    ))
+    const filtered = topicListQuery.data.data.filter(filter)
+    return filtered.map((topic, index) => {
+      const beforeBefore =
+        filtered.length > index + 2 ? filtered[index + 2] : null
+      const before = filtered.length > index + 1 ? filtered[index + 1] : null
+      const after = index > 0 ? filtered[index - 1] : null
+      const afterAfter = index > 1 ? filtered[index - 2] : null
+      return (
+        <div key={topic.ID}>
+          <Link
+            href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
+          >
+            <TopicListItem
+              projectID={projectID}
+              topic={topic}
+              selected={selectedTopicID === topic.ID}
+              beforeTopicID={before?.ID}
+              beforeBeforeTopicID={beforeBefore?.ID}
+              afterTopicID={after?.ID}
+              afterAfterTopicID={afterAfter?.ID}
+            />
+          </Link>
+        </div>
+      )
+    })
   }
   const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
   const closedTopics = showTopicListWithFilter((topic) => topic.closed_at.Valid)
 
   return (
-    <ul className="flex h-full flex-grow flex-col space-y-4  overflow-y-auto">
+    <ul className="flex h-full flex-grow flex-col space-y-4 overflow-y-auto">
       <Flex justify="between">
         <Button
           onClick={() => setShowCreateTopic(true)}
-          style="animated"
-          icon={<BsPlusCircle color="gray" size="1em" />}
+          variant="light"
+          startContent={<BsPlusCircle color="gray" size="1em" />}
           className="w-fit"
         >
           Create Topic
         </Button>
         {onCollapse && (
-          <Button onClick={onCollapse} style="animated">
-            <Button.ArrowLeft />
-          </Button>
+          <Button
+            onClick={onCollapse}
+            variant="light"
+            isIconOnly
+            startContent={<BsArrowLeft />}
+          />
         )}
       </Flex>
 

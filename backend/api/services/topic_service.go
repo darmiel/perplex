@@ -16,6 +16,11 @@ type TopicService interface {
 	ListTopicsForMeeting(meetingID uint) ([]*model.Topic, error)
 	DeleteTopic(topicID uint) error
 	EditTopic(topicID uint, title, description string, forceSolution bool, priorityID uint) error
+
+	SetLexoRank(topicID uint, rank lexorank.Rank) error
+	FindLexoRankTop(meetingID uint) (topic model.Topic, err error)
+	FindLexoRankBottom(meetingID uint) (topic model.Topic, err error)
+
 	SetSolution(topicID uint, commentID uint) error
 	CheckTopic(topicID uint) error
 	UncheckTopic(topicID uint) error
@@ -258,4 +263,27 @@ func (m *topicService) IsSubscribed(topicID uint, userID string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func (m *topicService) SetLexoRank(topicID uint, rank lexorank.Rank) error {
+	return m.DB.Model(&model.Topic{}).
+		Where("id = ?", topicID).
+		Update("lexo_rank", rank).
+		Error
+}
+
+func (m *topicService) FindLexoRankTop(meetingID uint) (topic model.Topic, err error) {
+	err = m.DB.Model(&model.Topic{}).
+		Where("meeting_id = ?", meetingID).
+		Order("lexo_rank").
+		First(&topic).Error
+	return
+}
+
+func (m *topicService) FindLexoRankBottom(meetingID uint) (topic model.Topic, err error) {
+	err = m.DB.Model(&model.Topic{}).
+		Where("meeting_id = ?", meetingID).
+		Order("lexo_rank DESC").
+		First(&topic).Error
+	return
 }
