@@ -32,7 +32,8 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
 
   useHotkeys(
     "mod+k",
-    () => {
+    (event) => {
+      event.preventDefault()
       setShowSearch(true)
     },
     [showSearch],
@@ -65,7 +66,7 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
             </ModalPopup>
 
             {/*<Register>*/}
-            <main className="bg-darker dark flex flex-1 overflow-y-auto">
+            <main className="bg-darker flex flex-1 overflow-y-auto dark">
               <Component {...pageProps} />
             </main>
 
