@@ -20,7 +20,7 @@ COPY go.sum .
 
 RUN go build -o perplex-backend main.go
 
-COPY /firebase.json .
+COPY /config .
 RUN ls -la
 
 EXPOSE 8080
