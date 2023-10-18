@@ -10,14 +10,22 @@ export default function ModalContainerNG({
   children,
   endContent,
   onClose,
+  className,
 }: {
   title: string | ReactNode
   children: ReactNode
   endContent?: ReactNode
   onClose?: () => void
+  className?: string
 }) {
   return (
-    <Flex col className="w-[40rem] rounded-md border border-neutral-700">
+    <Flex
+      col
+      className={clsx(
+        className ? className : "w-[40rem]",
+        "rounded-md border border-neutral-700",
+      )}
+    >
       {/* Header */}
       <div className={clsx("bg-neutral-900 px-4 py-3")}>
         <Flex justify="between">

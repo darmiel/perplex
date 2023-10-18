@@ -947,6 +947,18 @@ export const functions = (axios: Axios, client: QueryClient) => {
         ]
       },
 
+      listForMeetingQueryFn(projectID: number, meetingID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/action/meeting/${meetingID}`))
+            .data
+      },
+      listForMeetingQueryKey(projectID: number, meetingID: number) {
+        return [
+          ...functions.meetings.findQueryKey(projectID, meetingID),
+          "actions",
+        ]
+      },
+
       findQueryFn(projectID: number, actionID: number) {
         return async () =>
           (await axios.get(`/project/${projectID}/action/${actionID}`)).data
@@ -1568,6 +1580,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
           queryKey: functions.actions.listForProjectQueryKey(projectID),
           queryFn: functions.actions.listForProjectQueryFn(projectID),
           enabled: !!projectID,
+        })
+      },
+      useListForMeeting(projectID: number, meetingID: number) {
+        return useQuery<BackendResponse<Action[]>>({
+          queryKey: functions.actions.listForMeetingQueryKey(
+            projectID,
+            meetingID,
+          ),
+          queryFn: functions.actions.listForMeetingQueryFn(
+            projectID,
+            meetingID,
+          ),
+          enabled: !!projectID && !!meetingID,
         })
       },
       useEdit(

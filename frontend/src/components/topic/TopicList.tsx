@@ -12,6 +12,7 @@ import {
   Checkbox,
   Chip,
   ScrollShadow,
+  Tooltip,
 } from "@nextui-org/react"
 import clsx from "clsx"
 import Link from "next/link"
@@ -21,10 +22,12 @@ import {
   BsArrowLeft,
   BsArrowUp,
   BsPlusCircle,
+  BsSignpost,
 } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { Topic } from "@/api/types"
+import MeetingFollowUp from "@/components/meeting/modals/MeetingFollowUp"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Flex from "@/components/ui/layout/Flex"
@@ -167,6 +170,7 @@ export default function TopicList({
   onCollapse?: () => void
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
+  const [showFollowUp, setShowFollowUp] = useState(false)
 
   const router = useRouter()
   const { topics } = useAuth()
@@ -223,14 +227,24 @@ export default function TopicList({
   return (
     <ul className="flex h-full flex-grow flex-col space-y-4 overflow-y-auto">
       <Flex justify="between">
-        <Button
-          onClick={() => setShowCreateTopic(true)}
-          variant="light"
-          startContent={<BsPlusCircle color="gray" size="1em" />}
-          className="w-fit"
-        >
-          Create Topic
-        </Button>
+        <Flex>
+          <Tooltip content="Create Topic">
+            <Button
+              isIconOnly
+              onClick={() => setShowCreateTopic(true)}
+              variant="light"
+              startContent={<BsPlusCircle />}
+            />
+          </Tooltip>
+          <Tooltip content="Follow Up">
+            <Button
+              isIconOnly
+              startContent={<BsSignpost />}
+              variant="light"
+              onClick={() => setShowFollowUp(true)}
+            />
+          </Tooltip>
+        </Flex>
         {onCollapse && (
           <Button
             onClick={onCollapse}
@@ -292,6 +306,12 @@ export default function TopicList({
                 `/project/${projectID}/meeting/${meetingID}/topic/${newTopicID}`,
               )
           }}
+        />
+      </ModalPopup>
+      <ModalPopup open={showFollowUp} setOpen={setShowFollowUp}>
+        <MeetingFollowUp
+          projectID={projectID}
+          onClose={() => setShowFollowUp(false)}
         />
       </ModalPopup>
     </ul>

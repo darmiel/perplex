@@ -7,6 +7,7 @@ export default function Flex({
   justify,
   children,
   className,
+  onClick,
 }: {
   x?: number
   y?: number
@@ -16,6 +17,7 @@ export default function Flex({
   justify?: "start" | "end" | "center" | "between" | "around" | "evenly"
   children: React.ReactNode
   className?: string
+  onClick?: () => void
 }) {
   const classNames = ["flex"]
   gap !== undefined && classNames.push(`gap-${gap}`)
@@ -25,8 +27,12 @@ export default function Flex({
   y !== undefined && classNames.push(`space-y-${y}`)
   className && classNames.push(className)
   return span ? (
-    <span className={classNames.join(" ")}>{children}</span>
+    <span className={classNames.join(" ")} onClick={onClick}>
+      {children}
+    </span>
   ) : (
-    <div className={classNames.join(" ")}>{children}</div>
+    <div className={classNames.join(" ")} onClick={onClick}>
+      {children}
+    </div>
   )
 }

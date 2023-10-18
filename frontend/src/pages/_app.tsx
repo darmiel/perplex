@@ -17,6 +17,7 @@ import "./globals.css"
 import Navbar from "@/components/navbar/Navbar"
 import SearchModal from "@/components/search/SearchModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+import { FollowUpProvider } from "@/contexts/FollowUp"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -58,20 +59,22 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         {/* <CssBaseline /> */}
         <AuthProvider>
-          <div className="flex h-screen max-h-screen w-screen">
-            <Navbar />
+          <FollowUpProvider>
+            <div className="flex h-screen max-h-screen w-screen">
+              <Navbar />
 
-            <ModalPopup open={showSearch} setOpen={setShowSearch}>
-              <SearchModal onClose={() => setShowSearch(false)} />
-            </ModalPopup>
+              <ModalPopup open={showSearch} setOpen={setShowSearch}>
+                <SearchModal onClose={() => setShowSearch(false)} />
+              </ModalPopup>
 
-            {/*<Register>*/}
-            <main className="bg-darker flex flex-1 overflow-y-auto dark">
-              <Component {...pageProps} />
-            </main>
+              {/*<Register>*/}
+              <main className="bg-darker flex flex-1 overflow-y-auto dark">
+                <Component {...pageProps} />
+              </main>
 
-            {/*</Register>*/}
-          </div>
+              {/*</Register>*/}
+            </div>
+          </FollowUpProvider>
           <Toaster theme="dark" closeButton={true} position="bottom-right" />
           <ReactQueryDevtools position="bottom-right" />
         </AuthProvider>

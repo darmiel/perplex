@@ -134,7 +134,7 @@ func main() {
 	}
 
 	// middlewares
-	middlewareHandler := handlers.NewMiddlewareHandler(userService, projectService)
+	middlewareHandler := handlers.NewMiddlewareHandler(userService, projectService, meetingService)
 
 	// /project
 	projectHandler := handlers.NewProjectHandler(projectService, userService, sugar, validate)

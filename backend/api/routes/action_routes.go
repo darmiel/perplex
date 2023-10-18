@@ -13,23 +13,39 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler, middlewa
 	router.Use("/topic/:topic_id", handler.TopicLocalsMiddleware)
 	router.Get("/topic/:topic_id", handler.ListActionsForTopic)
 
-	router.Use("/:action_id", handler.ActionLocalsMiddleware)
-	router.Get("/:action_id", handler.FindAction)
-	router.Put("/:action_id", handler.EditAction)
-	router.Delete("/:action_id", handler.DeleteAction)
+	// by meeting
+	specificMeeting := router.Group("/meeting/:meeting_id")
+	specificMeeting.Use(middlewares.MeetingLocalsMiddleware)
+	specificMeeting.Get("/", handler.ListActionsForMeeting)
 
-	router.Use("/:action_id/topic/:topic_id", handler.TopicLocalsMiddleware)
-	router.Post("/:action_id/topic/:topic_id", handler.LinkTopic)
-	router.Delete("/:action_id/topic/:topic_id", handler.UnlinkTopic)
+	// specific actions
+	specific := router.Group("/:action_id")
+	specific.Use(handler.ActionLocalsMiddleware)
+	specific.Get("/", handler.FindAction)
+	specific.Put("/", handler.EditAction)
+	specific.Delete("/", handler.DeleteAction)
 
-	router.Use("/:action_id/user/:user_id", middlewares.UserLocalsMiddleware)
-	router.Post("/:action_id/user/:user_id", handler.LinkUser)
-	router.Delete("/:action_id/user/:user_id", handler.UnlinkUser)
+	// specific topic
+	specificTopic := specific.Group("/topic/:topic_id")
+	specificTopic.Post("/", handler.LinkTopic)
+	specificTopic.Delete("/", handler.UnlinkTopic)
 
-	router.Use("/:action_id/tag/:tag_id", middlewares.TagLocalsMiddleware)
-	router.Post("/:action_id/tag/:tag_id", handler.LinkTag)
-	router.Delete("/:action_id/tag/:tag_id", handler.UnlinkTag)
+	specificTopic.Use(handler.TopicLocalsMiddleware)
+	specificTopic.Post("/", handler.LinkTopic)
+	specificTopic.Delete("/", handler.UnlinkTopic)
 
-	router.Post("/:action_id/close", handler.CloseAction)
-	router.Post("/:action_id/open", handler.OpenAction)
+	// specific user
+	specificUser := specific.Group("/user/:user_id")
+	specificUser.Use("/", middlewares.UserLocalsMiddleware)
+	specificUser.Post("/", handler.LinkUser)
+	specificUser.Delete("/", handler.UnlinkUser)
+
+	// specific tag
+	specificTag := specific.Group("/tag/:tag_id")
+	specificTag.Use("/", middlewares.TagLocalsMiddleware)
+	specificTag.Post("/", handler.LinkTag)
+	specificTag.Delete("/", handler.UnlinkTag)
+
+	specific.Post("/close", handler.CloseAction)
+	specific.Post("/open", handler.OpenAction)
 }

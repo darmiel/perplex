@@ -14,6 +14,7 @@ import {
   BsGithub,
   BsHouse,
   BsPersonCheck,
+  BsSignpost,
 } from "react-icons/bs"
 import { Tooltip } from "react-tooltip"
 import Popup from "reactjs-popup"
@@ -21,12 +22,15 @@ import { PopupActions } from "reactjs-popup/dist/types"
 
 import PerplexLogo from "@/../public/perplex.svg"
 import { navigationBorderRight } from "@/api/classes"
+import { Meeting } from "@/api/types"
+import { MeetingFollowUpOverview } from "@/components/meeting/modals/MeetingFollowUp"
 import NotificationModal from "@/components/notification/NotificationModal"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
+import { useFollowUp } from "@/contexts/FollowUp"
 
 function NavbarItem({
   selected = false,
@@ -58,6 +62,13 @@ function NavbarItem({
 export default function Navbar() {
   const [showManageProjects, setShowManageProjects] = useState(false)
 
+  const [showFollowUp, setShowFollowUp] = useState(false)
+  const { followUp: followUpMeeting, setFollowUp: setFollowUpMeeting } =
+    useFollowUp()
+  const followUpMeetingParsed: Meeting | undefined = followUpMeeting
+    ? JSON.parse(followUpMeeting)
+    : null
+
   const [doNotHide, setDoNotHide] = useState(false)
 
   const { projects, users } = useAuth()
@@ -84,6 +95,26 @@ export default function Navbar() {
             onClick={() => setDoNotHide((prev) => !prev)}
           />
         </motion.div>
+      )}
+      {!!followUpMeeting && (
+        <>
+          <Button
+            startContent={<BsSignpost />}
+            color="primary"
+            className="absolute bottom-4 left-20 z-50"
+            size="md"
+            onClick={() => setShowFollowUp(true)}
+          >
+            {followUpMeetingParsed?.name}
+          </Button>
+          <ModalPopup open={showFollowUp} setOpen={setShowFollowUp}>
+            <MeetingFollowUpOverview
+              meeting={followUpMeetingParsed!}
+              onClose={() => setShowFollowUp(false)}
+              onStop={() => setFollowUpMeeting("")}
+            />
+          </ModalPopup>
+        </>
       )}
       <div className={clsx({ "hidden md:block": !doNotHide })}>
         <nav

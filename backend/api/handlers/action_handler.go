@@ -150,7 +150,33 @@ func (a ActionHandler) DeleteAction(ctx *fiber.Ctx) error {
 	return fiberResponseNoVal(ctx, "deleted action", a.srv.DeleteAction(action.ID))
 }
 
-// :action_id/topic/:topic_id
+func (a ActionHandler) ListActionsForMeeting(ctx *fiber.Ctx) error {
+	m := ctx.Locals("meeting").(model.Meeting)
+
+	// find topics in meeting
+	topics, err := a.topicSrv.ListTopicsForMeeting(m.ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+
+	// find all actions which are linked to one of the topics
+	actionsByMeeting := make(map[uint]model.Action)
+	for _, t := range topics {
+		actions, err := a.srv.FindActionsByTopic(t.ID)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		for _, a := range actions {
+			actionsByMeeting[a.ID] = a
+		}
+	}
+
+	actions := make([]model.Action, 0, len(actionsByMeeting))
+	for _, a := range actionsByMeeting {
+		actions = append(actions, a)
+	}
+	return fiberResponse(ctx, "actions by meeting", actions, err)
+}
 
 // TopicLocalsMiddleware checks if the topic exists and belongs to the project.
 // It also adds the topic and meeting to the context.

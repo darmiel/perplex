@@ -4,7 +4,6 @@ import { Action, Topic } from "@/api/types"
 import ActionCardLarge from "@/components/action/cards/ActionCardLarge"
 import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-import { useAuth } from "@/contexts/AuthContext"
 
 export default function TopicSectionLinkedActions({
   projectID,
@@ -17,9 +16,6 @@ export default function TopicSectionLinkedActions({
 }) {
   const [showActionPeek, setShowActionPeek] = useState(false)
   const [actionPeekItem, setActionPeekItem] = useState<Action | null>(null)
-
-  const { actions: actionsDB } = useAuth()
-  const unlinkActionMut = actionsDB!.useLinkTopic(projectID)
 
   return (
     <>

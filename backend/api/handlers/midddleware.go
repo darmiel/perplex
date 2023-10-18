@@ -11,10 +11,19 @@ import (
 type MiddlewareHandler struct {
 	userSrv    services.UserService
 	projectSrv services.ProjectService
+	meetingSrv services.MeetingService
 }
 
-func NewMiddlewareHandler(userSrv services.UserService, projectService services.ProjectService) *MiddlewareHandler {
-	return &MiddlewareHandler{userSrv, projectService}
+func NewMiddlewareHandler(
+	userSrv services.UserService,
+	projectService services.ProjectService,
+	meetingSrv services.MeetingService,
+) *MiddlewareHandler {
+	return &MiddlewareHandler{
+		userSrv,
+		projectService,
+		meetingSrv,
+	}
 }
 
 func (a MiddlewareHandler) UserLocalsMiddleware(ctx *fiber.Ctx) error {
@@ -49,5 +58,24 @@ func (a MiddlewareHandler) TagLocalsMiddleware(ctx *fiber.Ctx) error {
 	if tag.ProjectID != p.ID {
 		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
 	}
+	return ctx.Next()
+}
+
+// MeetingLocalsMiddleware checks if the meeting exists and belongs to the project.
+// It also adds the meeting to the context.
+func (a MiddlewareHandler) MeetingLocalsMiddleware(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	meetingID, err := ctx.ParamsInt("meeting_id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	meeting, err := a.meetingSrv.GetMeeting(uint(meetingID))
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(presenter.ErrorResponse(err))
+	}
+	if meeting.ProjectID != p.ID {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(presenter.ErrorResponse(ErrNotFound))
+	}
+	ctx.Locals("meeting", *meeting)
 	return ctx.Next()
 }
