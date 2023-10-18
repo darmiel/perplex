@@ -5,7 +5,7 @@ go 1.20
 require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/go-playground/validator/v10 v10.15.5
-	github.com/gofiber/fiber/v2 v2.49.2
+	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/ralf-life/gofiber-firebaseauth v0.0.0-20230605133945-0096650c1e87
 	go.uber.org/zap v1.26.0
 	google.golang.org/api v0.147.0
