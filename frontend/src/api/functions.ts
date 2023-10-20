@@ -168,6 +168,7 @@ export type priorityDeleteVars = {
 // Comment Types
 // ======================
 export type sendCommentVars = {
+  __shift?: boolean
   comment: string
 }
 

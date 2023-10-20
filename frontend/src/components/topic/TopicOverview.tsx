@@ -379,6 +379,12 @@ export default function TopicOverview({
             commentSolutionID={topic.solution_id}
             onSolutionClick={onSolutionClick}
             isSolutionMutLoading={markSolutionMutation.isLoading}
+            onShiftSend={(comment) => {
+              markSolutionMutation.mutate({
+                commentID: comment.ID,
+                mark: true,
+              })
+            }}
           />
         </OverviewContent>
         <OverviewSide>

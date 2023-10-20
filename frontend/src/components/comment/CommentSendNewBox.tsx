@@ -2,7 +2,7 @@ import { Button, Kbd, Textarea } from "@nextui-org/react"
 import { useState } from "react"
 import { toast } from "sonner"
 
-import { CommentEntityType } from "@/api/types"
+import { Comment, CommentEntityType } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -11,11 +11,13 @@ export default function CommentSendNewBox({
   commentType,
   commentEntityID,
   className = "",
+  onShiftSend,
 }: {
   projectID: number
   commentType: CommentEntityType
   commentEntityID: number
   className?: string
+  onShiftSend?: (comment: Comment) => void
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
@@ -25,17 +27,20 @@ export default function CommentSendNewBox({
     projectID,
     commentType,
     commentEntityID,
-    () => {
+    ({ data }, { __shift }) => {
       setCommentBoxText("")
-      toast.success("Comment sent!")
+      toast.success(`Comment sent! (#${data.ID})`)
+      if (__shift) {
+        onShiftSend?.(data)
+      }
     },
   )
 
-  function send() {
+  function send(shift: boolean) {
     if (sendCommentMutation.isLoading) {
       return
     }
-    sendCommentMutation.mutate({ comment: commentBoxText })
+    sendCommentMutation.mutate({ comment: commentBoxText, __shift: shift })
   }
 
   const error = extractErrorMessage(sendCommentMutation.error)
@@ -50,12 +55,8 @@ export default function CommentSendNewBox({
         value={commentBoxText}
         onValueChange={setCommentBoxText}
         onKeyDown={(e) => {
-          if (
-            e.key === "Enter" &&
-            e.getModifierState("Meta") &&
-            !e.getModifierState("Shift")
-          ) {
-            send()
+          if (e.key === "Enter" && e.getModifierState("Meta")) {
+            send(e.getModifierState("Shift"))
           }
         }}
         variant="bordered"
@@ -68,7 +69,7 @@ export default function CommentSendNewBox({
         <Button
           color="primary"
           isLoading={sendCommentMutation.isLoading}
-          onClick={() => send()}
+          onClick={() => send(false)}
           startContent={<Kbd keys={["command", "enter"]} />}
         >
           Send
