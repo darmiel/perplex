@@ -93,6 +93,12 @@ func (h *TopicHandler) AddTopic(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+
+	// subscribe to topic
+	if err = h.srv.SubscribeUser(topic.ID, u.UserID); err != nil {
+		h.logger.Warnf("cannot subscribe user %s (creator) to topic %d: %v", u.UserID, topic.ID, err)
+	}
+
 	return ctx.Status(fiber.StatusCreated).JSON(presenter.SuccessResponse("topic created", topic))
 }
 
