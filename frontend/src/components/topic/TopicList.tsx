@@ -11,6 +11,10 @@ import {
   Button,
   Checkbox,
   Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   ScrollShadow,
   Tooltip,
 } from "@nextui-org/react"
@@ -21,8 +25,11 @@ import {
   BsArrowDown,
   BsArrowLeft,
   BsArrowUp,
+  BsBorderStyle,
+  BsCalendar2,
   BsPlusCircle,
   BsSignpost,
+  BsTag,
 } from "react-icons/bs"
 import { toast } from "sonner"
 
@@ -158,6 +165,28 @@ function TopicListItem({
   )
 }
 
+type OrderTarget = "lexorank" | "name" | "creation"
+type OrderDirection = "asc" | "desc"
+type OrderMeta = {
+  icon: JSX.Element
+  name: string
+}
+
+const orders: Record<OrderTarget, OrderMeta> = {
+  lexorank: {
+    icon: <BsBorderStyle />,
+    name: "Lexorank",
+  },
+  name: {
+    icon: <BsTag />,
+    name: "Name",
+  },
+  creation: {
+    icon: <BsCalendar2 />,
+    name: "Creation",
+  },
+} as const
+
 export default function TopicList({
   projectID,
   meetingID,
@@ -171,6 +200,10 @@ export default function TopicList({
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
   const [showFollowUp, setShowFollowUp] = useState(false)
+
+  const [orderByTarget, setOrderByTarget] = useState<OrderTarget>("lexorank")
+  const [orderByDirection, setOrderByDirection] =
+    useState<OrderDirection>("asc")
 
   const router = useRouter()
   const { topics } = useAuth()
@@ -196,30 +229,58 @@ export default function TopicList({
 
   const showTopicListWithFilter = (filter: (topic: Topic) => boolean) => {
     const filtered = topicListQuery.data.data.filter(filter)
-    return filtered.map((topic, index) => {
-      const beforeBefore =
-        filtered.length > index + 2 ? filtered[index + 2] : null
-      const before = filtered.length > index + 1 ? filtered[index + 1] : null
-      const after = index > 0 ? filtered[index - 1] : null
-      const afterAfter = index > 1 ? filtered[index - 2] : null
-      return (
-        <div key={topic.ID}>
-          <Link
-            href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
-          >
-            <TopicListItem
-              projectID={projectID}
-              topic={topic}
-              selected={selectedTopicID === topic.ID}
-              beforeTopicID={before?.ID}
-              beforeBeforeTopicID={beforeBefore?.ID}
-              afterTopicID={after?.ID}
-              afterAfterTopicID={afterAfter?.ID}
-            />
-          </Link>
-        </div>
-      )
-    })
+    return (
+      filtered
+        // sort by name
+        .sort((a, b) => {
+          let targetA: string, targetB: string
+          switch (orderByTarget) {
+            case "creation":
+              // comapre by date
+              return orderByDirection === "asc"
+                ? new Date(a.CreatedAt).getTime() -
+                    new Date(b.CreatedAt).getTime()
+                : new Date(b.CreatedAt).getTime() -
+                    new Date(a.CreatedAt).getTime()
+            case "name":
+              targetA = a.title
+              targetB = b.title
+              break
+            case "lexorank":
+              targetA = a.lexo_rank || ""
+              targetB = b.lexo_rank || ""
+              break
+          }
+          return orderByDirection === "asc"
+            ? targetA.localeCompare(targetB)
+            : targetB.localeCompare(targetA)
+        })
+        .map((topic, index) => {
+          const beforeBefore =
+            filtered.length > index + 2 ? filtered[index + 2] : null
+          const before =
+            filtered.length > index + 1 ? filtered[index + 1] : null
+          const after = index > 0 ? filtered[index - 1] : null
+          const afterAfter = index > 1 ? filtered[index - 2] : null
+          return (
+            <div key={topic.ID}>
+              <Link
+                href={`/project/${projectID}/meeting/${topic.meeting_id}/topic/${topic.ID}`}
+              >
+                <TopicListItem
+                  projectID={projectID}
+                  topic={topic}
+                  selected={selectedTopicID === topic.ID}
+                  beforeTopicID={before?.ID}
+                  beforeBeforeTopicID={beforeBefore?.ID}
+                  afterTopicID={after?.ID}
+                  afterAfterTopicID={afterAfter?.ID}
+                />
+              </Link>
+            </div>
+          )
+        })
+    )
   }
   const openTopics = showTopicListWithFilter((topic) => !topic.closed_at.Valid)
   const closedTopics = showTopicListWithFilter((topic) => topic.closed_at.Valid)
@@ -272,6 +333,52 @@ export default function TopicList({
       </div>
 
       <hr className="mb-6 mt-4 border-gray-700" />
+
+      <Flex>
+        {/* Sort */}
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              isIconOnly
+              variant="light"
+              startContent={orders[orderByTarget].icon}
+            />
+          </DropdownTrigger>
+          <DropdownMenu
+            items={Object.values(orders)}
+            selectionMode="single"
+            onSelectionChange={(sel) => {
+              sel !== "all" &&
+                sel.forEach((val) => {
+                  setOrderByTarget(val.toString().toLowerCase() as OrderTarget)
+                })
+            }}
+          >
+            {(item) => (
+              <DropdownItem
+                key={(item as OrderMeta).name}
+                startContent={(item as OrderMeta).icon}
+              >
+                {(item as OrderMeta).name}
+              </DropdownItem>
+            )}
+          </DropdownMenu>
+        </Dropdown>
+
+        {/* Direction */}
+        <Tooltip content="Order Direction">
+          <Button
+            isIconOnly
+            variant="light"
+            startContent={
+              orderByDirection === "asc" ? <BsArrowDown /> : <BsArrowUp />
+            }
+            onClick={() =>
+              setOrderByDirection((prev) => (prev === "asc" ? "desc" : "asc"))
+            }
+          />
+        </Tooltip>
+      </Flex>
 
       <ScrollShadow hideScrollBar className="h-full p-2">
         <Accordion selectionMode="multiple" defaultSelectedKeys="all">

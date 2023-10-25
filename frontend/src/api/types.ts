@@ -68,6 +68,7 @@ export type Topic = {
   tags: Tag[]
   priority_id: number
   priority?: Priority
+  lexo_rank?: string
 }
 
 export type Priority = {
