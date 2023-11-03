@@ -10,6 +10,7 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler, middlewa
 	router.Post("/", handler.CreateAction)
 	router.Get("/me", handler.ListActionsForProjectAndUser)
 
+	// list for topic
 	router.Use("/topic/:topic_id", handler.TopicLocalsMiddleware)
 	router.Get("/topic/:topic_id", handler.ListActionsForTopic)
 
@@ -27,9 +28,6 @@ func ActionRoutes(router fiber.Router, handler *handlers.ActionHandler, middlewa
 
 	// specific topic
 	specificTopic := specific.Group("/topic/:topic_id")
-	specificTopic.Post("/", handler.LinkTopic)
-	specificTopic.Delete("/", handler.UnlinkTopic)
-
 	specificTopic.Use(handler.TopicLocalsMiddleware)
 	specificTopic.Post("/", handler.LinkTopic)
 	specificTopic.Delete("/", handler.UnlinkTopic)

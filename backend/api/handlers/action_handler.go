@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/darmiel/perplex/api/presenter"
 	"github.com/darmiel/perplex/api/services"
@@ -13,8 +12,6 @@ import (
 	"go.uber.org/zap"
 	"time"
 )
-
-var ErrNotImplemented = errors.New("not implemented yet")
 
 type ActionHandler struct {
 	srv        services.ActionService
