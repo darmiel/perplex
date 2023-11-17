@@ -254,7 +254,7 @@ export default function TopicOverview({
           <BreadcrumbItem href={`/project/${projectID}`}>
             <ProjectSelectBreadcrumbs projectID={projectID} />
           </BreadcrumbItem>
-          <BreadcrumbItem>
+          <BreadcrumbItem href={`/project/${projectID}/meeting/${meetingID}`}>
             <MeetingSelectBreadcrumbs
               meetingID={meetingID}
               meetingName={
