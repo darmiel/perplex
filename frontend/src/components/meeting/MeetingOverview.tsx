@@ -1,4 +1,12 @@
-import { Button, Progress, Tab, Tabs, Tooltip } from "@nextui-org/react"
+import {
+  BreadcrumbItem,
+  Breadcrumbs,
+  Button,
+  Progress,
+  Tab,
+  Tabs,
+  Tooltip,
+} from "@nextui-org/react"
 import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -16,9 +24,10 @@ import { toast } from "sonner"
 
 import { extractErrorMessage, PickerCustomInput } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
+import MeetingSelectBreadcrumbs from "@/components/meeting/breadcrumbs/MeetingSelectBreadcrumbs"
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
-import ResolveProjectName from "@/components/resolve/ResolveProjectName"
+import ProjectSelectBreadcrumbs from "@/components/project/breadcrumbs/ProjectSelectBreadcrumbs"
 import { TopicGrid } from "@/components/topic/section/TopicGrid"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
@@ -31,7 +40,6 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
@@ -168,13 +176,19 @@ export default function MeetingOverview({
 
       <div className="mb-2">
         <Breadcrumbs>
-          <Breadcrumbs.Item href="/">
-            <BsHouse />
-          </Breadcrumbs.Item>
-          <Breadcrumbs.Item href={`/project/${projectID}`}>
-            <ResolveProjectName projectID={projectID} />
-          </Breadcrumbs.Item>
-          <Breadcrumbs.Item>{meeting.name}</Breadcrumbs.Item>
+          <BreadcrumbItem href="/" startContent={<BsHouse />}>
+            Home
+          </BreadcrumbItem>
+          <BreadcrumbItem href={`/project/${projectID}`}>
+            <ProjectSelectBreadcrumbs projectID={projectID} />
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <MeetingSelectBreadcrumbs
+              meetingID={meeting.ID}
+              meetingName={meeting.name}
+              projectID={projectID}
+            />
+          </BreadcrumbItem>
         </Breadcrumbs>
       </div>
 

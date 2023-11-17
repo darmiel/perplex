@@ -1,6 +1,8 @@
 import {
   Accordion,
   AccordionItem,
+  BreadcrumbItem,
+  Breadcrumbs,
   Button,
   Textarea,
   Tooltip,
@@ -27,13 +29,15 @@ import { toast } from "sonner"
 import { Comment } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import CommentSuite from "@/components/comment/CommentSuite"
+import MeetingSelectBreadcrumbs from "@/components/meeting/breadcrumbs/MeetingSelectBreadcrumbs"
 import {
   AckTopicTypeCard,
   DiscussTopicTypeCard,
 } from "@/components/modals/TopicCreateModal"
+import ProjectSelectBreadcrumbs from "@/components/project/breadcrumbs/ProjectSelectBreadcrumbs"
 import PriorityPickerWithEdit from "@/components/project/priority/PriorityPickerWithEdit"
 import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
-import ResolveProjectName from "@/components/resolve/ResolveProjectName"
+import TopicSelectBreadcrumbs from "@/components/topic/breadcrumbs/TopicSelectBreadcrumbs"
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
 import TopicTag from "@/components/topic/TopicTag"
 import Hr from "@/components/ui/Hr"
@@ -45,7 +49,6 @@ import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import UserTagList from "@/components/ui/tag/UserTagList"
-import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
 import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -245,16 +248,32 @@ export default function TopicOverview({
 
       <div className="mb-2">
         <Breadcrumbs>
-          <Breadcrumbs.Item href="/">
-            <BsHouse />
-          </Breadcrumbs.Item>
-          <Breadcrumbs.Item href={`/project/${projectID}`}>
-            <ResolveProjectName projectID={projectID} />
-          </Breadcrumbs.Item>
-          <Breadcrumbs.Item href={`/project/${projectID}/meeting/${meetingID}`}>
-            <ResolveMeetingName projectID={projectID} meetingID={meetingID} />
-          </Breadcrumbs.Item>
-          <Breadcrumbs.Item>{topic.title}</Breadcrumbs.Item>
+          <BreadcrumbItem href="/" startContent={<BsHouse />}>
+            Home
+          </BreadcrumbItem>
+          <BreadcrumbItem href={`/project/${projectID}`}>
+            <ProjectSelectBreadcrumbs projectID={projectID} />
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <MeetingSelectBreadcrumbs
+              meetingID={meetingID}
+              meetingName={
+                <ResolveMeetingName
+                  projectID={projectID}
+                  meetingID={meetingID}
+                />
+              }
+              projectID={projectID}
+            />
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <TopicSelectBreadcrumbs
+              projectID={projectID}
+              meetingID={meetingID}
+              topicID={topic.ID}
+              topicName={topic.title}
+            />
+          </BreadcrumbItem>
         </Breadcrumbs>
       </div>
 

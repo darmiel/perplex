@@ -14,6 +14,8 @@ import { AuthProvider } from "@/contexts/AuthContext"
 
 import "./globals.css"
 
+import { useRouter } from "next/router"
+
 import Navbar from "@/components/navbar/Navbar"
 import SearchModal from "@/components/search/SearchModal"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
@@ -29,6 +31,8 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+
   const [showSearch, setShowSearch] = useState(false)
 
   useHotkeys(
@@ -51,7 +55,11 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <NextUIProvider>
+    <NextUIProvider
+      navigate={(path) => {
+        router.push(path)
+      }}
+    >
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link href={PerplexLogo.src} rel="icon" />
