@@ -58,7 +58,7 @@ export default function PriorityPicker({
             ),
         )
       }
-      defaultValue={defaultValue}
+      defaultSelectedKeys={[String(defaultValue)]}
       onSelectionChange={(item) => {
         if (item !== "all" && item.size > 0) {
           item.forEach((item) => setPriorityID(Number(item)))
@@ -68,7 +68,11 @@ export default function PriorityPicker({
       }}
     >
       {(priority) => (
-        <SelectItem variant="faded" key={priority.ID} value={priority.ID}>
+        <SelectItem
+          variant="faded"
+          key={String(priority.ID)}
+          value={priority.ID}
+        >
           <PrioritySelectItemContents priority={priority} />
         </SelectItem>
       )}
