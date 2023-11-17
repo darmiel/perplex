@@ -1,4 +1,4 @@
-import { BsCheckSquareFill, BsCircle } from "react-icons/bs"
+import { BsCheckCircle, BsCircle } from "react-icons/bs"
 
 import { Topic } from "@/api/types"
 import Tag from "@/components/ui/tag/Tag"
@@ -10,7 +10,7 @@ const tags = {
     className: "bg-red-600 text-white",
   },
   close: {
-    icon: <BsCheckSquareFill />,
+    icon: <BsCheckCircle />,
     text: "Closed",
     className: "bg-green-600 text-white",
   },

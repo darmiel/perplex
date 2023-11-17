@@ -9,8 +9,8 @@ import {
 } from "@nextui-org/react"
 import Head from "next/head"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import { useState } from "react"
+import { BiSolidComment } from "react-icons/bi"
 import {
   BsArrowLeft,
   BsArrowRight,
@@ -20,9 +20,12 @@ import {
   BsEyeSlash,
   BsHouse,
   BsPen,
+  BsQrCode,
   BsTrash,
   BsTrashFill,
+  BsX,
 } from "react-icons/bs"
+import QRCode from "react-qr-code"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
@@ -41,6 +44,8 @@ import TopicSelectBreadcrumbs from "@/components/topic/breadcrumbs/TopicSelectBr
 import TopicSectionCreateAction from "@/components/topic/section/TopicSectionCreateAction"
 import TopicTag from "@/components/topic/TopicTag"
 import Hr from "@/components/ui/Hr"
+import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 import SectionAssignUsers from "@/components/ui/overview/common/SectionAssignUsers"
 import OverviewContainer from "@/components/ui/overview/OverviewContainer"
@@ -98,11 +103,15 @@ export default function TopicOverview({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [wasDeleted, setWasDeleted] = useState(false)
 
-  const router = useRouter()
+  const [showQrCode, setShowQrCode] = useState(false)
+  const [quickSolutionMessage, setQuickSolutionMessage] = useState("")
+  const [showQuickSolution, setShowQuickSolution] = useState(false)
 
-  const { actions, topics, comments } = useAuth()
+  const { topics, comments } = useAuth()
 
   const findTopicQuery = topics!.useFind(projectID, meetingID, topicID)
+
+  const topicCloseMut = topics!.useStatus(projectID, meetingID, () => {})
 
   const topicUpdateMutation = topics!.useEdit(
     projectID,
@@ -134,6 +143,32 @@ export default function TopicOverview({
       toast.success(
         `Comment #${commentID} ${mark ? "marked" : "unmarked"} as solution!`,
       )
+    },
+  )
+
+  const quickMarkSolutionMut = comments!.useMarkSolution(
+    projectID,
+    meetingID,
+    topicID,
+    ({}, { commentID }) => {
+      topicCloseMut.mutate({
+        close: true,
+        topicID: topicID,
+      })
+      toast.success(`Comment #${commentID} created and marked as solution!`)
+      setShowQuickSolution(false)
+    },
+  )
+
+  const quickCommentSolutionMut = comments!.useSend(
+    projectID,
+    "topic",
+    topicID,
+    ({ data }) => {
+      quickMarkSolutionMut.mutate({
+        commentID: data.ID,
+        mark: true,
+      })
     },
   )
 
@@ -181,6 +216,8 @@ export default function TopicOverview({
   }
 
   const topic = findTopicQuery.data.data
+  const isClosed = !!topic.closed_at?.Valid
+  const hasSolution = !!topic.solution_id
 
   const topicInfoProps = {
     projectID,
@@ -407,16 +444,41 @@ export default function TopicOverview({
           />
         </OverviewContent>
         <OverviewSide>
-          <OverviewSection name="Edit">
+          <OverviewSection>
             {!isEdit ? (
-              <div className="flex items-center space-x-2">
-                <Button
-                  className="w-full text-sm"
-                  startContent={<BsPen />}
-                  onClick={() => onEditClick()}
-                >
-                  Edit
-                </Button>
+              <div className="flex items-center justify-between space-x-2">
+                <Tooltip content={isClosed ? "Open Topic" : "Close Topic"}>
+                  <Button
+                    isIconOnly
+                    startContent={isClosed ? <BsX /> : <BsCheck />}
+                    isLoading={topicCloseMut.isLoading}
+                    onClick={() => {
+                      if (!isClosed && topic.force_solution && !hasSolution) {
+                        setQuickSolutionMessage("")
+                        setShowQuickSolution(true)
+                        toast.error(
+                          "Cannot close topic without a solution. Please mark a comment as a solution first.",
+                        )
+                        return
+                      }
+                      topicCloseMut.mutate({
+                        topicID: topic.ID,
+                        close: !isClosed,
+                      })
+                    }}
+                    color={isClosed ? "warning" : "success"}
+                    variant={isClosed || !hasSolution ? "bordered" : "solid"}
+                    size="sm"
+                  />
+                </Tooltip>
+                <Tooltip content="Edit">
+                  <Button
+                    isIconOnly
+                    startContent={<BsPen />}
+                    onClick={() => onEditClick()}
+                    size="sm"
+                  />
+                </Tooltip>
                 <Tooltip content={isSubscribed ? "Unsubscribe" : "Subscribe"}>
                   <Button
                     isIconOnly
@@ -428,6 +490,15 @@ export default function TopicOverview({
                         subscribe: !isSubscribed,
                       })
                     }
+                    size="sm"
+                  />
+                </Tooltip>
+                <Tooltip content="QR Code">
+                  <Button
+                    isIconOnly
+                    startContent={<BsQrCode />}
+                    onClick={() => setShowQrCode(true)}
+                    size="sm"
                   />
                 </Tooltip>
                 <Tooltip content="Delete Topic" color="danger">
@@ -438,6 +509,7 @@ export default function TopicOverview({
                     color="danger"
                     onClick={onDeleteTopicClick}
                     isLoading={topicDeleteMutation.isLoading}
+                    size="sm"
                   />
                 </Tooltip>
               </div>
@@ -455,12 +527,14 @@ export default function TopicOverview({
                     })
                   }
                   isLoading={topicUpdateMutation.isLoading}
+                  size="sm"
                 >
                   Save
                 </Button>
                 <Button
                   className="w-1/2 text-sm"
                   onClick={() => setIsEdit(false)}
+                  size="sm"
                 >
                   Cancel
                 </Button>
@@ -534,6 +608,58 @@ export default function TopicOverview({
           />
         </OverviewSide>
       </OverviewContainer>
+
+      <ModalPopup open={showQrCode} setOpen={setShowQrCode}>
+        <ModalContainerNG title="Share" onClose={() => setShowQrCode(false)}>
+          <div className="flex w-full items-center justify-center">
+            <QRCode
+              value={window.location.toString()}
+              bgColor="black"
+              fgColor="white"
+            />
+          </div>
+        </ModalContainerNG>
+      </ModalPopup>
+
+      <ModalPopup open={showQuickSolution} setOpen={setShowQuickSolution}>
+        <ModalContainerNG
+          title="Add a Solution"
+          onClose={() => setShowQuickSolution(false)}
+        >
+          <div className="w-full rounded-md border border-orange-500 bg-orange-500 bg-opacity-25 px-4 py-2">
+            This topic requires a solution.
+          </div>
+          <Textarea
+            value={quickSolutionMessage}
+            onValueChange={setQuickSolutionMessage}
+            variant="bordered"
+            label="Solution"
+            placeholder="Enter a solution..."
+            description="This comment will be marked as a solution. Markdown is supported."
+          />
+          <div className="flex w-full justify-end space-x-2">
+            <Button onClick={() => setShowQuickSolution(false)}>Close</Button>
+            {!quickCommentSolutionMut.isSuccess && (
+              <Button
+                color="primary"
+                startContent={<BiSolidComment />}
+                onClick={() => {
+                  quickCommentSolutionMut.mutate({
+                    comment: quickSolutionMessage,
+                    __shift: false,
+                  })
+                }}
+                isLoading={quickCommentSolutionMut.isLoading}
+                isDisabled={
+                  !quickSolutionMessage || quickCommentSolutionMut.isLoading
+                }
+              >
+                Add Solution and Close Topic
+              </Button>
+            )}
+          </div>
+        </ModalContainerNG>
+      </ModalPopup>
     </div>
   )
 }
