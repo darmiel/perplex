@@ -16,6 +16,7 @@ export default function useSearch<T>(transformer?: (item: T) => string) {
         startContent={<BsSearch />}
         placeholder={`Search...`}
         width="100%"
+        size="sm"
       />
     ),
     filter: (item: T) => {

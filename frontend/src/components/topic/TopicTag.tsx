@@ -1,11 +1,11 @@
-import { BsCheckSquareFill, BsXSquare } from "react-icons/bs"
+import { BsCheckSquareFill, BsCircle } from "react-icons/bs"
 
 import { Topic } from "@/api/types"
 import Tag from "@/components/ui/tag/Tag"
 
 const tags = {
   open: {
-    icon: <BsXSquare />,
+    icon: <BsCircle />,
     text: "Open",
     className: "bg-red-600 text-white",
   },

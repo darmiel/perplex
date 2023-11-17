@@ -28,7 +28,7 @@ import MeetingSelectBreadcrumbs from "@/components/meeting/breadcrumbs/MeetingSe
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ProjectSelectBreadcrumbs from "@/components/project/breadcrumbs/ProjectSelectBreadcrumbs"
-import { TopicGrid } from "@/components/topic/section/TopicGrid"
+import { TopicTable } from "@/components/topic/section/TopicTable"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import Flex from "@/components/ui/layout/Flex"
@@ -282,11 +282,7 @@ export default function MeetingOverview({
               ) : topicListQuery.isError ? (
                 <span>Error: {extractErrorMessage(topicListQuery.error)}</span>
               ) : (
-                <TopicGrid
-                  hideMeetingName
-                  projectID={projectID}
-                  meetingID={meetingID}
-                />
+                <TopicTable projectID={projectID} meetingID={meetingID} />
               )}
             </Tab>
           </Tabs>
