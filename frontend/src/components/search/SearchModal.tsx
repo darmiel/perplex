@@ -3,13 +3,13 @@ import { useEffect, useState } from "react"
 import { BarLoader, PuffLoader } from "react-spinners"
 
 import { Action, Meeting, Project, Topic } from "@/api/types"
-import useDebounce from "@/components/Debounce"
 import SearchResultAction from "@/components/search/results/SearchResultAction"
 import SearchResultMeeting from "@/components/search/results/SearchResultMeeting"
 import SearchResultProject from "@/components/search/results/SearchResultProject"
 import SearchResultTopic from "@/components/search/results/SearchResultTopic"
 import Hr from "@/components/ui/Hr"
 import { useAuth } from "@/contexts/AuthContext"
+import useDebounce from "@/hooks/debounce"
 
 function projectLink(project: Project) {
   return `/project/${project.ID}`

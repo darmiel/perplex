@@ -1,4 +1,4 @@
-import { Input, ScrollShadow } from "@nextui-org/react"
+import { Button, Input, ScrollShadow, Textarea } from "@nextui-org/react"
 import clsx from "clsx"
 import { useState } from "react"
 import {
@@ -13,7 +13,6 @@ import { toast } from "sonner"
 
 import { Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/ui/Button"
 import Hr from "@/components/ui/Hr"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
@@ -122,28 +121,26 @@ function ModalList({
                   {/* Project Actions */}
                   {project.owner_id !== user?.uid ? (
                     <Button
-                      style="animated"
+                      variant={
+                        confirmLeave === project.ID ? "solid" : "bordered"
+                      }
+                      color={confirmLeave === project.ID ? "danger" : "default"}
                       onClick={() => leaveProject(project)}
                       isLoading={leaveProjectMutation.isLoading}
-                      icon={<BsDoorOpen />}
-                      className={
-                        confirmLeave === project.ID
-                          ? "bg-red-600 hover:bg-red-700"
-                          : ""
-                      }
+                      startContent={<BsDoorOpen />}
                     >
                       {confirmLeave === project.ID ? "Confirm" : "Leave"}
                     </Button>
                   ) : (
                     <Button
-                      style="animated"
-                      onClick={() => showDeleteConfirmation(project)}
-                      icon={<BsTrash />}
-                      className={
-                        confirmDelete === project.ID
-                          ? "bg-red-600 hover:bg-red-700"
-                          : ""
+                      variant={
+                        confirmDelete === project.ID ? "solid" : "bordered"
                       }
+                      color={
+                        confirmDelete === project.ID ? "danger" : "default"
+                      }
+                      onClick={() => showDeleteConfirmation(project)}
+                      startContent={<BsTrash />}
                     >
                       {confirmDelete === project.ID ? "Confirm" : "Delete"}
                     </Button>
@@ -159,7 +156,7 @@ function ModalList({
               <span className="text-neutral-400">
                 Don&apos;t worry, you can still
               </span>
-              <Button className="w-fit" onClick={() => setShowCreate(true)}>
+              <Button onClick={() => setShowCreate(true)}>
                 Create a Project
               </Button>
             </div>
@@ -168,38 +165,29 @@ function ModalList({
         {showCreate && (
           <div className="flex w-[40rem] flex-col space-y-4 rounded-md border border-neutral-700 p-5">
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-neutral-400" htmlFor="createProjectName">
-                  Create Project Name
-                </label>
-                <input
-                  id="createProjectName"
-                  type="text"
-                  className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                  placeholder="My awesome Project"
-                  onChange={(event) => setCreateName(event.target.value)}
-                  value={createName}
-                  autoComplete="off"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  className="text-neutral-400"
-                  htmlFor="createProjectDescription"
-                >
-                  Create Project Description
-                </label>
-                <textarea
-                  id="createProjectDescription"
-                  className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-                  placeholder="(Markdown supported)"
-                  onChange={(event) => setCreateDescription(event.target.value)}
-                  value={createDescription}
-                />
-              </div>
+              <Input
+                id="createProjectName"
+                type="text"
+                placeholder="My awesome Project"
+                onChange={(event) => setCreateName(event.target.value)}
+                value={createName}
+                autoComplete="off"
+                size="sm"
+                variant="bordered"
+                label="Project Name"
+              />
+              <Textarea
+                id="createProjectDescription"
+                placeholder="(Markdown supported)"
+                onValueChange={setCreateDescription}
+                value={createDescription}
+                size="sm"
+                variant="bordered"
+                label="Project Description"
+              />
               <div className="flex justify-end">
                 <Button
-                  style="primary"
+                  color="primary"
                   disabled={!createName}
                   onClick={() =>
                     createProjectMutation.mutate({
@@ -226,13 +214,13 @@ function ModalList({
 
       <Hr className="my-2" />
 
-      <div className="space-x-4">
-        <Button onClick={onClose}>Done</Button>
+      <div className="flex w-full justify-between space-x-4">
         {!showCreate && (
-          <Button onClick={() => setShowCreate(true)} style="secondary">
+          <Button onClick={() => setShowCreate(true)} variant="bordered">
             Create New Project
           </Button>
         )}
+        <Button onClick={onClose}>Done</Button>
       </div>
     </div>
   )
@@ -278,8 +266,8 @@ function ModalDelete({
           <Button
             className="w-fit text-white"
             onClick={onBack}
-            icon={<BsArrowLeft />}
-            style="primary"
+            startContent={<BsArrowLeft />}
+            color="primary"
           >
             Take me back!
           </Button>
@@ -300,26 +288,26 @@ function ModalDelete({
           <Hr />
         </div>
         <div className="flex items-center space-x-2">
-          <input
+          <Input
             id="prioritySearch"
             type="text"
-            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
+            fullWidth
+            size="sm"
             placeholder={project.name}
             onChange={(event) => setConfirmDeleteText(event.target.value)}
             value={confirmDeleteText}
             autoComplete="off"
           />
           <Button
-            style="neutral"
             disabled={!triggerReady}
-            icon={<BsTrash />}
-            className={triggerReady ? "w-fit bg-red-500" : "w-fit"}
+            color={triggerReady ? "danger" : "default"}
             isLoading={deleteProjectMutation.isLoading}
             onClick={() =>
               deleteProjectMutation.mutate({
                 projectID: project.ID,
               })
             }
+            variant="bordered"
           >
             Delete
           </Button>

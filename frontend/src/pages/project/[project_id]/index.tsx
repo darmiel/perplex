@@ -1,8 +1,15 @@
-import { Button, Checkbox, Chip, Tab, Tabs } from "@nextui-org/react"
+import {
+  Button,
+  Checkbox,
+  Chip,
+  Tooltip as NextTooltip,
+  Tab,
+  Tabs,
+} from "@nextui-org/react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsPen, BsPlusCircleFill } from "react-icons/bs"
+import { BsPen, BsPlusCircleFill, BsTrash } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
@@ -11,6 +18,7 @@ import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
 import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
+import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
@@ -43,6 +51,7 @@ export default function ProjectPage() {
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
   const [showCreateMeeting, setShowCreateMeeting] = useState(false)
+  const [showManageProjects, setShowManageProjects] = useState(false)
 
   const router = useRouter()
   const { project_id: projectIDStr } = router.query
@@ -195,13 +204,7 @@ export default function ProjectPage() {
             <OverviewSection name="Actions">
               {!isEdit ? (
                 <div className="flex space-x-2">
-                  <Button
-                    className="w-fit"
-                    startContent={<BsPen />}
-                    onClick={() => enterEdit()}
-                  >
-                    Edit
-                  </Button>
+                  {/* Create Topic Popup */}
                   <Button
                     onClick={() => setShowCreateMeeting(true)}
                     startContent={<BsPlusCircleFill />}
@@ -210,7 +213,6 @@ export default function ProjectPage() {
                   >
                     Create Meeting
                   </Button>
-                  {/* Create Topic Popup */}
                   <ModalPopup
                     open={showCreateMeeting}
                     setOpen={setShowCreateMeeting}
@@ -218,6 +220,39 @@ export default function ProjectPage() {
                     <MeetingCreateModal
                       projectID={projectID}
                       onClose={() => setShowCreateMeeting(false)}
+                    />
+                  </ModalPopup>
+
+                  {/* Edit Topic */}
+                  <Button
+                    isIconOnly
+                    startContent={<BsPen />}
+                    onClick={() => enterEdit()}
+                  />
+
+                  {/* Delete Topic (Manage Projects Alias) */}
+                  <NextTooltip
+                    content={
+                      <>
+                        Use <strong>Project Manager</strong> in Sidebar to
+                        delete projects
+                      </>
+                    }
+                  >
+                    <Button
+                      isIconOnly
+                      startContent={<BsTrash />}
+                      color="danger"
+                      variant="bordered"
+                      onClick={() => setShowManageProjects(true)}
+                    />
+                  </NextTooltip>
+                  <ModalPopup
+                    open={showManageProjects}
+                    setOpen={setShowManageProjects}
+                  >
+                    <ProjectModalManageProjects
+                      onClose={() => setShowManageProjects(false)}
                     />
                   </ModalPopup>
                 </div>
@@ -268,8 +303,5 @@ export default function ProjectPage() {
         </OverviewContainer>
       </div>
     </div>
-    // <div className="flex-none w-full bg-neutral-900 p-6 border-x border-neutral-700 space-y-4">
-    //   <MeetingList projectID={String(projectID)} />
-    // </div>
   )
 }

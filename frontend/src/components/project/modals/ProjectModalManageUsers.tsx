@@ -4,12 +4,12 @@ import { useEffect, useState } from "react"
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
 import { toast } from "sonner"
 
-import useDebounce from "@/components/Debounce"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
 import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
+import useDebounce from "@/hooks/debounce"
 
 export default function ProjectModalManageUsers({
   projectID,
