@@ -85,7 +85,7 @@ function TopicListItem({
     >
       <div className="ml-1">
         <Flex justify="between">
-          <Flex>
+          <Flex className="overflow-hidden">
             <Checkbox
               isIndeterminate={toggleTopicMutation.isLoading}
               color={toggleTopicMutation.isLoading ? "warning" : "default"}

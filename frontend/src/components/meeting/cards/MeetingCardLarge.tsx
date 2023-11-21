@@ -57,7 +57,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       <div>
         {/* Project Header */}
         <Link
-          className="text-default-400 flex items-center gap-2"
+          className="flex items-center gap-2 text-default-400"
           href={`/project/${meeting.project_id}`}
         >
           <ResolveProjectName projectID={meeting.project_id} />
@@ -66,12 +66,12 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
         {/* Meeting Name */}
         <Link
           href={`/project/${meeting.project_id}/meeting/${meeting.ID}`}
-          className="space-x-2"
+          className="flex flex-row items-center space-x-2"
         >
           <span className="inline-flex items-baseline">
             <MeetingChip hideIcon meeting={meeting} />
           </span>
-          <span className="text-start text-lg font-semibold">
+          <span className="truncate text-start text-lg font-semibold">
             {meeting.name}
           </span>
         </Link>
@@ -119,7 +119,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
                 </Chip>
               ))
             ) : (
-              <span className="text-default-400 text-sm italic">No Tags</span>
+              <span className="text-sm italic text-default-400">No Tags</span>
             )}
           </Flex>
         </ScrollShadow>
