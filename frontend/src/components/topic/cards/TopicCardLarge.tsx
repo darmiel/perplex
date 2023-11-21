@@ -60,13 +60,15 @@ export default function TopicCardLarge({
         {/* Project Header */}
         {!hideMeetingName && (
           <Link
-            className="text-default-400 flex items-center gap-2"
+            className="flex items-center gap-2 text-default-400"
             href={`/project/${projectID}/meeting/${topic.meeting_id}`}
           >
-            <ResolveMeetingName
-              projectID={projectID}
-              meetingID={topic.meeting_id}
-            />
+            <span className="truncate">
+              <ResolveMeetingName
+                projectID={projectID}
+                meetingID={topic.meeting_id}
+              />
+            </span>
           </Link>
         )}
 
@@ -104,7 +106,7 @@ export default function TopicCardLarge({
               <BsCheck />
             </span>
           )}
-          <span className="text-clip text-start text-lg font-medium">
+          <span className="truncate text-start text-lg font-medium">
             {topic.title}
           </span>
         </Link>
@@ -132,7 +134,7 @@ export default function TopicCardLarge({
                     </Chip>
                   ))
                 ) : (
-                  <span className="text-default-400 text-sm italic">
+                  <span className="text-sm italic text-default-400">
                     No Tags
                   </span>
                 )}
