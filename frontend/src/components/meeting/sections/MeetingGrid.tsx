@@ -78,7 +78,8 @@ export function MeetingGrid({
         onValueChange={setFilter}
         startContent={<BsSearch />}
         placeholder={`Search in ${title}...`}
-        width="100%"
+        fullWidth
+        size="sm"
       />
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {meetings?.map((meeting) => (

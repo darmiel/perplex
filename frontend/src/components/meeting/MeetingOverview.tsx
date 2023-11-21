@@ -28,7 +28,7 @@ import MeetingSelectBreadcrumbs from "@/components/meeting/breadcrumbs/MeetingSe
 import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ProjectSelectBreadcrumbs from "@/components/project/breadcrumbs/ProjectSelectBreadcrumbs"
-import { TopicTable } from "@/components/topic/section/TopicTable"
+import { TopicListView } from "@/components/topic/section/TopicListView"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import Flex from "@/components/ui/layout/Flex"
@@ -107,6 +107,7 @@ export default function MeetingOverview({
       }, 1000)
       return () => clearInterval(interval)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingInfoQuery])
 
   if (meetingInfoQuery.isLoading) {
@@ -282,7 +283,7 @@ export default function MeetingOverview({
               ) : topicListQuery.isError ? (
                 <span>Error: {extractErrorMessage(topicListQuery.error)}</span>
               ) : (
-                <TopicTable projectID={projectID} meetingID={meetingID} />
+                <TopicListView meetingID={meetingID} projectID={projectID} />
               )}
             </Tab>
           </Tabs>

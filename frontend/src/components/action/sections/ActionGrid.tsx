@@ -30,8 +30,8 @@ export default function ActionGrid({
       ? "Open Actions"
       : "Actions"
     : openOnly
-    ? "Open Actions Assigned to You"
-    : "Actions Assigned to You"
+      ? "Open Actions Assigned to You"
+      : "Actions Assigned to You"
 
   const { projects: projectsDB } = useAuth()
 
@@ -55,7 +55,7 @@ export default function ActionGrid({
   return (
     <section className="space-y-4">
       <Flex x={4}>
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        <BadgeHeader title={title} badge={projects.length} />
         {slots}
       </Flex>
       <Input
@@ -64,7 +64,8 @@ export default function ActionGrid({
         onValueChange={setFilter}
         startContent={<BsSearch />}
         placeholder={`Search in Topics...`}
-        width="100%"
+        fullWidth
+        size="sm"
       />
 
       {/* Quick Peek Action */}

@@ -156,7 +156,7 @@ export default function LandingPage() {
         </section>
       </div>
       <footer className="flex h-20 w-full items-center justify-center bg-black bg-opacity-50">
-        <div className="flex w-full max-w-5xl items-center justify-between px-10 text-neutral-500 lg:px-0">
+        <div className="flex w-full max-w-5xl items-center justify-between px-10 text-xs text-neutral-500 lg:px-0">
           <span>&copy; 2023 peerplex.app</span>
           <button onClick={() => setShowImprint(true)}>Imprint</button>
         </div>
@@ -178,9 +178,13 @@ const imprint = {
 export function Imprint() {
   return (
     <>
-      <p>Peerplex is a project by {imprint.name}.</p>
+      <p>
+        This
+        <Link href={links.contribute}>Perplex</Link>
+        instance is hosted by {imprint.name}.
+      </p>
       <p className="space-x-1">
-        <span>For more information, please contact me at</span>
+        <span>For more information, please contact</span>
         <span className="text-primary-400 underline">
           {Buffer.from(imprint.email, "base64").toString("utf-8")}
         </span>
