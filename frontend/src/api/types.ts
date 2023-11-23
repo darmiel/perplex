@@ -13,6 +13,8 @@ export interface Project {
   name: string
   description: string
   owner_id: string
+  max_project_file_size: number
+  project_file_size_quota: number
 }
 
 export interface BackendResponse<T = never> {

@@ -9,7 +9,15 @@ import {
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { BsPen, BsPlusCircleFill, BsTrash } from "react-icons/bs"
+import {
+  BsCalendar2,
+  BsChat,
+  BsCheckAll,
+  BsFiles,
+  BsPen,
+  BsPlusCircleFill,
+  BsTrash,
+} from "react-icons/bs"
 import { toast } from "sonner"
 
 import { extractErrorMessage } from "@/api/util"
@@ -19,6 +27,7 @@ import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
 import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
+import ProjectPageFiles from "@/components/project/pages/ProjectPageFiles"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
 import ProjectSectionManageTags from "@/components/project/sections/ProjectSectionManageTags"
 import ProjectSectionManageUsers from "@/components/project/sections/ProjectSectionManageUsers"
@@ -133,14 +142,30 @@ export default function ProjectPage() {
               selectedKey={tab}
               onSelectionChange={(key) => setTab(key.toString())}
             >
-              <Tab key="conversation" title="Conversation">
+              <Tab
+                key="conversation"
+                title={
+                  <Flex x={1}>
+                    <BsChat />
+                    <span>Conversation</span>
+                  </Flex>
+                }
+              >
                 <CommentSuite
                   projectID={projectID}
                   commentType="project"
                   commentEntityID={projectID}
                 />
               </Tab>
-              <Tab key="meetings" title="Meetings">
+              <Tab
+                key="meetings"
+                title={
+                  <Flex x={1}>
+                    <BsCalendar2 />
+                    <span>Meetings</span>
+                  </Flex>
+                }
+              >
                 <Flex
                   gap={4}
                   className="mb-6 transform flex-col rounded-md border border-neutral-700 bg-neutral-900 p-4 duration-300 hover:bg-neutral-950 md:flex-row"
@@ -186,7 +211,15 @@ export default function ProjectPage() {
                   }
                 />
               </Tab>
-              <Tab key="actions" title="Actions">
+              <Tab
+                key="actions"
+                title={
+                  <Flex x={1}>
+                    <BsCheckAll />
+                    <span>Actions</span>
+                  </Flex>
+                }
+              >
                 <ActionGrid
                   projectID={projectID}
                   openOnly={openOnly}
@@ -196,6 +229,17 @@ export default function ProjectPage() {
                     </Checkbox>
                   }
                 />
+              </Tab>
+              <Tab
+                key="files"
+                title={
+                  <Flex x={1}>
+                    <BsFiles />
+                    <span>Files</span>
+                  </Flex>
+                }
+              >
+                <ProjectPageFiles project={project} />
               </Tab>
             </Tabs>
           </OverviewContent>

@@ -79,3 +79,17 @@ func (a MiddlewareHandler) MeetingLocalsMiddleware(ctx *fiber.Ctx) error {
 	ctx.Locals("meeting", *meeting)
 	return ctx.Next()
 }
+
+func (a MiddlewareHandler) FileLocalsMiddleware(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	fileID, err := ctx.ParamsInt("file_id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	file, err := a.projectSrv.FindFile(p.ID, uint(fileID))
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	ctx.Locals("file", *file)
+	return ctx.Next()
+}

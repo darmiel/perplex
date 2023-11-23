@@ -12,6 +12,7 @@ import (
 	gofiberfirebaseauth "github.com/ralf-life/gofiber-firebaseauth"
 	"go.uber.org/zap"
 	"sort"
+	"time"
 )
 
 var ErrNoAccess = errors.New("no access")
@@ -24,6 +25,7 @@ var ErrOnlyUser = errors.New("only users can perform this action")
 type ProjectHandler struct {
 	srv       services.ProjectService
 	userSrv   services.UserService
+	s3Srv     services.S3Service
 	logger    *zap.SugaredLogger
 	validator *validator.Validate
 }
@@ -31,10 +33,11 @@ type ProjectHandler struct {
 func NewProjectHandler(
 	srv services.ProjectService,
 	userSrv services.UserService,
+	s3Srv services.S3Service,
 	logger *zap.SugaredLogger,
 	validator *validator.Validate,
 ) *ProjectHandler {
-	return &ProjectHandler{srv, userSrv, logger, validator}
+	return &ProjectHandler{srv, userSrv, s3Srv, logger, validator}
 }
 
 type projectDto struct {
@@ -262,4 +265,143 @@ func (h *ProjectHandler) RemoveUser(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("user added", nil))
+}
+
+// Files
+
+/*
+files.Post("/", handler.UploadFile)
+files.Get("/", handler.ListFiles)
+files.Get("/:file_id", handler.GetFile)
+files.Delete("/:file_id", handler.DeleteFile)
+files.Get("/:file_id/download", handler.DownloadFile)
+*/
+
+var (
+	ErrNoFileUploaded  = errors.New("no files")
+	ErrFileTooBig      = errors.New("file too big")
+	ErrNoFileQuotaLeft = errors.New("no file quota left")
+)
+
+func (h *ProjectHandler) UploadFile(ctx *fiber.Ctx) error {
+	u := ctx.Locals("user").(gofiberfirebaseauth.User)
+	p := ctx.Locals("project").(model.Project)
+
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	files := form.File["file"]
+	if len(files) == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(ErrNoFileUploaded))
+	}
+
+	// if the project has a file size quota, check if the user is allowed to upload
+	var totalSize *uint64
+	if p.ProjectFileSizeQuota >= 0 {
+		ts, err := h.srv.GetTotalProjectFileSize(p.ID)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		totalSize = &ts
+	}
+
+	var uploaded uint
+	for _, file := range files {
+		if p.MaxProjectFileSize >= 0 && file.Size > p.MaxProjectFileSize {
+			return ctx.Status(fiber.StatusForbidden).JSON(presenter.ErrorResponse(ErrFileTooBig))
+		}
+		if totalSize != nil {
+			*totalSize += uint64(file.Size)
+			if *totalSize > uint64(p.ProjectFileSizeQuota) {
+				return ctx.Status(fiber.StatusForbidden).JSON(presenter.ErrorResponse(ErrNoFileQuotaLeft))
+			}
+		}
+		key, err := h.s3Srv.UploadFile(u.UserID, p.ID, file)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		// save file to database
+		if err := h.srv.CreateFile(p.ID, model.ProjectFile{
+			Name:           file.Filename,
+			ObjectKey:      key,
+			Size:           file.Size,
+			ProjectID:      p.ID,
+			CreatorID:      u.UserID,
+			LastAccessedAt: time.Now(),
+			AccessCount:    0,
+		}); err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+		}
+		uploaded++
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse(
+		fmt.Sprintf("%d files uploaded", uploaded),
+		nil,
+	))
+}
+
+func (h *ProjectHandler) ListFiles(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	files, err := h.srv.FindFiles(p.ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project files", files))
+}
+
+func (h *ProjectHandler) GetFile(ctx *fiber.Ctx) error {
+	f := ctx.Locals("file").(model.ProjectFile)
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("project file", f))
+}
+
+func (h *ProjectHandler) DeleteFile(ctx *fiber.Ctx) error {
+	f := ctx.Locals("file").(model.ProjectFile)
+	// try to delete file from s3
+	if err := h.s3Srv.DeleteFile(f.ObjectKey); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	// delete file from database
+	if err := h.srv.DeleteFile(f.ProjectID, f.ID); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("file deleted", nil))
+}
+
+func (h *ProjectHandler) DownloadFile(ctx *fiber.Ctx) error {
+	// get file from s3
+	f := ctx.Locals("file").(model.ProjectFile)
+	req, _ := h.s3Srv.GetObjectRequest(f.ObjectKey)
+	if req.Error != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(req.Error))
+	}
+	// create presigned url
+	url, err := req.Presign(60 * time.Minute)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Redirect(url, fiber.StatusTemporaryRedirect)
+}
+
+type quotaInfoResponse struct {
+	// TotalSize is the total size of all files in the project
+	TotalSize uint64 `json:"total_size"`
+	// Quota is the quota (max total size of all files) of the project
+	Quota int64 `json:"quota"`
+	// MaxFileSize is the maximum file size of a single file
+	MaxFileSize int64 `json:"max_file_size"`
+}
+
+func (h *ProjectHandler) FileQuotaInfo(ctx *fiber.Ctx) error {
+	p := ctx.Locals("project").(model.Project)
+	totalSize, err := h.srv.GetTotalProjectFileSize(p.ID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", quotaInfoResponse{
+		TotalSize:   totalSize,
+		Quota:       p.ProjectFileSizeQuota,
+		MaxFileSize: p.MaxProjectFileSize,
+	}))
 }

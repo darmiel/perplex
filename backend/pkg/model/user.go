@@ -33,6 +33,8 @@ type User struct {
 	AssignedMeetings []Meeting `gorm:"many2many:meeting_user_assignments" json:"assigned_meetings"`
 	// SubscribedTopics contains all topics the user is subscribed to
 	SubscribedTopics []Topic `gorm:"many2many:topic_user_subscriptions" json:"subscribed_topics"`
+	// ProjectFiles contains all files the user created
+	ProjectFiles []ProjectFile `gorm:"foreignKey:CreatorID" json:"project_files"`
 }
 
 // Comment represents a comment in a topic
@@ -52,6 +54,8 @@ type Comment struct {
 	ProjectID *uint `json:"project_id"`
 	// ActionID is the ID of the action the comment belongs to
 	ActionID *uint `json:"action_id"`
+	// FileID is the ID of the file the comment belongs to
+	ProjectFileID *uint `json:"file_id"`
 }
 
 // CheckProjectOwnership checks if the comment belongs to the project
@@ -161,8 +165,12 @@ type Project struct {
 	Actions []Action `json:"actions,omitempty"`
 	// Comments for the project
 	Comments []Comment `json:"comments,omitempty"`
-	// AIEnabled is true if the OpenAI API is enabled for the project
-	AIEnabled bool `json:"ai_enabled"`
+	// ProjectFiles contains all files in the project
+	ProjectFiles []ProjectFile `json:"project_files"`
+	// MaxProjectFileSize is the maximum size (in bytes) of a file in the project
+	MaxProjectFileSize int64 `json:"max_project_file_size"`
+	// ProjectFileSizeQuota is the maximum size (in bytes) of all files in the project
+	ProjectFileSizeQuota int64 `json:"project_file_size_quota"`
 }
 
 func (p Project) CheckProjectOwnership(projectID uint) bool {
@@ -257,4 +265,28 @@ type Notification struct {
 	Link string `json:"link"`
 	// LinkTitle is the title of the link (optional)
 	LinkTitle string `json:"link_title"`
+}
+
+type ProjectFile struct {
+	gorm.Model
+	// Name of the file
+	Name string `json:"name"`
+	// ObjectKey is the key of the file in the bucket
+	ObjectKey string `json:"object_key"`
+	// Size is the size of the file in bytes
+	Size int64 `json:"size"`
+	// ProjectID is the ID of the project the file belongs to
+	ProjectID uint `json:"project_id"`
+	// Project is the project the file belongs to
+	Project Project `json:"project,omitempty"`
+	// CreatorID is the ID of the creator of the file
+	CreatorID string `json:"creator_id"`
+	// Creator is the creator of the file
+	Creator User `json:"creator,omitempty"`
+	// Comments for the file
+	Comments []Comment `json:"comments,omitempty"`
+	// LastAccessedAt is the time when the file was last accessed
+	LastAccessedAt time.Time `json:"last_accessed_at"`
+	// AccessCount is the number of times the file was accessed
+	AccessCount int `json:"access_count"`
 }

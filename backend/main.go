@@ -65,7 +65,8 @@ func main() {
 
 	// api
 	app := fiber.New(fiber.Config{
-		AppName: "perplex-api",
+		AppName:           "perplex-api",
+		StreamRequestBody: true,
 	})
 	app.Use(cors.New())
 	app.Get("/", func(ctx *fiber.Ctx) error {
@@ -75,6 +76,12 @@ func main() {
 	app.Use(gofiberfirebaseauth.New(fbApp, gofiberfirebaseauth.Config{
 		TokenExtractor: gofiberfirebaseauth.NewHeaderExtractor("Bearer "),
 	}))
+
+	s3Service, err := services.NewS3Service()
+	if err != nil {
+		sugar.With(err).Fatalln("cannot create s3 service")
+		return
+	}
 
 	projectService := services.NewProjectService(db)
 	meetingService := services.NewMeetingService(db)
@@ -137,9 +144,9 @@ func main() {
 	middlewareHandler := handlers.NewMiddlewareHandler(userService, projectService, meetingService)
 
 	// /project
-	projectHandler := handlers.NewProjectHandler(projectService, userService, sugar, validate)
+	projectHandler := handlers.NewProjectHandler(projectService, userService, s3Service, sugar, validate)
 	projectGroup := app.Group("/project")
-	routes.ProjectRoutes(projectGroup, projectHandler)
+	routes.ProjectRoutes(projectGroup, projectHandler, middlewareHandler)
 
 	// /meetings
 	meetingHandler := handlers.NewMeetingHandler(meetingService, projectService, userService, sugar, validate)

@@ -5,17 +5,29 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ProjectRoutes(router fiber.Router, handler *handlers.ProjectHandler) {
+func ProjectRoutes(router fiber.Router, handler *handlers.ProjectHandler, middlewares *handlers.MiddlewareHandler) {
 	router.Post("/", handler.AddProject)
 	router.Get("/", handler.GetProjects)
 
-	router.Use("/:project_id", handler.ProjectAccessMiddleware)
-	router.Get("/:project_id", handler.GetProject)
-	router.Get("/:project_id/users", handler.ListUsersForProject)
-	router.Delete("/:project_id/delete", handler.DeleteProject)
-	router.Delete("/:project_id/leave", handler.LeaveProject)
-	router.Put("/:project_id", handler.EditProject)
+	specific := router.Group("/:project_id")
+	specific.Use("/", handler.ProjectAccessMiddleware)
+	specific.Get("/", handler.GetProject)
+	specific.Get("/users", handler.ListUsersForProject)
+	specific.Delete("/delete", handler.DeleteProject)
+	specific.Delete("/leave", handler.LeaveProject)
+	specific.Put("/", handler.EditProject)
 
-	router.Post("/:project_id/user/:user_id", handler.AddUser)
-	router.Delete("/:project_id/user/:user_id", handler.RemoveUser)
+	specific.Post("/user/:user_id", handler.AddUser)
+	specific.Delete("/user/:user_id", handler.RemoveUser)
+
+	files := specific.Group("/files")
+	files.Post("/", handler.UploadFile)
+	files.Get("/", handler.ListFiles)
+	files.Get("/quota", handler.FileQuotaInfo)
+
+	specificFile := files.Group("/:file_id")
+	specificFile.Use("/", middlewares.FileLocalsMiddleware)
+	specificFile.Get("/", handler.GetFile)
+	specificFile.Delete("/", handler.DeleteFile)
+	specificFile.Get("/download", handler.DownloadFile)
 }

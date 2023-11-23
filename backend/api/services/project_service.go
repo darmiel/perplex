@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
 )
@@ -31,6 +32,11 @@ type ProjectService interface {
 	CreatePriority(title, color string, weight int, projectID uint) (*model.Priority, error)
 	DeletePriority(priorityID uint) error
 	EditPriority(priorityID uint, title, color string, weight int) error
+	CreateFile(projectID uint, file model.ProjectFile) error
+	FindFile(projectID uint, fileID uint) (*model.ProjectFile, error)
+	FindFiles(projectID uint) ([]model.ProjectFile, error)
+	DeleteFile(projectID uint, fileID uint) error
+	GetTotalProjectFileSize(projectID uint) (uint64, error)
 }
 
 type projectService struct {
@@ -255,4 +261,55 @@ func (p *projectService) EditPriority(priorityID uint, title, color string, weig
 		Weight: weight,
 		Color:  color,
 	}).Error
+}
+
+// Files
+
+func (p *projectService) CreateFile(projectID uint, file model.ProjectFile) error {
+	file.ProjectID = projectID
+	return p.DB.Create(&file).Error
+}
+
+func (p *projectService) FindFile(projectID uint, fileID uint) (*model.ProjectFile, error) {
+	var file model.ProjectFile
+	if err := p.DB.Where(&model.ProjectFile{
+		Model: gorm.Model{
+			ID: fileID,
+		},
+		ProjectID: projectID,
+	}).First(&file).Error; err != nil {
+		return nil, err
+	}
+	return &file, nil
+}
+
+func (p *projectService) FindFiles(projectID uint) ([]model.ProjectFile, error) {
+	var files []model.ProjectFile
+	if err := p.DB.Where(&model.ProjectFile{
+		ProjectID: projectID,
+	}).Find(&files).Error; err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
+func (p *projectService) DeleteFile(projectID uint, fileID uint) error {
+	return p.DB.Delete(&model.ProjectFile{
+		Model: gorm.Model{
+			ID: fileID,
+		},
+		ProjectID: projectID,
+	}).Error
+}
+
+func (p *projectService) GetTotalProjectFileSize(projectID uint) (uint64, error) {
+	var size uint64
+	if err := p.DB.Model(&model.ProjectFile{}).
+		Where("project_id = ?", projectID).
+		Select("sum(size)").
+		Scan(&size).Error; err != nil {
+		fmt.Println("oh oh gorm error!")
+		return 0, err
+	}
+	return size, nil
 }
