@@ -269,14 +269,6 @@ func (h *ProjectHandler) RemoveUser(ctx *fiber.Ctx) error {
 
 // Files
 
-/*
-files.Post("/", handler.UploadFile)
-files.Get("/", handler.ListFiles)
-files.Get("/:file_id", handler.GetFile)
-files.Delete("/:file_id", handler.DeleteFile)
-files.Get("/:file_id/download", handler.DownloadFile)
-*/
-
 var (
 	ErrNoFileUploaded  = errors.New("no files")
 	ErrFileTooBig      = errors.New("file too big")
@@ -381,7 +373,11 @@ func (h *ProjectHandler) DownloadFile(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
-	return ctx.Redirect(url, fiber.StatusTemporaryRedirect)
+	// update access
+	if err := h.srv.UpdateFileAccess(f.ID); err != nil {
+		h.logger.Warnf("cannot update file access: %v", err)
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("file download url", url))
 }
 
 type quotaInfoResponse struct {

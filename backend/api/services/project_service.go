@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
+	"time"
 )
 
 var (
@@ -37,6 +38,7 @@ type ProjectService interface {
 	FindFiles(projectID uint) ([]model.ProjectFile, error)
 	DeleteFile(projectID uint, fileID uint) error
 	GetTotalProjectFileSize(projectID uint) (uint64, error)
+	UpdateFileAccess(fileID uint) error
 }
 
 type projectService struct {
@@ -312,4 +314,13 @@ func (p *projectService) GetTotalProjectFileSize(projectID uint) (uint64, error)
 		return 0, err
 	}
 	return size, nil
+}
+
+func (p *projectService) UpdateFileAccess(fileID uint) error {
+	// set last accessed date to now and increment access count
+	return p.DB.Model(&model.ProjectFile{}).
+		Where("id = ?", fileID).
+		Update("access_count", gorm.Expr("access_count + 1")).
+		Update("last_accessed", time.Now()).
+		Error
 }

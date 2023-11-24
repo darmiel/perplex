@@ -134,3 +134,39 @@ export type Notification = {
   link: string
   link_title: string
 }
+
+export interface Quota {
+  // TotalSize is the total size of all files in the project
+  total_size: number
+  // Quota is the quota (max total size of all files) of the project
+  quota: number
+  // MaxFileSize is the maximum file size of a single file
+  max_file_size: number
+}
+
+export interface ProjectFile {
+  // ID of the GORM model (unique identifier for the file model)
+  ID: number
+  // Time when the model was created
+  createdAt: Date
+  // Time when the model was last updated
+  updatedAt: Date
+  // Time if the model is soft-deleted (optional)
+  deletedAt?: Date
+  // Name of the file
+  name: string
+  // ObjectKey is the key of the file in the bucket
+  object_key: string
+  // Size is the size of the file in bytes
+  size: number
+  // ProjectID is the ID of the project the file belongs to
+  project_id: number
+  // CreatorID is the ID of the creator of the file
+  creator_id: string
+  // Comments for the file (optional)
+  comments?: Comment[]
+  // LastAccessedAt is the time when the file was last accessed
+  last_accessed_at: string
+  // AccessCount is the number of times the file was accessed
+  access_count: number
+}
