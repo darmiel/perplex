@@ -10,6 +10,8 @@ import {
   Notification,
   Priority,
   Project,
+  ProjectFile,
+  Quota,
   SearchResult,
   Tag,
   Topic,
@@ -42,6 +44,10 @@ export type projectEditVars = {
 export type projectUserLinkVars = {
   userID: string
   link: boolean
+}
+
+export type projectFileDeleteVars = {
+  fileID: number
 }
 
 // ======================
@@ -339,6 +345,29 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       leaveMutKey() {
         return ["project-leave-mut"]
+      },
+
+      quotaQueryFn(projectID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/files/quota`)).data
+      },
+      quotaQueryKey(projectID: number) {
+        return [{ projectID }, "quota"]
+      },
+
+      listFilesQueryFn(projectID: number) {
+        return async () => (await axios.get(`/project/${projectID}/files`)).data
+      },
+      listFilesQueryKey(projectID: number) {
+        return [{ projectID }, "files"]
+      },
+
+      deleteFileMutFn(projectID: number) {
+        return async ({ fileID }: projectFileDeleteVars) =>
+          (await axios.delete(`/project/${projectID}/files/${fileID}`)).data
+      },
+      deleteFileMutKey(projectID: number) {
+        return [{ projectID }, "file-delete-mut"]
       },
     },
     tags: {
@@ -1105,6 +1134,36 @@ export const functions = (axios: Axios, client: QueryClient) => {
             functions.projects.listQueryKey(),
           ),
           onError: toastError("Cannot delete Project:"),
+        })
+      },
+      useQuota(projectID: number) {
+        return useQuery<BackendResponse<Quota>>({
+          queryKey: functions.projects.quotaQueryKey(projectID),
+          queryFn: functions.projects.quotaQueryFn(projectID),
+          enabled: !!projectID,
+        })
+      },
+      useListFiles(projectID: number) {
+        return useQuery<BackendResponse<ProjectFile[]>>(
+          functions.projects.listFilesQueryKey(projectID),
+          functions.projects.listFilesQueryFn(projectID),
+          {
+            enabled: !!projectID,
+          },
+        )
+      },
+      useDeleteFile(
+        projectID: number,
+        callback: SuccessCallback<never, projectFileDeleteVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, projectFileDeleteVars>({
+          mutationKey: functions.projects.deleteFileMutKey(projectID),
+          mutationFn: functions.projects.deleteFileMutFn(projectID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.projects.listFilesQueryKey(projectID),
+          ),
+          onError: toastError("Cannot delete File:"),
         })
       },
     },
