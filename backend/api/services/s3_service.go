@@ -23,9 +23,10 @@ type S3Service interface {
 }
 
 type s3Service struct {
-	bucketID string
-	svc      *s3.S3
-	uploader *s3manager.Uploader
+	bucketID        string
+	svc             *s3.S3
+	uploader        *s3manager.Uploader
+	taggingDisabled bool
 }
 
 var (
@@ -53,6 +54,8 @@ func NewS3Service() (S3Service, error) {
 		return nil, ErrNoSecretKeySpecified
 	}
 
+	_, taggingDisabled := os.LookupEnv("AWS_TAGGING_DISABLED")
+
 	fmt.Println("region:", region, "bucket:", bucket, "accessKey:", accessKey, "secretKey:", secretKey)
 
 	config := aws.Config{
@@ -72,9 +75,10 @@ func NewS3Service() (S3Service, error) {
 	svc := s3.New(sess)
 
 	return &s3Service{
-		bucketID: bucket,
-		svc:      svc,
-		uploader: s3manager.NewUploader(sess),
+		bucketID:        bucket,
+		svc:             svc,
+		uploader:        s3manager.NewUploader(sess),
+		taggingDisabled: taggingDisabled,
 	}, nil
 }
 
@@ -112,7 +116,9 @@ func (s *s3Service) UploadFile(userID string, projectID uint, file *multipart.Fi
 		Bucket:      aws.String(s.bucketID),
 		ContentType: aws.String(fileType),
 		Key:         aws.String(randomFileKey),
-		Tagging:     aws.String(fmt.Sprintf("ProjectID=%d&UserID=%s", projectID, userID)),
+	}
+	if !s.taggingDisabled {
+		params.Tagging = aws.String(fmt.Sprintf("ProjectID=%d&UserID=%s", projectID, userID))
 	}
 
 	_, err = s.uploader.Upload(params)
