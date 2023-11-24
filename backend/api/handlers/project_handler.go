@@ -295,7 +295,7 @@ func (h *ProjectHandler) UploadFile(ctx *fiber.Ctx) error {
 		if err != nil {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 		}
-		totalSize = &ts
+		totalSize = ts
 	}
 
 	var uploaded uint
@@ -395,8 +395,12 @@ func (h *ProjectHandler) FileQuotaInfo(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
 	}
+	var totalSizeUint64 uint64
+	if totalSize != nil {
+		totalSizeUint64 = *totalSize
+	}
 	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("", quotaInfoResponse{
-		TotalSize:   totalSize,
+		TotalSize:   totalSizeUint64,
 		Quota:       p.ProjectFileSizeQuota,
 		MaxFileSize: p.MaxProjectFileSize,
 	}))

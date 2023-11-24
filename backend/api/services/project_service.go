@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"github.com/darmiel/perplex/pkg/model"
 	"gorm.io/gorm"
 	"time"
@@ -37,7 +36,7 @@ type ProjectService interface {
 	FindFile(projectID uint, fileID uint) (*model.ProjectFile, error)
 	FindFiles(projectID uint) ([]model.ProjectFile, error)
 	DeleteFile(projectID uint, fileID uint) error
-	GetTotalProjectFileSize(projectID uint) (uint64, error)
+	GetTotalProjectFileSize(projectID uint) (*uint64, error)
 	UpdateFileAccess(fileID uint) error
 }
 
@@ -304,14 +303,13 @@ func (p *projectService) DeleteFile(projectID uint, fileID uint) error {
 	}).Error
 }
 
-func (p *projectService) GetTotalProjectFileSize(projectID uint) (uint64, error) {
-	var size uint64
+func (p *projectService) GetTotalProjectFileSize(projectID uint) (*uint64, error) {
+	var size *uint64
 	if err := p.DB.Model(&model.ProjectFile{}).
 		Where("project_id = ?", projectID).
 		Select("sum(size)").
 		Scan(&size).Error; err != nil {
-		fmt.Println("oh oh gorm error!")
-		return 0, err
+		return nil, err
 	}
 	return size, nil
 }
