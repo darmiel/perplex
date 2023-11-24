@@ -72,12 +72,14 @@ function FileQuota({ projectID }: { projectID: number }) {
 function FileDropzone({ projectID }: { projectID: number }) {
   const [percentage, setPercentage] = useState<number>()
   const [isUploading, setIsUploading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
-  const { axios } = useAuth()
+  const { axios, _functions } = useAuth()
   const queryClient = useQueryClient()
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setIsUploading(true)
+    setIsSuccess(false)
 
     const formData = new FormData()
     formData.append("file", acceptedFiles[0])
@@ -94,8 +96,15 @@ function FileDropzone({ projectID }: { projectID: number }) {
       })
       .then((resp) => {
         setIsUploading(false)
+        setIsSuccess(true)
+
         toast.success(`File ${acceptedFiles[0].name} uploaded`)
-        queryClient.invalidateQueries([{ projectID }, "files"])
+        queryClient.invalidateQueries(
+          _functions!.projects.listFilesQueryKey(projectID),
+        )
+        queryClient.invalidateQueries(
+          _functions!.projects.quotaQueryKey(projectID),
+        )
       })
       .catch((e) => {
         toast.error(`File ${acceptedFiles[0].name} failed to upload: ${e}`)
@@ -110,7 +119,7 @@ function FileDropzone({ projectID }: { projectID: number }) {
   return (
     <div
       className={clsx(
-        "flex w-full cursor-pointer items-center justify-center rounded-md bg-neutral-900 p-8",
+        "flex w-full cursor-pointer flex-col items-center justify-center rounded-md bg-neutral-900 p-8",
         {
           "border border-blue-500": isDragActive,
         },
@@ -129,8 +138,9 @@ function FileDropzone({ projectID }: { projectID: number }) {
             <Flex x={2}>
               <BsFilePlus />
               <span>Drag files to upload here ...</span>
+              {isSuccess && <BsCheck2 />}
             </Flex>
-            {percentage !== undefined && (
+            {percentage !== undefined && !isSuccess && (
               <Progress
                 value={percentage ?? 0}
                 size="sm"
@@ -141,6 +151,11 @@ function FileDropzone({ projectID }: { projectID: number }) {
           </Flex>
         )}
       </div>
+      <span className="mt-2 text-center text-xs text-neutral-600">
+        By uploading files, you agree not to submit illegal content. <br />
+        We reserve the right to remove any material at our discretion without
+        notice.
+      </span>
     </div>
   )
 }

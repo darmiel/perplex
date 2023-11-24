@@ -1050,6 +1050,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
   } as const
 
   const hooks = {
+    _functions: functions,
     projects: {
       useCreate(callback: SuccessCallback<Project, projectCreateVars>) {
         return useMutation<
@@ -1162,6 +1163,7 @@ export const functions = (axios: Axios, client: QueryClient) => {
           onSuccess: invalidateAllCallback(
             callback,
             functions.projects.listFilesQueryKey(projectID),
+            functions.projects.quotaQueryKey(projectID),
           ),
           onError: toastError("Cannot delete File:"),
         })
