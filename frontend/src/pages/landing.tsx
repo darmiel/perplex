@@ -103,7 +103,7 @@ export default function LandingPage() {
             target="_blank"
             className="hidden rounded-full border-2 border-neutral-500 px-4 py-2 text-xs text-neutral-400 md:block"
           >
-            v0.4.0-beta released
+            v0.5.0-beta released
           </Link>
 
           <div className="hidden items-center space-x-2 md:flex">
