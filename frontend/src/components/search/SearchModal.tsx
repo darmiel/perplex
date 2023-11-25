@@ -1,6 +1,6 @@
+import { Input, Spinner } from "@nextui-org/react"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { BarLoader, PuffLoader } from "react-spinners"
 
 import { Action, Meeting, Project, Topic } from "@/api/types"
 import SearchResultAction from "@/components/search/results/SearchResultAction"
@@ -104,33 +104,26 @@ export default function SearchModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className={`flex w-[50rem] flex-col space-y-4 rounded-lg border border-neutral-700 bg-neutral-900 p-4`}
+      className={`flex w-[50rem] flex-col space-y-4 rounded-lg border border-neutral-800 bg-neutral-950 bg-opacity-50 p-4`}
     >
-      <h2 className="items-center text-xs font-semibold uppercase text-neutral-500">
+      <h2 className="w-full text-center text-xs font-semibold uppercase text-neutral-500">
         Search across Perplex
       </h2>
 
       <div className="flex items-center space-x-3">
-        <input
+        <Input
           type="text"
-          className="w-full rounded-md border border-neutral-700 bg-neutral-800 p-2"
+          fullWidth
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
           onKeyDown={onKeyDown}
           autoComplete="off"
+          variant="bordered"
+          size="sm"
+          placeholder="Start typing..."
         />
-        {searchResultQuery.isFetching && (
-          <PuffLoader color="gray" size="1.3em" />
-        )}
+        {searchResultQuery.isFetching && <Spinner color="default" />}
       </div>
-
-      <Hr className="my-4" />
-
-      {searchResultQuery.isFetching && (
-        <div className="flex justify-center">
-          <BarLoader color="white" />
-        </div>
-      )}
 
       <div className="max-h-96 space-y-2 overflow-y-auto">
         {result.projects.length > 0 && (
