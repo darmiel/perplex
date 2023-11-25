@@ -9,11 +9,13 @@ import MeetingFollowUp from "@/components/meeting/modals/MeetingFollowUp"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import { TopicListNG } from "@/components/topic/TopicList"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
+import { useLocalBoolState } from "@/hooks/localStorage"
 
 export function useToggleButton(
   tooltip: string,
   startContent: ReactNode,
   defaultState: boolean = false,
+  onUpdate?: (isToggled: boolean) => void,
 ) {
   const [isToggled, setIsToggled] = useState(defaultState)
   return {
@@ -26,7 +28,12 @@ export function useToggleButton(
           startContent={startContent}
           variant={isToggled ? "solid" : "bordered"}
           size="sm"
-          onClick={() => setIsToggled((prev) => !prev)}
+          onClick={() =>
+            setIsToggled((prev) => {
+              onUpdate?.(!prev)
+              return !prev
+            })
+          }
         />
       </Tooltip>
     ),
@@ -42,8 +49,13 @@ export function ExtendedNavBar({
   meetingID?: number
   topicID?: number
 }) {
+  const hasMeetingID = meetingID !== undefined
+
   const [showCreateTopic, setShowCreateTopic] = useState(false)
   const [showFollowUp, setShowFollowUp] = useState(false)
+
+  const [showMeetingsOnTopicOverview, setShowMeetingsOnTopicOverview] =
+    useLocalBoolState("topic-overview/show-meetings", false)
 
   const router = useRouter()
 
@@ -54,7 +66,16 @@ export function ExtendedNavBar({
   )
 
   const { component: meetingsButton, isToggled: meetingsToggled } =
-    useToggleButton("Show Meetings", <BsCalendar />, !meetingID)
+    useToggleButton(
+      "Show Meetings",
+      <BsCalendar />,
+      !hasMeetingID || showMeetingsOnTopicOverview,
+      (toggled) => {
+        if (hasMeetingID) {
+          setShowMeetingsOnTopicOverview(toggled)
+        }
+      },
+    )
 
   return (
     <section className="flex w-full flex-col">
