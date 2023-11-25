@@ -43,17 +43,14 @@ export default function ProjectPage() {
   const topicID = Number(topicIDStr)
 
   return (
-    <PanelGroup autoSaveId="topic-view" direction="horizontal">
-      <Panel
-        order={1}
-        defaultSizePixels={300}
-        collapsible={true}
-        collapsedSizePixels={10}
-        onCollapse={() => alert("col")}
-      >
+    <PanelGroup autoSaveId="extended-navbar" direction="horizontal">
+      <Panel order={1} defaultSizePixels={300} collapsible={true}>
         <div className="flex h-full w-full flex-row overflow-y-auto">
-          {/* <TopicList projectID={projectID} meetingID={meetingID} /> */}
-          <ExtendedNavBar projectID={projectID} meetingID={meetingID} />
+          <ExtendedNavBar
+            projectID={projectID}
+            meetingID={meetingID}
+            topicID={topicID}
+          />
         </div>
       </Panel>
       <PanelResizeHandle className="w-2" />

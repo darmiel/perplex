@@ -31,14 +31,17 @@ import {
   BsCheck,
   BsPen,
   BsPeople,
+  BsSearch,
   BsTag,
   BsTriangle,
 } from "react-icons/bs"
 import { toast } from "sonner"
 
 import { Topic } from "@/api/types"
+import { useToggleButton } from "@/components/navbar/ExtendedNavbar"
 import TopicTagChip from "@/components/topic/TopicTagChip"
 import Flex from "@/components/ui/layout/Flex"
+import useSearch from "@/components/ui/SearchBar"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useLocalState } from "@/hooks/localStorage"
 
@@ -269,7 +272,7 @@ function groupTopics(topics: Topic[], groupBy: GroupBy): GroupedTopics[] {
       groupTopics.push({
         title: "All Topics",
         key: "all-topics",
-        topics: topics,
+        topics,
       })
       break
     // group by status (open, closed)
@@ -442,6 +445,16 @@ export function TopicListNG({
     (val) => val,
   )
 
+  // search button
+  const { component: SearchButton, isToggled: showSearchBar } = useToggleButton(
+    "Search Topic",
+    <BsSearch />,
+    false,
+  )
+  const { component: SearchBar, filter: searchFilter } = useSearch<Topic>(
+    (topic) => topic.title,
+  )
+
   const { topics } = useAuth()
 
   const { data, error, isError, isSuccess, isLoading } = topics!.useList(
@@ -454,9 +467,13 @@ export function TopicListNG({
     if (!isSuccess) {
       return []
     }
-    const topicsSorted = sortTopics(data.data, orderByTarget, orderDirection)
+    const topicsSorted = sortTopics(
+      data.data.filter(searchFilter),
+      orderByTarget,
+      orderDirection,
+    )
     return groupTopics(topicsSorted, groupBy)
-  }, [groupBy, orderDirection, orderByTarget, data, isSuccess])
+  }, [groupBy, orderDirection, orderByTarget, data, isSuccess, searchFilter])
 
   // checkedTopicCount contains the number of topics that are closed
   const checkedTopicCount = useMemo(() => {
@@ -482,105 +499,118 @@ export function TopicListNG({
 
   return (
     <ul className="flex h-full flex-grow flex-col overflow-y-auto">
-      <Flex x={1} className="mt-2 px-3">
-        {/* Sort */}
-        <Dropdown>
-          <Tooltip content="Order By">
-            <div className="max-w-fit">
-              <DropdownTrigger>
-                <Button
-                  isIconOnly
-                  startContent={orders[orderByTarget].icon}
-                  size="sm"
-                  variant="light"
-                />
-              </DropdownTrigger>
-            </div>
+      <Flex justify="between" className="mt-2 px-3">
+        <Flex>
+          <span className="rounded-md border border-neutral-500 px-2 py-1 text-xs text-neutral-500">
+            TOPICS
+          </span>
+
+          {/* Sort */}
+          <Dropdown>
+            <Tooltip content="Order By">
+              <div className="max-w-fit">
+                <DropdownTrigger>
+                  <Button
+                    isIconOnly
+                    startContent={orders[orderByTarget].icon}
+                    size="sm"
+                    variant="light"
+                  />
+                </DropdownTrigger>
+              </div>
+            </Tooltip>
+            <DropdownMenu
+              items={Object.values(orders)}
+              selectionMode="single"
+              onSelectionChange={(sel) => {
+                sel !== "all" &&
+                  sel.forEach((val) => {
+                    setOrderByTarget(
+                      val.toString().toLowerCase() as OrderTarget,
+                    )
+                  })
+              }}
+            >
+              {(item) => (
+                <DropdownItem
+                  key={(item as OrderMeta).name}
+                  startContent={(item as OrderMeta).icon}
+                >
+                  {(item as OrderMeta).name}
+                </DropdownItem>
+              )}
+            </DropdownMenu>
+          </Dropdown>
+
+          {/* Direction */}
+          <Tooltip content="Order Direction">
+            <Button
+              isIconOnly
+              variant="light"
+              startContent={
+                orderDirection === "asc" ? <BsArrowDown /> : <BsArrowUp />
+              }
+              onClick={() =>
+                setOrderDirection((prev) => (prev === "asc" ? "desc" : "asc"))
+              }
+              size="sm"
+            />
           </Tooltip>
-          <DropdownMenu
-            items={Object.values(orders)}
-            selectionMode="single"
-            onSelectionChange={(sel) => {
-              sel !== "all" &&
-                sel.forEach((val) => {
-                  setOrderByTarget(val.toString().toLowerCase() as OrderTarget)
-                })
-            }}
-          >
-            {(item) => (
-              <DropdownItem
-                key={(item as OrderMeta).name}
-                startContent={(item as OrderMeta).icon}
-              >
-                {(item as OrderMeta).name}
-              </DropdownItem>
-            )}
-          </DropdownMenu>
-        </Dropdown>
 
-        {/* Direction */}
-        <Tooltip content="Order Direction">
-          <Button
-            isIconOnly
-            variant="light"
-            startContent={
-              orderDirection === "asc" ? <BsArrowDown /> : <BsArrowUp />
-            }
-            onClick={() =>
-              setOrderDirection((prev) => (prev === "asc" ? "desc" : "asc"))
-            }
-            size="sm"
-          />
-        </Tooltip>
+          <Divider orientation="vertical" />
 
-        <Divider orientation="vertical" />
+          <Dropdown>
+            <Tooltip content="Group By">
+              <div className="max-w-fit">
+                <DropdownTrigger>
+                  <Button
+                    isIconOnly
+                    startContent={groups[groupBy].icon}
+                    size="sm"
+                    variant="light"
+                  />
+                </DropdownTrigger>
+              </div>
+            </Tooltip>
+            <DropdownMenu
+              items={Object.values(groups)}
+              selectionMode="single"
+              onSelectionChange={(sel) => {
+                sel !== "all" &&
+                  sel.forEach((val) => {
+                    setGroupBy(val.toString().toLowerCase() as GroupBy)
+                  })
+              }}
+            >
+              {(item) => (
+                <DropdownItem
+                  key={(item as OrderMeta).name}
+                  startContent={(item as OrderMeta).icon}
+                >
+                  {(item as OrderMeta).name}
+                </DropdownItem>
+              )}
+            </DropdownMenu>
+          </Dropdown>
 
-        <Dropdown>
-          <Tooltip content="Group By">
-            <div className="max-w-fit">
-              <DropdownTrigger>
-                <Button
-                  isIconOnly
-                  startContent={groups[groupBy].icon}
-                  size="sm"
-                  variant="light"
-                />
-              </DropdownTrigger>
-            </div>
-          </Tooltip>
-          <DropdownMenu
-            items={Object.values(groups)}
-            selectionMode="single"
-            onSelectionChange={(sel) => {
-              sel !== "all" &&
-                sel.forEach((val) => {
-                  setGroupBy(val.toString().toLowerCase() as GroupBy)
-                })
-            }}
-          >
-            {(item) => (
-              <DropdownItem
-                key={(item as OrderMeta).name}
-                startContent={(item as OrderMeta).icon}
-              >
-                {(item as OrderMeta).name}
-              </DropdownItem>
-            )}
-          </DropdownMenu>
-        </Dropdown>
+          <Divider orientation="vertical" />
+        </Flex>
 
-        <Divider orientation="vertical" />
-
-        <Progress
-          maxValue={data.data.length}
-          value={checkedTopicCount}
-          size="sm"
-          color={data.data.length === checkedTopicCount ? "success" : "primary"}
-          className="px-2"
-        />
+        {SearchButton}
       </Flex>
 
-      <ScrollShadow hideScrollBar className="h-full">
+      <Progress
+        maxValue={data.data.length}
+        value={checkedTopicCount}
+        size="sm"
+        color={data.data.length === checkedTopicCount ? "success" : "primary"}
+        className="my-2 mb-3"
+        radius="none"
+      />
+
+      {showSearchBar && <div className="mb-2 px-2">{SearchBar}</div>}
+
+      <ScrollShadow hideScrollBar className="h-fit max-h-full">
         <Accordion
           selectionMode="multiple"
           isCompact
@@ -588,33 +618,46 @@ export function TopicListNG({
           showDivider={false}
           key={groupBy}
         >
-          {groupedTopics.map((group) => (
-            <AccordionItem
-              key={group.key}
-              classNames={{
-                heading: "rounded-md bg-neutral-900 px-2 mt-1",
-                content: "mb-4",
-              }}
-              title={
-                <Flex x={2} justify="between" className="">
-                  <span className="text-sm">{group.title}</span>
-                  <Chip variant="solid" size="sm">
-                    {group.topics.length}
-                  </Chip>
-                </Flex>
-              }
-            >
-              <div className="gap-4 space-y-1">
-                <TopicListItemSection
-                  projectID={projectID}
-                  topics={group.topics}
-                  selectedTopicID={selectedTopicID}
-                />
-              </div>
-            </AccordionItem>
-          ))}
+          {groupedTopics
+            .filter((group) => group.topics.length)
+            .map((group) => (
+              <AccordionItem
+                key={group.key}
+                classNames={{
+                  heading: "rounded-md bg-neutral-900 px-2 mt-1",
+                  content: "mb-4",
+                }}
+                title={
+                  <Flex x={2} justify="between" className="">
+                    <span className="text-sm">{group.title}</span>
+                    <Chip variant="solid" size="sm">
+                      {group.topics.length}
+                    </Chip>
+                  </Flex>
+                }
+              >
+                <div className="gap-4 space-y-1">
+                  <TopicListItemSection
+                    projectID={projectID}
+                    topics={group.topics}
+                    selectedTopicID={selectedTopicID}
+                  />
+                </div>
+              </AccordionItem>
+            ))}
         </Accordion>
       </ScrollShadow>
+
+      {/* Show a message if there are no meetings */}
+      {groupedTopics.reduce((acc, group) => acc + group.topics.length, 0) ===
+        0 && (
+        <div className="flex h-full flex-col items-center justify-center">
+          <h2 className="text-lg font-semibold text-neutral-200">No Topics</h2>
+          <p className="text-xs text-neutral-500">
+            Create a new topic to get started
+          </p>
+        </div>
+      )}
     </ul>
   )
 }

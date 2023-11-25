@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react"
 import { BsBoxes, BsCalendar, BsPlusCircle, BsSignpost } from "react-icons/bs"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
+import { MeetingListNG } from "@/components/meeting/MeetingList"
 import MeetingFollowUp from "@/components/meeting/modals/MeetingFollowUp"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import { TopicListNG } from "@/components/topic/TopicList"
@@ -35,9 +36,11 @@ export function useToggleButton(
 export function ExtendedNavBar({
   projectID,
   meetingID,
+  topicID,
 }: {
   projectID: number
   meetingID?: number
+  topicID?: number
 }) {
   const [showCreateTopic, setShowCreateTopic] = useState(false)
   const [showFollowUp, setShowFollowUp] = useState(false)
@@ -94,7 +97,11 @@ export function ExtendedNavBar({
         {topicsToggled && meetingID !== undefined && (
           <>
             <Panel order={1} className="border-t border-t-neutral-700">
-              <TopicListNG projectID={projectID} meetingID={meetingID} />
+              <TopicListNG
+                projectID={projectID}
+                meetingID={meetingID}
+                selectedTopicID={topicID}
+              />
             </Panel>
             <PanelResizeHandle className="h-2" />
           </>
@@ -102,7 +109,10 @@ export function ExtendedNavBar({
         {meetingsToggled && (
           <>
             <Panel order={2} className="border-t border-t-neutral-700 p-2">
-              Meetings
+              <MeetingListNG
+                projectID={projectID}
+                selectedMeetingID={meetingID}
+              />
             </Panel>
           </>
         )}
