@@ -22,7 +22,7 @@ export function useToggleButton(
     isToggled,
     setIsToggled,
     component: (
-      <Tooltip content={tooltip}>
+      <Tooltip content={tooltip} delay={500} closeDelay={0}>
         <Button
           isIconOnly
           startContent={startContent}
@@ -87,7 +87,7 @@ export function ExtendedNavBar({
           {meetingsButton}
         </div>
         <div className="flex items-center space-x-2">
-          <Tooltip content="Follow Up">
+          <Tooltip content="Follow Up" delay={500} closeDelay={0}>
             <Button
               isIconOnly
               startContent={<BsSignpost />}
@@ -98,7 +98,7 @@ export function ExtendedNavBar({
           </Tooltip>
           {/* Show Create Topic Button if Meeting selected */}
           {meetingID !== undefined && (
-            <Tooltip content="Create Topic">
+            <Tooltip content="Create Topic" delay={500} closeDelay={0}>
               <Button
                 variant="light"
                 startContent={<BsPlusCircle />}

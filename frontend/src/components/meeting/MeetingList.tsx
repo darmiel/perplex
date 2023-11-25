@@ -324,7 +324,7 @@ export function MeetingListNG({
 
           {/* Sort */}
           <Dropdown>
-            <Tooltip content="Order By">
+            <Tooltip content="Order By" delay={500} closeDelay={0}>
               <div className="max-w-fit">
                 <DropdownTrigger>
                   <Button
@@ -360,7 +360,7 @@ export function MeetingListNG({
           </Dropdown>
 
           {/* Direction */}
-          <Tooltip content="Order Direction">
+          <Tooltip content="Order Direction" delay={500} closeDelay={0}>
             <Button
               isIconOnly
               variant="light"
@@ -377,7 +377,7 @@ export function MeetingListNG({
           <Divider orientation="vertical" />
 
           <Dropdown>
-            <Tooltip content="Group By">
+            <Tooltip content="Group By" delay={500} closeDelay={0}>
               <div className="max-w-fit">
                 <DropdownTrigger>
                   <Button
