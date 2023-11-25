@@ -9,6 +9,7 @@ import {
   TableRow,
   Tooltip,
 } from "@nextui-org/react"
+import { useClipboard } from "@nextui-org/use-clipboard"
 import { useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import prettyBytes from "pretty-bytes"
@@ -19,6 +20,7 @@ import {
   BsBoxes,
   BsCheck2,
   BsFilePlus,
+  BsLink,
   BsTrash,
   BsTrashFill,
 } from "react-icons/bs"
@@ -162,6 +164,9 @@ function FileDropzone({ projectID }: { projectID: number }) {
 
 function FileList({ projectID }: { projectID: number }) {
   const [confirmDelete, setConfirmDelete] = useState<number>()
+
+  const { copy } = useClipboard()
+
   const { projects, axios } = useAuth()
 
   const fileDeleteMut = projects!.useDeleteFile(projectID, ({}, { fileID }) => {
@@ -206,6 +211,24 @@ function FileList({ projectID }: { projectID: number }) {
             </TableCell>
             <TableCell>{file.access_count}</TableCell>
             <TableCell className="flex items-center space-x-1">
+              <Tooltip content="Copy URL">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  startContent={<BsLink />}
+                  onClick={async () => {
+                    const resp = await axios!.get(
+                      `${process.env.NEXT_PUBLIC_API_BASE_PATH}/project/${projectID}/files/${file.ID}/download`,
+                    )
+                    // open link in new tab
+                    if (resp.status === 200) {
+                      copy(resp.data.data)
+                      toast.success("File URL Copied")
+                    }
+                  }}
+                />
+              </Tooltip>
               <Tooltip content="View/Download File">
                 <Button
                   isIconOnly
