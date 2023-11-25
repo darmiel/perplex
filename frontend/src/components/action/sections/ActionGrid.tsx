@@ -1,37 +1,32 @@
-import { Input } from "@nextui-org/react"
-import { ReactNode, useState } from "react"
-import { BsSearch } from "react-icons/bs"
+import { useRouter } from "next/router"
+import { ReactNode } from "react"
 import { BarLoader } from "react-spinners"
 
 import { Action, Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import ActionCardLarge from "@/components/action/cards/ActionCardLarge"
-import ActionPeekModal from "@/components/action/modals/ActionItemPeek"
 import BadgeHeader from "@/components/ui/BadgeHeader"
-import Flex from "@/components/ui/layout/Flex"
-import ModalPopup from "@/components/ui/modal/ModalPopup"
+import useSearch from "@/components/ui/SearchBar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionGrid({
   projectID,
   openOnly = true,
+  meOnly = true,
   slots,
 }: {
   projectID?: number
   openOnly?: boolean
+  meOnly?: boolean
   slots?: ReactNode
 }) {
-  const [filter, setFilter] = useState("")
-  const [showActionPeek, setShowActionPeek] = useState(false)
-  const [actionPeekItem, setActionPeekItem] = useState<Action | null>(null)
+  const router = useRouter()
+  const { component: SearchBar, filter: searchFilter } = useSearch<Action>(
+    (action) => action.title,
+  )
 
-  const title = projectID
-    ? openOnly
-      ? "Open Actions"
-      : "Actions"
-    : openOnly
-      ? "Open Actions Assigned to You"
-      : "Actions Assigned to You"
+  const title =
+    (openOnly ? "Open " : "") + (meOnly ? "Actions Assigned to You" : "Actions")
 
   const { projects: projectsDB } = useAuth()
 
@@ -54,32 +49,11 @@ export default function ActionGrid({
 
   return (
     <section className="space-y-4">
-      <Flex x={4}>
-        <BadgeHeader title={title} badge={projects.length} />
+      <h1 className="flex items-center space-x-2">
+        <span className="text-xl font-semibold">{title}</span>
         {slots}
-      </Flex>
-      <Input
-        variant="bordered"
-        value={filter}
-        onValueChange={setFilter}
-        startContent={<BsSearch />}
-        placeholder={`Search in Topics...`}
-        fullWidth
-        size="sm"
-      />
-
-      {/* Quick Peek Action */}
-      <ModalPopup
-        open={showActionPeek && !!actionPeekItem}
-        setOpen={setShowActionPeek}
-      >
-        <ActionPeekModal
-          action={actionPeekItem!}
-          onClose={() => {
-            setShowActionPeek(false)
-          }}
-        />
-      </ModalPopup>
+      </h1>
+      {SearchBar}
 
       <div className="flex w-full flex-col space-y-2">
         {projects.map((project) => (
@@ -87,11 +61,11 @@ export default function ActionGrid({
             key={project.ID}
             project={project}
             onActionClick={(action) => {
-              setActionPeekItem(action)
-              setShowActionPeek(true)
+              router.push(`/project/${action.project_id}/action/${action.ID}`)
             }}
-            filter={filter}
+            filter={searchFilter}
             openOnly={openOnly}
+            meOnly={meOnly}
           />
         ))}
       </div>
@@ -104,14 +78,19 @@ function DashboardProjectItemActions({
   filter,
   onActionClick,
   openOnly = true,
+  meOnly = true,
 }: {
   project: Project
-  filter: string
+  filter: (action: Action) => boolean
   onActionClick: (action: Action) => void
   openOnly?: boolean
+  meOnly?: boolean
 }) {
   const { actions } = useAuth()
-  const actionListQuery = actions!.useListForMe(project.ID, openOnly)
+  const actionListQuery = meOnly
+    ? actions!.useListForMe(project.ID, openOnly)
+    : actions!.useListForProject(project.ID)
+
   if (actionListQuery.isLoading) {
     return <BarLoader />
   }
@@ -120,12 +99,10 @@ function DashboardProjectItemActions({
       <>Error loading actions: {extractErrorMessage(actionListQuery.error)}</>
     )
   }
-  const filteredActions = actionListQuery.data.data.filter(
-    (action) =>
-      !filter ||
-      action.title.toLowerCase().includes(filter.toLowerCase()) ||
-      action.description.toLowerCase().includes(filter.toLowerCase()),
-  )
+  const filteredActions = actionListQuery.data.data
+    .filter((action) => !openOnly || !action.closed_at.Valid)
+    .filter(filter)
+
   if (filteredActions.length === 0) {
     return undefined
   }

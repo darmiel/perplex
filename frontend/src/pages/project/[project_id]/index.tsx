@@ -56,6 +56,11 @@ export default function ProjectPage() {
     false,
   )
 
+  const [meOnly, setMeOnly] = useLocalBoolState(
+    "project-tab/action-me-only",
+    false,
+  )
+
   const [isEdit, setIsEdit] = useState(false)
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
@@ -223,10 +228,19 @@ export default function ProjectPage() {
                 <ActionGrid
                   projectID={projectID}
                   openOnly={openOnly}
+                  meOnly={meOnly}
                   slots={
-                    <Checkbox isSelected={openOnly} onValueChange={setOpenOnly}>
-                      Open Only
-                    </Checkbox>
+                    <Flex gap={4}>
+                      <Checkbox isSelected={meOnly} onValueChange={setMeOnly}>
+                        Me Only
+                      </Checkbox>
+                      <Checkbox
+                        isSelected={openOnly}
+                        onValueChange={setOpenOnly}
+                      >
+                        Open Only
+                      </Checkbox>
+                    </Flex>
                   }
                 />
               </Tab>
