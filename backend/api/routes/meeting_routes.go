@@ -18,6 +18,7 @@ func MeetingRoutes(router fiber.Router, handler *handlers.MeetingHandler, middle
 	specific.Get("/", handler.GetMeeting)
 	specific.Delete("/", handler.DeleteMeeting)
 	specific.Put("/", handler.EditMeeting)
+	specific.Put("/ready", handler.EditReady)
 
 	// linkUser routes
 	linkUser := specific.Group("/link/user/:user_id")

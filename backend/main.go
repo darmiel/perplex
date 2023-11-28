@@ -58,6 +58,7 @@ func main() {
 		new(model.Action),
 		new(model.Tag),
 		new(model.Notification),
+		new(model.ProjectFile),
 	); err != nil {
 		sugar.With(err).Fatalln("cannot migrate user")
 		return

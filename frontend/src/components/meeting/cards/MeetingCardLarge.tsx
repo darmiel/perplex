@@ -4,8 +4,11 @@ import {
   Chip,
   Progress,
   ScrollShadow,
+  Tooltip,
 } from "@nextui-org/react"
+import clsx from "clsx"
 import Link from "next/link"
+import { BsTriangleFill } from "react-icons/bs"
 
 import { Meeting } from "@/api/types"
 import MeetingChip from "@/components/meeting/chips/MeetingChips"
@@ -53,7 +56,16 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       hour12: false,
     })
   return (
-    <div className="flex w-full flex-col justify-between space-y-2 rounded-lg border border-neutral-800 px-5 py-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800/30">
+    <div
+      className={clsx(
+        "flex w-full flex-col justify-between space-y-2 rounded-lg",
+        "border border-neutral-800 px-5 py-4 transition-colors",
+        "hover:border-neutral-700 hover:bg-neutral-800/30",
+        {
+          "border-red-600 hover:border-red-500": !meeting.is_ready,
+        },
+      )}
+    >
       <div>
         {/* Project Header */}
         <Link
@@ -74,6 +86,16 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
           <span className="truncate text-start text-lg font-semibold">
             {meeting.name}
           </span>
+          {!meeting.is_ready && (
+            <Tooltip
+              content="This meeting has not been marked as ready"
+              color="danger"
+            >
+              <span className="text-red-500">
+                <BsTriangleFill />
+              </span>
+            </Tooltip>
+          )}
         </Link>
       </div>
 

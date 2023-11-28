@@ -17,6 +17,7 @@ type MeetingService interface {
 	UnlinkUser(meetingID uint, userID string) error
 	LinkTag(meetingID, tagID uint) error
 	UnlinkTag(meetingID, tagID uint) error
+	SetReady(meetingID uint, ready bool) error
 }
 
 type meetingService struct {
@@ -144,4 +145,12 @@ func (m *meetingService) UnlinkTag(meetingID, tagID uint) error {
 				ID: tagID,
 			},
 		})
+}
+
+func (m *meetingService) SetReady(meetingID uint, ready bool) error {
+	return m.DB.Model(&model.Meeting{
+		Model: gorm.Model{
+			ID: meetingID,
+		},
+	}).Update("IsReady", ready).Error
 }

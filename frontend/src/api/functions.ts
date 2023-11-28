@@ -83,6 +83,10 @@ export type meetingLinkTagVars = {
   link: boolean
 }
 
+export type meetingSetReadyVars = {
+  ready: boolean
+}
+
 // ======================
 // Topic Types
 // ======================
@@ -559,6 +563,19 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       linkTagMutKey(projectID: number, meetingID: number) {
         return [{ projectID }, { meetingID }, "link-tag-mut"]
+      },
+
+      setReadyMutFn(projectID: number, meetingID: number) {
+        return async ({ ready }: meetingSetReadyVars) =>
+          (
+            await axios.put(
+              `/project/${projectID}/meeting/${meetingID}/ready`,
+              { ready },
+            )
+          ).data
+      },
+      setReadyMutKey(projectID: number, meetingID: number) {
+        return [{ projectID }, { meetingID }, "set-ready-mut"]
       },
     },
     topics: {
@@ -1376,6 +1393,23 @@ export const functions = (axios: Axios, client: QueryClient) => {
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,
           ),
+        })
+      },
+      useSetReady(
+        projectID: number,
+        meetingID: number,
+        callback: SuccessCallback<never, meetingSetReadyVars>,
+      ) {
+        return useMutation<BackendResponse, AxiosError, meetingSetReadyVars>({
+          mutationKey: functions.meetings.setReadyMutKey(projectID, meetingID),
+          mutationFn: functions.meetings.setReadyMutFn(projectID, meetingID),
+          onSuccess: invalidateAllCallback(
+            callback,
+            functions.meetings.findQueryKey(projectID, meetingID),
+            functions.meetings.listQueryKey(projectID),
+            functions.meetings.listUpcomingQueryKey(),
+          ),
+          onError: toastError("Cannot set Meeting ready:"),
         })
       },
     },

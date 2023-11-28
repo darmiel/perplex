@@ -205,3 +205,19 @@ func (h *MeetingHandler) UnlinkTag(ctx *fiber.Ctx) error {
 	tag := ctx.Locals("tag").(model.Tag)
 	return fiberResponseNoVal(ctx, "unlinked tag", h.srv.UnlinkTag(meeting.ID, tag.ID))
 }
+
+type editReadyPayload struct {
+	Ready bool `json:"ready"`
+}
+
+func (h *MeetingHandler) EditReady(ctx *fiber.Ctx) error {
+	m := ctx.Locals("meeting").(model.Meeting)
+	var payload editReadyPayload
+	if err := ctx.BodyParser(&payload); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(presenter.ErrorResponse(err))
+	}
+	if err := h.srv.SetReady(m.ID, payload.Ready); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(presenter.ErrorResponse(err))
+	}
+	return ctx.Status(fiber.StatusOK).JSON(presenter.SuccessResponse("meeting edited", nil))
+}

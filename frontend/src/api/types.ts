@@ -44,6 +44,7 @@ export type Meeting = {
   project_id: number
   assigned_users?: User[]
   tags: Tag[]
+  is_ready: boolean
 }
 
 export type User = {

@@ -134,6 +134,8 @@ type Meeting struct {
 	AssignedUsers []User `gorm:"many2many:meeting_user_assignments" json:"assigned_users"`
 	// Tags contains all tags of the meeting
 	Tags []Tag `gorm:"many2many:meeting_tag_assignments" json:"tags"`
+	// IsReady indicates if the meeting is ready to start (user defined)
+	IsReady bool `json:"is_ready"`
 }
 
 func (m Meeting) CheckProjectOwnership(projectID uint) bool {

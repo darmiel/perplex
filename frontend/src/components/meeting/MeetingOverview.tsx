@@ -13,11 +13,15 @@ import { useEffect, useState } from "react"
 import ReactDatePicker from "react-datepicker"
 import {
   BsBack,
+  BsCheck,
   BsHouse,
+  BsInfoCircle,
   BsPen,
   BsPlusCircleFill,
   BsTrash,
   BsTrashFill,
+  BsTriangleFill,
+  BsX,
 } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
@@ -89,6 +93,8 @@ export default function MeetingOverview({
   const linkTagMut = meetings!.useLinkTag(projectID, meetingID, () => {})
 
   const linkUser = meetings!.useLinkUser(projectID, meetingID, () => {})
+
+  const markReadyMut = meetings!.useSetReady(projectID, meetingID, () => {})
 
   const [progress, setProgress] = useState(0)
 
@@ -196,12 +202,23 @@ export default function MeetingOverview({
       <OverviewTitle
         creatorID={meeting.creator_id}
         title={meeting.name}
-        titleID={meeting.ID}
         tag={<MeetingTag start={startDate} end={endDate} />}
         createdAt={new Date(meeting.CreatedAt)}
         setEditTitle={setEditTitle}
         isEdit={isEdit}
       />
+
+      {!meeting.is_ready && (
+        <div className="mb-4 flex w-full items-center space-x-2 rounded-md bg-red-500 bg-opacity-25 py-3 pl-4 pr-2 text-red-500">
+          <BsTriangleFill />
+          <span>This meeting has not been marked as ready</span>
+          <Tooltip content="This visual cue serves as a reminder to schedule your meetings in advance to avoid last-minute hassles.">
+            <span>
+              <BsInfoCircle />
+            </span>
+          </Tooltip>
+        </div>
+      )}
 
       <span className="mb-3 text-neutral-500">
         {isEdit ? (
@@ -299,8 +316,21 @@ export default function MeetingOverview({
                     className="w-full"
                     color="primary"
                   >
-                    Create Topic
+                    New Topic
                   </Button>
+                  <Tooltip
+                    content={meeting.is_ready ? "Mark Unready" : "Mark Ready"}
+                  >
+                    <Button
+                      isIconOnly
+                      startContent={meeting.is_ready ? <BsX /> : <BsCheck />}
+                      onClick={() =>
+                        markReadyMut.mutate({ ready: !meeting.is_ready })
+                      }
+                      isLoading={markReadyMut.isLoading}
+                      color={meeting.is_ready ? "warning" : "success"}
+                    />
+                  </Tooltip>
                   <Tooltip content="Edit Meeting">
                     <Button
                       isIconOnly
