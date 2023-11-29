@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
 
-import ResolveUserName from "@/components/resolve/ResolveUserName"
 import DateString from "@/components/ui/DateString"
 import Hr from "@/components/ui/Hr"
+import FetchUserTag from "@/components/user/FetchUserTag"
 
 export default function OverviewTitle({
   creatorID,
@@ -58,11 +58,12 @@ export default function OverviewTitle({
 
       <div className="mt-2 flex flex-row items-center space-x-2 text-neutral-500">
         {tag && <div>{tag}</div>}
-        <div>
-          <ResolveUserName userID={creatorID} />
-          <> created on </>
+        <span>created by</span>
+        <FetchUserTag userID={creatorID} size="sm" />
+        <span>on</span>
+        <span>
           <DateString value={createdAt} date time />
-        </div>
+        </span>
       </div>
 
       {children}

@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react"
+import { ReactNode, useMemo, useState } from "react"
 
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
@@ -22,6 +22,8 @@ import {
 } from "@nextui-org/react"
 import clsx from "clsx"
 import Link from "next/link"
+import { useRouter } from "next/router"
+import ConfettiExplosion from "react-confetti-explosion"
 import {
   BsArrowDown,
   BsArrowUp,
@@ -32,6 +34,7 @@ import {
   BsExclamationTriangle,
   BsPen,
   BsPeople,
+  BsPlusCircle,
   BsSearch,
   BsTag,
   BsTriangle,
@@ -39,8 +42,10 @@ import {
 import { toast } from "sonner"
 
 import { Topic } from "@/api/types"
+import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import { useToggleButton } from "@/components/navbar/ExtendedNavbar"
 import Flex from "@/components/ui/layout/Flex"
+import ModalPopup from "@/components/ui/modal/ModalPopup"
 import useSearch from "@/components/ui/SearchBar"
 import { FetchPriorityTag } from "@/components/ui/tag/Tag"
 import TopicTagChip from "@/components/ui/TagChip"
@@ -64,11 +69,15 @@ function TopicListItem({
   afterTopicID?: number
   afterAfterTopicID?: number
 }) {
+  const [explosion, setExplosion] = useState(false)
+
   const { user, topics } = useAuth()
   const toggleTopicMutation = topics!.useStatus(
     projectID,
     topic.meeting_id,
-    () => {},
+    ({ success }, { close }) => {
+      setExplosion(close && success)
+    },
   )
 
   const updateOrderMutation = topics!.useUpdateOrder(
@@ -93,18 +102,22 @@ function TopicListItem({
       <div className="ml-1">
         <Flex justify="between">
           <Flex className="overflow-hidden">
-            <Checkbox
-              isIndeterminate={toggleTopicMutation.isLoading}
-              color={toggleTopicMutation.isLoading ? "warning" : "default"}
-              isSelected={topic.closed_at.Valid}
-              onValueChange={(checked) => {
-                toggleTopicMutation.mutate({
-                  topicID: topic.ID,
-                  close: checked,
-                })
-              }}
-              lineThrough={topic.closed_at.Valid}
-            />
+            <div className="relative">
+              <Checkbox
+                className="relative"
+                isIndeterminate={toggleTopicMutation.isLoading}
+                color={toggleTopicMutation.isLoading ? "warning" : "default"}
+                isSelected={topic.closed_at.Valid}
+                onValueChange={(checked) => {
+                  toggleTopicMutation.mutate({
+                    topicID: topic.ID,
+                    close: checked,
+                  })
+                }}
+                lineThrough={topic.closed_at.Valid}
+              />
+              {explosion && <ConfettiExplosion className="relative" />}
+            </div>
             <h2 className={clsx("truncate text-neutral-200", {})}>
               {topic.title}
             </h2>
@@ -460,6 +473,8 @@ export function TopicListNG({
   meetingID: number
   selectedTopicID?: number
 }) {
+  const [showCreateTopic, setShowCreateTopic] = useState(false)
+
   // load the order by target from local storage
   const [orderByTarget, setOrderByTarget] = useLocalState<OrderTarget>(
     "topic-list-order-by",
@@ -495,6 +510,7 @@ export function TopicListNG({
   )
 
   const { topics } = useAuth()
+  const router = useRouter()
 
   const { data, error, isError, isSuccess, isLoading } = topics!.useList(
     projectID,
@@ -546,12 +562,8 @@ export function TopicListNG({
 
   return (
     <ul className="flex h-full flex-grow flex-col overflow-y-auto">
-      <Flex justify="between" className="mt-2 px-3">
+      <Flex justify="between" className="px-3">
         <Flex>
-          <span className="rounded-md border border-neutral-500 px-2 py-1 text-xs text-neutral-500">
-            TOPICS
-          </span>
-
           {/* Sort */}
           <Dropdown>
             <Tooltip content="Order By" delay={500} closeDelay={0}>
@@ -643,7 +655,19 @@ export function TopicListNG({
           <Divider orientation="vertical" />
         </Flex>
 
-        {SearchButton}
+        <Flex>
+          {SearchButton}
+          <Tooltip content="Create Topic" delay={500} closeDelay={0}>
+            <Button
+              isIconOnly
+              variant="light"
+              startContent={<BsPlusCircle />}
+              color="success"
+              size="sm"
+              onClick={() => setShowCreateTopic(true)}
+            />
+          </Tooltip>
+        </Flex>
       </Flex>
 
       <Progress
@@ -705,6 +729,20 @@ export function TopicListNG({
           </p>
         </div>
       )}
+
+      <ModalPopup open={showCreateTopic} setOpen={setShowCreateTopic}>
+        <CreateTopicModal
+          projectID={projectID}
+          meetingID={meetingID}
+          onClose={(newTopicID?: number) => {
+            setShowCreateTopic(false)
+            newTopicID &&
+              router.push(
+                `/project/${projectID}/meeting/${meetingID}/topic/${newTopicID}`,
+              )
+          }}
+        />
+      </ModalPopup>
     </ul>
   )
 }

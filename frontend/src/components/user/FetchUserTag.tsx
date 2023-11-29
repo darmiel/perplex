@@ -5,10 +5,12 @@ export default function FetchUserTag({
   userID,
   onRemove,
   onRemoveLoading,
+  size = "md",
 }: {
   userID: string
   onRemove?: () => void
   onRemoveLoading?: boolean
+  size?: "sm" | "md" | "lg"
 }) {
   return (
     <UserTag
@@ -16,6 +18,7 @@ export default function FetchUserTag({
       displayName={<ResolveUserName userID={userID} />}
       onRemove={onRemove}
       onRemoveLoading={onRemoveLoading}
+      size={size}
     />
   )
 }

@@ -4,6 +4,7 @@ import {
   BreadcrumbItem,
   Breadcrumbs,
   Button,
+  Kbd,
   Textarea,
   Tooltip,
 } from "@nextui-org/react"
@@ -334,7 +335,6 @@ export default function TopicOverview({
       <OverviewTitle
         creatorID={topic.creator_id}
         title={topic.title}
-        titleID={topic.ID}
         tag={<TopicTag topic={topic} />}
         injectHeader={
           !isEdit && (
@@ -441,6 +441,13 @@ export default function TopicOverview({
                 mark: true,
               })
             }}
+            boxDescription={
+              <span className="flex items-center space-x-2">
+                <span>Markdown supported. Use</span>
+                <Kbd keys={["command", "shift", "enter"]} />
+                <span>to send and mark as solution.</span>
+              </span>
+            }
           />
         </OverviewContent>
         <OverviewSide>

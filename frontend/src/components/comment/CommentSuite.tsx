@@ -15,6 +15,7 @@ export default function CommentSuite({
   onSolutionClick,
   isSolutionMutLoading,
   onShiftSend,
+  boxDescription,
 }: {
   projectID: number
   commentType: CommentEntityType
@@ -24,6 +25,7 @@ export default function CommentSuite({
   onSolutionClick?: (mark: boolean, comment: Comment) => void
   isSolutionMutLoading?: boolean
   onShiftSend?: (comment: Comment) => void
+  boxDescription?: string | React.ReactNode
 }) {
   const { comments: comment } = useAuth()
 
@@ -75,6 +77,7 @@ export default function CommentSuite({
         commentType={commentType}
         commentEntityID={commentEntityID}
         onShiftSend={onShiftSend}
+        boxDescription={boxDescription}
       />
     </>
   )

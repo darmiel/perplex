@@ -12,12 +12,14 @@ export default function CommentSendNewBox({
   commentEntityID,
   className = "",
   onShiftSend,
+  boxDescription,
 }: {
   projectID: number
   commentType: CommentEntityType
   commentEntityID: number
   className?: string
   onShiftSend?: (comment: Comment) => void
+  boxDescription?: string | React.ReactNode
 }) {
   const [commentBoxText, setCommentBoxText] = useState("")
 
@@ -60,7 +62,7 @@ export default function CommentSendNewBox({
           }
         }}
         variant="bordered"
-        description="Markdown is supported"
+        description={boxDescription ? boxDescription : "Markdown is supported."}
         errorMessage={isError ? error : undefined}
         color={isError ? "danger" : "default"}
       />
