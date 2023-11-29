@@ -468,7 +468,7 @@ export default function TopicOverview({
                     }}
                     color={isClosed ? "warning" : "success"}
                     variant={isClosed || !hasSolution ? "bordered" : "solid"}
-                    size="sm"
+                    // size="sm"
                   />
                 </Tooltip>
                 <Tooltip content="Edit">
@@ -476,7 +476,7 @@ export default function TopicOverview({
                     isIconOnly
                     startContent={<BsPen />}
                     onClick={() => onEditClick()}
-                    size="sm"
+                    // size="sm"
                   />
                 </Tooltip>
                 <Tooltip content={isSubscribed ? "Unsubscribe" : "Subscribe"}>
@@ -490,7 +490,7 @@ export default function TopicOverview({
                         subscribe: !isSubscribed,
                       })
                     }
-                    size="sm"
+                    // size="sm"
                   />
                 </Tooltip>
                 <Tooltip content="QR Code">
@@ -498,7 +498,7 @@ export default function TopicOverview({
                     isIconOnly
                     startContent={<BsQrCode />}
                     onClick={() => setShowQrCode(true)}
-                    size="sm"
+                    // size="sm"
                   />
                 </Tooltip>
                 <Tooltip content="Delete Topic" color="danger">
@@ -509,7 +509,7 @@ export default function TopicOverview({
                     color="danger"
                     onClick={onDeleteTopicClick}
                     isLoading={topicDeleteMutation.isLoading}
-                    size="sm"
+                    // size="sm"
                   />
                 </Tooltip>
               </div>

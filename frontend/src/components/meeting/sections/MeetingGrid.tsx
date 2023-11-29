@@ -12,10 +12,12 @@ import { useAuth } from "@/contexts/AuthContext"
 export function MeetingGrid({
   projectID,
   upcomingOnly,
+  reversed,
   slots,
 }: {
   projectID?: number
   upcomingOnly?: boolean
+  reversed?: boolean
   slots?: ReactNode
 }) {
   const [filter, setFilter] = useState("")
@@ -57,10 +59,11 @@ export function MeetingGrid({
     .sort((a, b) => {
       const aDate = new Date(a.start_date)
       const bDate = new Date(b.start_date)
-      return bDate.getTime() - aDate.getTime()
+      return !reversed
+        ? bDate.getTime() - aDate.getTime()
+        : aDate.getTime() - bDate.getTime()
     })
-
-  const notReadyCount = meetings?.filter((meeting) => !meeting.is_ready).length
+  console.log("grid meetings:", meetings)
 
   return (
     <section className="space-y-4">

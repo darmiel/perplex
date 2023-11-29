@@ -27,12 +27,20 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       (meetingEndDate.getTime() - meetingStartDate.getTime())) *
       100,
   )
-  const meetingDateStart = meetingStartDate.toLocaleDateString(undefined, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+
+  // meetingStartDate as dd.MM.yyyy HH:mm
+  const meetingDateStartFormat =
+    meetingStartDate.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }) +
+    " " +
+    meetingStartDate.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
 
   const tense = getMeetingTenseByMeeting(meeting)
 
@@ -69,7 +77,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       <div>
         {/* Project Header */}
         <Link
-          className="flex items-center gap-2 text-default-400"
+          className="flex items-center gap-2 text-xs text-default-400"
           href={`/project/${meeting.project_id}`}
         >
           <ResolveProjectName projectID={meeting.project_id} />
@@ -101,7 +109,8 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
 
       <div>
         <p className="flex items-center gap-2 text-neutral-400">
-          {meetingDateStart}
+          {meetingDateStartFormat}
+          <DurationTag date={meetingStartDate} textOnly />
         </p>
 
         {/* Meeting Date */}
@@ -117,7 +126,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
             <span className="whitespace-nowrap">{meetingEndTime}</span>
           </Flex>
         ) : (
-          <DurationTag date={meetingStartDate} />
+          <></>
         )}
       </div>
 

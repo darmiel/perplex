@@ -59,7 +59,7 @@ export default function Home() {
       </motion.div>
       <Hr className="my-8" />
       <div className="h-fit min-h-full">
-        <MeetingGrid upcomingOnly />
+        <MeetingGrid upcomingOnly reversed />
         <Hr className="my-4" />
         <ActionGrid />
       </div>

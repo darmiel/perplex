@@ -129,7 +129,7 @@ export function ExtendedNavBar({
         )}
         {meetingsToggled && (
           <>
-            <Panel order={2} className="border-t border-t-neutral-700 p-2">
+            <Panel order={2} className="border-t border-t-neutral-700">
               <MeetingListNG
                 projectID={projectID}
                 selectedMeetingID={meetingID}
