@@ -1,6 +1,8 @@
 import { CSSProperties, PropsWithChildren, ReactNode } from "react"
 
 import { Priority, Tag as TagType } from "@/api/types"
+import { extractErrorMessage } from "@/api/util"
+import { useAuth } from "@/contexts/AuthContext"
 
 const tagStyles = {
   plain: "border border-neutral-500 text-neutral-500",
@@ -48,6 +50,27 @@ export function PriorityTag({ priority }: { priority: Priority }) {
       {priority.title}
     </TagContainer>
   )
+}
+
+export function FetchPriorityTag({
+  projectID,
+  priorityID,
+}: {
+  projectID: number
+  priorityID: number
+  className?: string
+}) {
+  const { priorities } = useAuth()
+
+  const findQuery = priorities!.useFind(projectID, priorityID)
+  if (findQuery.isLoading) {
+    return <>Loading...</>
+  }
+  if (findQuery.isError) {
+    return <>Error loading priority: {extractErrorMessage(findQuery.error)}</>
+  }
+
+  return <PriorityTag priority={findQuery.data.data} />
 }
 
 export function TagFromType({

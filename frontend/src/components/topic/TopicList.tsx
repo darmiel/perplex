@@ -29,6 +29,7 @@ import {
   BsCalendar2,
   BsChat,
   BsCheck,
+  BsExclamationTriangle,
   BsPen,
   BsPeople,
   BsSearch,
@@ -39,9 +40,10 @@ import { toast } from "sonner"
 
 import { Topic } from "@/api/types"
 import { useToggleButton } from "@/components/navbar/ExtendedNavbar"
-import TopicTagChip from "@/components/topic/TopicTagChip"
 import Flex from "@/components/ui/layout/Flex"
 import useSearch from "@/components/ui/SearchBar"
+import { FetchPriorityTag } from "@/components/ui/tag/Tag"
+import TopicTagChip from "@/components/ui/TagChip"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useLocalState } from "@/hooks/localStorage"
 
@@ -162,7 +164,14 @@ function TopicListItem({
 
 type OrderTarget = "lexorank" | "name" | "creation"
 type OrderDirection = "asc" | "desc"
-type GroupBy = "status" | "tags" | "solution" | "author" | "assigned" | "none"
+type GroupBy =
+  | "status"
+  | "tags"
+  | "solution"
+  | "author"
+  | "assigned"
+  | "none"
+  | "priority"
 
 type OrderMeta = {
   icon: JSX.Element
@@ -221,6 +230,10 @@ const groups: Record<GroupBy, OrderMeta> = {
     icon: <BsPeople />,
     name: "Assigned",
   },
+  priority: {
+    icon: <BsExclamationTriangle />,
+    name: "Priority",
+  },
 } as const
 
 /**
@@ -264,7 +277,11 @@ function sortTopics(
  * @param groupBy The groupBy "mode" (e. g. by status)
  * @returns The grouped topics
  */
-function groupTopics(topics: Topic[], groupBy: GroupBy): GroupedTopics[] {
+function groupTopics(
+  projectID: number,
+  topics: Topic[],
+  groupBy: GroupBy,
+): GroupedTopics[] {
   const groupTopics: GroupedTopics[] = []
   switch (groupBy) {
     // show all topics
@@ -374,6 +391,28 @@ function groupTopics(topics: Topic[], groupBy: GroupBy): GroupedTopics[] {
         topics: topics.filter((topic) => topic.assigned_users.length === 0),
       })
       break
+    case "priority":
+      const priorities = new Map<number, Topic[]>()
+      topics.forEach((topic) => {
+        const priorityID = topic.priority_id || 0
+        if (!priorities.has(priorityID)) {
+          priorities.set(priorityID, [])
+        }
+        priorities.get(priorityID)!.push(topic)
+      })
+      priorities.forEach((topics, priorityID) => {
+        groupTopics.push({
+          title:
+            priorityID === 0 ? (
+              <span className="italic">No Priority</span>
+            ) : (
+              <FetchPriorityTag projectID={projectID} priorityID={priorityID} />
+            ),
+          key: `priority-${priorityID}-topics`,
+          topics,
+        })
+      })
+      break
   }
   return groupTopics
 }
@@ -472,8 +511,16 @@ export function TopicListNG({
       orderByTarget,
       orderDirection,
     )
-    return groupTopics(topicsSorted, groupBy)
-  }, [groupBy, orderDirection, orderByTarget, data, isSuccess, searchFilter])
+    return groupTopics(projectID, topicsSorted, groupBy)
+  }, [
+    projectID,
+    groupBy,
+    orderDirection,
+    orderByTarget,
+    data,
+    isSuccess,
+    searchFilter,
+  ])
 
   // checkedTopicCount contains the number of topics that are closed
   const checkedTopicCount = useMemo(() => {

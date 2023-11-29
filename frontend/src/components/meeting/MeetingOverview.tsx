@@ -33,6 +33,7 @@ import MeetingTag, { getMeetingTense } from "@/components/meeting/MeetingTag"
 import CreateTopicModal from "@/components/modals/TopicCreateModal"
 import ProjectSelectBreadcrumbs from "@/components/project/breadcrumbs/ProjectSelectBreadcrumbs"
 import { TopicListView } from "@/components/topic/section/TopicListView"
+import Admonition from "@/components/ui/Admonition"
 import { RelativeDate } from "@/components/ui/DateString"
 import DurationTag from "@/components/ui/DurationTag"
 import Flex from "@/components/ui/layout/Flex"
@@ -209,7 +210,7 @@ export default function MeetingOverview({
       />
 
       {!meeting.is_ready && (
-        <div className="mb-4 flex w-full items-center space-x-2 rounded-md bg-red-500 bg-opacity-25 py-3 pl-4 pr-2 text-red-500">
+        <Admonition style="danger" className="mb-4">
           <BsTriangleFill />
           <span>This meeting has not been marked as ready</span>
           <Tooltip content="This visual cue serves as a reminder to schedule your meetings in advance to avoid last-minute hassles.">
@@ -217,7 +218,7 @@ export default function MeetingOverview({
               <BsInfoCircle />
             </span>
           </Tooltip>
-        </div>
+        </Admonition>
       )}
 
       <span className="mb-3 text-neutral-500">

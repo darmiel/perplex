@@ -54,13 +54,13 @@ export function MeetingGrid({
         includesFold(meeting.name, filter) ||
         includesFold(meeting.description, filter),
     )
+    .sort((a, b) => {
+      const aDate = new Date(a.start_date)
+      const bDate = new Date(b.start_date)
+      return bDate.getTime() - aDate.getTime()
+    })
 
-  // sort meetings by start date
-  meetings?.sort((a, b) => {
-    const aDate = new Date(a.start_date)
-    const bDate = new Date(b.start_date)
-    return bDate.getTime() - aDate.getTime()
-  })
+  const notReadyCount = meetings?.filter((meeting) => !meeting.is_ready).length
 
   return (
     <section className="space-y-4">

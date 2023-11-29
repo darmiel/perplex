@@ -1,9 +1,10 @@
+import { Button, Input } from "@nextui-org/react"
 import { useState } from "react"
 import { BiSolidLogOut } from "react-icons/bi"
+import { BsCheck } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
+import { toast } from "sonner"
 
-import { extractErrorMessage } from "@/api/util"
-import Button from "@/components/ui/Button"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -16,7 +17,9 @@ export default function User() {
     setUserName(name),
   )
 
-  const changeNameMutation = users!.useChangeName(user!.uid, () => {})
+  const changeNameMutation = users!.useChangeName(user!.uid, () => {
+    toast.success("Name changed!")
+  })
 
   if (!user) {
     return (
@@ -50,7 +53,7 @@ export default function User() {
       </div>
 
       <div className="space-y-5">
-        <h1 className="text-2xl font-bold">User Profile</h1>
+        <h2 className="text-4xl font-bold">User Profile</h2>
 
         {isUnregistered && (
           <div className="border border-red-600 bg-red-600 bg-opacity-10 p-4">
@@ -62,50 +65,35 @@ export default function User() {
           </div>
         )}
 
-        <div className="space-y-2">
-          <label className="text-neutral-400" htmlFor="userName">
-            {isUnregistered ? "Choose a Name" : "Change Name"}
-          </label>
-          <input
-            id="userName"
-            type="text"
-            className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
-            placeholder="Willma"
-            value={userName}
-            onChange={(event) => setUserName(event.target.value)}
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          {changeNameMutation.isError && (
-            <div className="max-w-xs">
-              <span className="text-red-500">
-                {extractErrorMessage(changeNameMutation.error)}
-              </span>
-            </div>
-          )}
-          {changeNameMutation.isSuccess && (
-            <div className="max-w-xs">
-              <span className="text-green-500">Name changed!</span>
-            </div>
-          )}
-          <Button
-            isLoading={changeNameMutation.isLoading}
-            onClick={() =>
-              changeNameMutation.mutate({
-                newName: userName,
-              })
-            }
-          >
-            {isUnregistered ? "Register" : "Change Name"}
-          </Button>
-          <Button
-            style="secondary"
-            icon={<BiSolidLogOut />}
-            onClick={() => logout?.()}
-          >
-            Logout
-          </Button>
-        </div>
+        <Input
+          label={isUnregistered ? "Choose a Name" : "Change Name"}
+          type="text"
+          placeholder="Willma"
+          value={userName}
+          onChange={(event) => setUserName(event.target.value)}
+          variant="bordered"
+          endContent={
+            <Button
+              isIconOnly
+              startContent={<BsCheck />}
+              size="sm"
+              isLoading={changeNameMutation.isLoading}
+              onClick={() =>
+                changeNameMutation.mutate({
+                  newName: userName,
+                })
+              }
+            />
+          }
+        />
+        <Button
+          color="danger"
+          variant="bordered"
+          startContent={<BiSolidLogOut />}
+          onClick={() => logout?.()}
+        >
+          Logout
+        </Button>
       </div>
     </div>
   )

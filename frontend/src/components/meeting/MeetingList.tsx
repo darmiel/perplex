@@ -35,9 +35,9 @@ import { Meeting } from "@/api/types"
 import MeetingChip from "@/components/meeting/chips/MeetingChips"
 import { getMeetingTenseByMeeting } from "@/components/meeting/MeetingTag"
 import { useToggleButton } from "@/components/navbar/ExtendedNavbar"
-import TopicTagChip from "@/components/topic/TopicTagChip"
 import Flex from "@/components/ui/layout/Flex"
 import useSearch from "@/components/ui/SearchBar"
+import TopicTagChip from "@/components/ui/TagChip"
 import { useLocalState } from "@/hooks/localStorage"
 
 function MeetingListItem({

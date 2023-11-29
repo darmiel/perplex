@@ -417,6 +417,14 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
     },
     priorities: {
+      findQueryFn(projectID: number, priorityID: number) {
+        return async () =>
+          (await axios.get(`/project/${projectID}/priority/${priorityID}`)).data
+      },
+      findQueryKey(projectID: number, priorityID: number) {
+        return [{ projectID }, { priorityID }]
+      },
+
       listQueryFn(projectID: number) {
         return async () =>
           (await axios.get(`/project/${projectID}/priority`)).data
@@ -1235,6 +1243,12 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
     },
     priorities: {
+      useFind(projectID: number, priorityID: number) {
+        return useQuery<BackendResponse<Priority>>({
+          queryKey: functions.priorities.findQueryKey(projectID, priorityID),
+          queryFn: functions.priorities.findQueryFn(projectID, priorityID),
+        })
+      },
       useDelete(
         projectID: number,
         callback: SuccessCallback<never, priorityDeleteVars>,
@@ -1245,6 +1259,8 @@ export const functions = (axios: Axios, client: QueryClient) => {
           onSuccess: invalidateAllCallback(
             callback,
             functions.priorities.listQueryKey(projectID),
+            ({ priorityID }) =>
+              functions.priorities.findQueryKey(projectID, priorityID),
           ),
           onError: toastError("Cannot delete Priority:"),
         })
