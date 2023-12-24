@@ -26,7 +26,7 @@ export default function UserTag({
         // size md:
         "space-x-2 px-3 py-1": size === "md",
         // size sm:
-        "space-x-1 px-2 py-1 text-xs": size === "sm",
+        "space-x-1 px-1.5 py-1 text-xs": size === "sm",
 
         "border-primary-500 bg-primary-400 bg-opacity-20 text-primary-500":
           userID === user?.uid,
