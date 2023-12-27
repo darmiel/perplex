@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { Comment, CommentEntityType } from "@/api/types"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { RelativeDate } from "@/components/ui/DateString"
-import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 import UserAvatar from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -185,16 +185,13 @@ export default function CommentListItem({
           )}
         </div>
         <div className="mt-2 text-neutral-200">
-          {editMode ? (
-            <textarea
-              className="w-full border border-secondary-500 bg-transparent p-4"
-              style={{ minHeight: "200px" }}
-              defaultValue={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-            />
-          ) : (
-            <RenderMarkdown className="w-full" markdown={comment.content} />
-          )}
+          <EditOrRenderMarkdown
+            isEdit={editMode}
+            displayValue={comment.content}
+            editValue={editContent}
+            setEditValue={setEditContent}
+            autoSaveId="comment-edit-md-preview"
+          />
         </div>
       </div>
     </div>

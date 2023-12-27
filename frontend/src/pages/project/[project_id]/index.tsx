@@ -39,7 +39,7 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLocalBoolState, useLocalStrState } from "@/hooks/localStorage"
@@ -126,17 +126,13 @@ export default function ProjectPage() {
         <OverviewContainer>
           <OverviewContent>
             <div className="bg-neutral-900 p-4 text-neutral-500">
-              {isEdit ? (
-                <textarea
-                  className="w-full bg-transparent focus:outline-none"
-                  defaultValue={project.description}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                />
-              ) : (
-                <RenderMarkdown
-                  markdown={project.description || "*(no description)*"}
-                />
-              )}
+              <EditOrRenderMarkdown
+                isEdit={isEdit}
+                displayValue={project.description || "*(no description)*"}
+                editValue={editDescription}
+                setEditValue={setEditDescription}
+                autoSaveId="action-description-md-preview"
+              />
             </div>
 
             <Hr className="my-6" />

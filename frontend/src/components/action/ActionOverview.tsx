@@ -17,11 +17,11 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
 import "react-datepicker/dist/react-datepicker.css"
 
+import { Accordion, AccordionItem } from "@nextui-org/react"
 import Head from "next/head"
 import { toast } from "sonner"
 
@@ -35,6 +35,7 @@ import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import SectionAssignTags from "@/components/ui/overview/common/SectionAssignTags"
 import Breadcrumbs from "@/components/ui/text/Breadcrumbs"
+import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 
 export default function ActionOverview({ action }: { action: Action }) {
   const [editTitle, setEditTitle] = useState("")
@@ -156,16 +157,22 @@ export default function ActionOverview({ action }: { action: Action }) {
           </div>
 
           {/* Description Edit */}
-          <div className="bg-neutral-900 p-2 text-neutral-500">
-            {isEdit ? (
-              <textarea
-                className="h-40 w-full bg-transparent"
-                defaultValue={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-              />
-            ) : (
-              <RenderMarkdown markdown={action.description} />
-            )}
+          <div className="rounded-md p-2">
+            <Accordion
+              isCompact
+              variant="light"
+              defaultExpandedKeys={["description"]}
+            >
+              <AccordionItem title="Description" key="description">
+                <EditOrRenderMarkdown
+                  isEdit={isEdit}
+                  displayValue={action.description || "*(no description)*"}
+                  editValue={editDescription}
+                  setEditValue={setEditDescription}
+                  autoSaveId="action-description-md-preview"
+                />
+              </AccordionItem>
+            </Accordion>
           </div>
 
           <Hr className="mb-6 mt-4" />

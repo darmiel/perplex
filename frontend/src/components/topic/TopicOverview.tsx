@@ -55,7 +55,7 @@ import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
 import UserTagList from "@/components/ui/tag/UserTagList"
-import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 import { useAuth } from "@/contexts/AuthContext"
 
 function SectionParticipants({
@@ -402,28 +402,22 @@ export default function TopicOverview({
             </>
           )}
 
-          <div className="rounded-md bg-neutral-900 p-2">
-            {isEdit ? (
-              <Textarea
-                className="w-full"
-                variant="underlined"
-                label="Edit Description"
-                defaultValue={topic.description}
-                onValueChange={setEditDescription}
-              />
-            ) : (
-              <Accordion
-                isCompact
-                variant="light"
-                defaultExpandedKeys={["description"]}
-              >
-                <AccordionItem title="Description" key="description">
-                  <RenderMarkdown
-                    markdown={topic.description || "*(no description)*"}
-                  />
-                </AccordionItem>
-              </Accordion>
-            )}
+          <div className="rounded-md p-2">
+            <Accordion
+              isCompact
+              variant="light"
+              defaultExpandedKeys={["description"]}
+            >
+              <AccordionItem title="Description" key="description">
+                <EditOrRenderMarkdown
+                  isEdit={isEdit}
+                  displayValue={topic.description || "*(no description)*"}
+                  editValue={editDescription}
+                  setEditValue={setEditDescription}
+                  autoSaveId="topic-description-md-preview"
+                />
+              </AccordionItem>
+            </Accordion>
           </div>
 
           <Hr className="my-4" />

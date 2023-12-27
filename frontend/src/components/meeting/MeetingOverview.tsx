@@ -45,7 +45,7 @@ import OverviewContent from "@/components/ui/overview/OverviewContent"
 import OverviewSection from "@/components/ui/overview/OverviewSection"
 import OverviewSide from "@/components/ui/overview/OverviewSide"
 import OverviewTitle from "@/components/ui/overview/OverviewTitle"
-import RenderMarkdown from "@/components/ui/text/RenderMarkdown"
+import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 import FetchUserTag from "@/components/user/FetchUserTag"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLocalStrState } from "@/hooks/localStorage"
@@ -268,17 +268,13 @@ export default function MeetingOverview({
       <OverviewContainer>
         <OverviewContent>
           <div className="bg-neutral-900 p-2 text-neutral-500">
-            {isEdit ? (
-              <textarea
-                className="h-40 w-full bg-transparent"
-                defaultValue={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-              />
-            ) : (
-              <RenderMarkdown
-                markdown={meeting.description || "*No Description*"}
-              />
-            )}
+            <EditOrRenderMarkdown
+              isEdit={isEdit}
+              displayValue={meeting.description || "*(no description)*"}
+              editValue={editDescription}
+              setEditValue={setEditDescription}
+              autoSaveId="meeting-description-md-preview"
+            />
           </div>
 
           <hr className="mb-6 mt-4 border-gray-700" />
