@@ -1,22 +1,27 @@
 import {
   Avatar,
   AvatarGroup,
+  Button,
   Checkbox,
   Input,
   Textarea,
 } from "@nextui-org/react"
 import { useState } from "react"
-import { BsCheck2Circle, BsTriangle } from "react-icons/bs"
+import {
+  BsCheck2Circle,
+  BsCursorText,
+  BsTextLeft,
+  BsTriangle,
+} from "react-icons/bs"
 import { GoDiscussionClosed } from "react-icons/go"
 import { toast } from "sonner"
 
 import { User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
-import Button from "@/components/ui/Button"
-import CardContainer from "@/components/ui/card/CardContainer"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
+import GlowingModalCard from "@/components/ui/modal/GlowingModalCard"
 import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
 import { useAuth } from "@/contexts/AuthContext"
 import { getUserAvatarURL } from "@/util/avatar"
@@ -37,20 +42,22 @@ export function TopicTypeCard({
   onClick?: () => void
 }) {
   return (
-    <CardContainer
+    <GlowingModalCard
       onClick={() => onClick?.()}
-      style={selected ? "selected-border" : "neutral"}
+      classNames={{
+        content: selected ? "space-y-4 bg-white text-black p-4" : undefined,
+      }}
     >
       <div className="flex flex-row items-center space-x-3">
-        <div className={selected ? "text-primary-600" : "text-neutral-400"}>
+        <div className={selected ? "text-black" : "text-neutral-500"}>
           {icon}
         </div>
         <div>
           <h2 className="font-bold">{title}</h2>
-          <span className="text-sm text-neutral-400">{subtitle}</span>
+          <span className="text-sm text-neutral-500">{subtitle}</span>
         </div>
       </div>
-    </CardContainer>
+    </GlowingModalCard>
   )
 }
 
@@ -158,39 +165,34 @@ export default function CreateTopicModal({
   }
 
   return (
-    <div
-      className={`space-y-6 rounded-md border border-neutral-800 bg-neutral-950 p-4`}
-    >
-      <h1 className="text-xl font-semibold">Create New Topic</h1>
-      <div className="space-y-2">
-        <Flex x={2}>
-          <Input
-            type="text"
-            variant="bordered"
-            label="Topic Name"
-            isClearable
-            value={topicTitle}
-            onValueChange={setTopicTitle}
-            placeholder="My awesome Topic"
-            onKeyDown={(e) => e.key === "Enter" && create(false)}
-            autoComplete="off"
-          />
-          <PriorityPicker
-            className="w-[15rem]"
-            projectID={projectID}
-            setPriorityID={setTopicPriorityID}
-          />
-        </Flex>
-      </div>
+    <GlowingModalCard>
+      <Flex x={2}>
+        <Input
+          type="text"
+          startContent={<BsCursorText />}
+          labelPlacement="outside"
+          isClearable
+          value={topicTitle}
+          onValueChange={setTopicTitle}
+          placeholder="My awesome Topic"
+          onKeyDown={(e) => e.key === "Enter" && create(false)}
+          autoComplete="off"
+        />
+        <PriorityPicker
+          className="w-[15rem]"
+          projectID={projectID}
+          setPriorityID={setTopicPriorityID}
+        />
+      </Flex>
 
       <Textarea
         minRows={2}
         maxRows={10}
-        label="Topic Description"
-        placeholder="This is a description (Markdown is supported)"
+        startContent={<BsTextLeft />}
+        labelPlacement="outside"
+        placeholder="This is a description"
         value={topicDescription}
         onChange={(event) => setTopicDescription(event.target.value)}
-        variant="bordered"
         description="Markdown is supported"
       />
 
@@ -244,24 +246,26 @@ export default function CreateTopicModal({
           <div>{extractErrorMessage(createTopicMutation.error)}</div>
         </div>
       )}
-      <div className="flex flex-row justify-between space-x-4">
-        <Button style="neutral" onClick={onClose}>
-          Close
-        </Button>
-
-        <Flex x={2}>
+      <div className="flex w-full flex-col items-center justify-between space-x-2 space-y-2 md:flex-row md:space-y-0">
+        <span className="rounded-md bg-neutral-900 px-2 py-1">
+          Create New Topic
+        </span>
+        <div className="flex items-center space-x-2">
           <Checkbox isSelected={createAnother} onValueChange={setCreateAnother}>
-            Create Another?
+            Create Another
           </Checkbox>
+          <Button variant="bordered" onClick={() => onClose()}>
+            Cancel
+          </Button>
           <Button
-            style="secondary"
+            className="bg-white text-black"
             isLoading={createTopicMutation.isLoading}
             onClick={() => create(!createAnother)}
           >
             Create
           </Button>
-        </Flex>
+        </div>
       </div>
-    </div>
+    </GlowingModalCard>
   )
 }

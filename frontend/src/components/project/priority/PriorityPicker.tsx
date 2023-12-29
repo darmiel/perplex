@@ -43,19 +43,22 @@ export default function PriorityPicker({
   return (
     <Select
       items={projectPrioritiesQuery.data.data}
-      variant="bordered"
-      label="Priority"
+      labelPlacement="outside"
       placeholder="Select a priority"
       className={className}
       renderValue={(items) =>
-        items.map(
-          (item) =>
-            item.data && (
-              <PrioritySelectItemContents
-                key={item.data.ID}
-                priority={item.data}
-              />
-            ),
+        items.length === 0 ? (
+          <>No Priority</>
+        ) : (
+          items.map(
+            (item) =>
+              item.data && (
+                <PrioritySelectItemContents
+                  key={item.data.ID}
+                  priority={item.data}
+                />
+              ),
+          )
         )
       }
       defaultSelectedKeys={[String(defaultValue)]}

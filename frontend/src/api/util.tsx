@@ -50,17 +50,22 @@ export function includesFold(haystack: string, needle: string): boolean {
   return haystack.toLowerCase().includes(needle.toLowerCase())
 }
 
-// I really tried to type this, but it's just too much work
-// and I don't have the time to do it
-// @ts-ignore
-// eslint-disable-next-line
-export const PickerCustomInput = forwardRef(({ value, onClick }, ref) => (
+interface PickerCustomInputProps {
+  value?: string
+  onClick?: () => void
+}
+
+export const PickerCustomInput = forwardRef<
+  HTMLButtonElement,
+  PickerCustomInputProps
+>(({ value, onClick }, ref) => (
   <button
     className="w-full rounded-lg border border-neutral-600 bg-neutral-800 p-2"
     onClick={onClick}
-    // @ts-ignore
     ref={ref}
   >
     {value || "Select Date"}
   </button>
 ))
+
+PickerCustomInput.displayName = "PickerCustomInput"
