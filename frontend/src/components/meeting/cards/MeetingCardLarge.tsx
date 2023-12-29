@@ -17,7 +17,7 @@ import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
+import { getUserAvatarURL } from "@/util/avatar"
 
 export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
   const meetingStartDate = new Date(meeting.start_date)

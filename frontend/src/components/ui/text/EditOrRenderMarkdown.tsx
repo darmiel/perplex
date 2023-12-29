@@ -1,5 +1,5 @@
 import { Textarea } from "@nextui-org/react"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { BsEye } from "react-icons/bs"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
@@ -12,13 +12,15 @@ export function EditOrRenderMarkdown({
   setEditValue,
   className,
   autoSaveId,
+  textAreaComponent,
 }: {
   isEdit: boolean
   displayValue: string
   editValue: string
   setEditValue: (newValue: string) => void
   className?: string
-  autoSaveId: string
+  autoSaveId?: string
+  textAreaComponent?: ReactNode
 }) {
   const [showPreview, setShowPreview] = useState(true)
   if (!isEdit) {
@@ -32,12 +34,16 @@ export function EditOrRenderMarkdown({
       className="space-x-4"
     >
       <Panel order={1} defaultSizePercentage={100} collapsible={false}>
-        <Textarea
-          className="w-full"
-          defaultValue={editValue}
-          onValueChange={setEditValue}
-          maxRows={100}
-        />
+        {textAreaComponent ? (
+          textAreaComponent
+        ) : (
+          <Textarea
+            className="w-full"
+            defaultValue={editValue}
+            onValueChange={setEditValue}
+            maxRows={100}
+          />
+        )}
       </Panel>
       <PanelResizeHandle className="flex w-4 items-center justify-center text-lg">
         <span>

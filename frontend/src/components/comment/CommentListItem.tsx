@@ -14,7 +14,7 @@ import { Comment, CommentEntityType } from "@/api/types"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { RelativeDate } from "@/components/ui/DateString"
 import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 function Loadable({
@@ -97,7 +97,7 @@ export default function CommentListItem({
       } p-4`}
     >
       <div>
-        <UserAvatar height={256} width={256} userID={comment.author_id} />
+        <UserAvatarImage height={256} width={256} userID={comment.author_id} />
       </div>
       <div className="ml-4 flex w-full flex-col">
         <div className="flex items-center space-x-4">

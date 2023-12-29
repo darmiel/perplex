@@ -91,9 +91,9 @@ export default function MeetingOverview({
     },
   )
 
-  const linkTagMut = meetings!.useLinkTag(projectID, meetingID, () => {})
+  const linkTagMut = meetings!.useLinkTag(projectID, () => {})
 
-  const linkUser = meetings!.useLinkUser(projectID, meetingID, () => {})
+  const linkUser = meetings!.useLinkUser(projectID, () => {})
 
   const markReadyMut = meetings!.useSetReady(projectID, meetingID, () => {})
 
@@ -394,12 +394,14 @@ export default function MeetingOverview({
               users={meeting.assigned_users ?? []}
               onAssign={(user) =>
                 linkUser.mutate({
+                  meetingID,
                   link: true,
                   userID: user.id,
                 })
               }
               onUnassign={(user) =>
                 linkUser.mutate({
+                  meetingID,
                   link: false,
                   userID: user.id,
                 })
@@ -414,12 +416,14 @@ export default function MeetingOverview({
               projectID={projectID}
               onAssign={(tag) =>
                 linkTagMut.mutate({
+                  meetingID,
                   link: true,
                   tagID: tag.ID,
                 })
               }
               onUnassign={(tag) =>
                 linkTagMut.mutate({
+                  meetingID,
                   link: false,
                   tagID: tag.ID,
                 })

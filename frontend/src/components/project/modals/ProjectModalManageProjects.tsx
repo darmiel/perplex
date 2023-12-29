@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { Project } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Hr from "@/components/ui/Hr"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 function ModalList({
@@ -107,7 +107,7 @@ function ModalList({
                   )}
                 >
                   <div className="flex items-center space-x-4">
-                    <UserAvatar userID={String(project.ID)} />
+                    <UserAvatarImage userID={String(project.ID)} />
                     <div className="flex flex-col">
                       <span>{project.name}</span>
                       {project.owner_id === user?.uid && (

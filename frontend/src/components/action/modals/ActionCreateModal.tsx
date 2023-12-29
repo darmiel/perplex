@@ -30,8 +30,8 @@ import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
 import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
 import TagList from "@/components/ui/tag/TagList"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
+import { getUserAvatarURL } from "@/util/avatar"
 
 function getIconForMutation<A, B, C, D>(
   mutation: UseMutationResult<A, B, C, D>,
@@ -73,13 +73,11 @@ export default function ActionCreateModal({
   const [actionUserAssigned, setActionUserAssigned] = useState<User[]>([])
   const [actionTagAssigned, setActionTagsAssigned] = useState<number[]>([])
 
-  const { actions, projects, tags, priorities } = useAuth()
+  const { actions, tags } = useAuth()
   const linkTopicToActionMut = actions!.useLinkTopic(projectID)
   const linkUserToActionMut = actions!.useLinkUser(projectID)
   const linkTagToActionMut = actions!.useLinkTag(projectID)
-  const usersQuery = projects!.useUserList(projectID)
   const tagsQuery = tags!.useList(projectID)
-  const prioritiesQuery = priorities!.useList(projectID)
 
   const linkTopic = !!topicID && !!meetingID
 

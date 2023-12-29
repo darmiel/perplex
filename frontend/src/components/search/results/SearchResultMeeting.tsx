@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Meeting } from "@/api/types"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { RelativeDate } from "@/components/ui/DateString"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 
 export default function SearchResultMeeting({
   meeting,
@@ -24,7 +24,7 @@ export default function SearchResultMeeting({
       onMouseEnter={() => onMouseOver(href)}
     >
       <div className="h-5 w-5">
-        <UserAvatar userID={String(meeting.ID)} />
+        <UserAvatarImage userID={String(meeting.ID)} />
       </div>
       <div className="flex flex-col">
         <h4 className="space-x-1 text-sm">

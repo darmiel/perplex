@@ -1,22 +1,29 @@
+import { Avatar } from "@nextui-org/react"
 import Image from "next/image"
 
-export function getUserAvatarURL(userID: string) {
-  return `https://api.dicebear.com/6.x/shapes/svg?seed=${userID}`
+import { User } from "@/api/types"
+import { getUserAvatarURL } from "@/util/avatar"
+
+export type UserAvatarImage = {
+  // the user ID
+  userID: string
+  // the alt text
+  alt?: string
+  // the class name
+  className?: string
+  // the height of the image
+  height?: number
+  // the width of the image
+  width?: number
 }
 
-export default function UserAvatar({
+export function UserAvatarImage({
   userID,
   alt,
   className,
   height = 256,
   width = 256,
-}: {
-  userID: string
-  className?: string
-  alt?: string
-  height?: number
-  width?: number
-}) {
+}: UserAvatarImage) {
   return (
     <Image
       src={getUserAvatarURL(userID)}
@@ -25,5 +32,24 @@ export default function UserAvatar({
       height={height}
       width={width}
     />
+  )
+}
+
+/**
+ * UserAvatarProps is the props for the UserAvatar component
+ * Provide either a user ID or a user object
+ */
+export type UserAvatarProps = {
+  // the user ID
+  userID?: string
+  // the user object
+  user?: User
+}
+
+export function UserAvatar({ userID, user }: UserAvatarProps) {
+  if (!userID && !user) throw new Error("No user ID or user provided")
+  const extractedUserID = user ? user.id : userID!
+  return (
+    <Avatar alt={userID} size="sm" src={getUserAvatarURL(extractedUserID)} />
   )
 }

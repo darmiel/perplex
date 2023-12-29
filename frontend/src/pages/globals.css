@@ -48,3 +48,60 @@ body {
     scrollbar-width: none; /* Firefox */
   }
 }
+
+.glowing-card {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  position: relative;
+}
+
+.glowing-card:hover::before,
+.glowing-card:hover::after {
+  opacity: 1;
+}
+
+.glowing-card::before,
+.glowing-card::after {
+  border-radius: inherit;
+  content: "";
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  z-index: 2;
+
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.glowing-card::before {
+  background: radial-gradient(
+    800px circle at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.03),
+    transparent 40%
+  );
+  z-index: 3;
+
+  pointer-events: none;
+}
+
+.glowing-card::after {
+  background: radial-gradient(
+    400px circle at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.3),
+    transparent 40%
+  );
+  z-index: 1;
+
+  pointer-events: none;
+}
+
+.glowing-card > .glowing-card-content {
+  border-radius: inherit;
+  height: calc(100% - 2px);
+  width: calc(100% - 2px);
+  margin: 1px;
+  position: relative;
+  z-index: 2;
+}

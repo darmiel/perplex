@@ -24,8 +24,8 @@ import { extractErrorMessage } from "@/api/util"
 import ActionGrid from "@/components/action/sections/ActionGrid"
 import CommentSuite from "@/components/comment/CommentSuite"
 import MeetingDragDrop from "@/components/meeting/MeetingDragDrop"
+import CreateMeetingModal from "@/components/meeting/modals/CreateMeetingModal"
 import { MeetingGrid } from "@/components/meeting/sections/MeetingGrid"
-import MeetingCreateModal from "@/components/modals/MeetingCreateModal"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ProjectPageFiles from "@/components/project/pages/ProjectPageFiles"
 import ProjectSectionManagePriorities from "@/components/project/sections/ProjectSectionManagePriorities"
@@ -271,7 +271,7 @@ export default function ProjectPage() {
                     open={showCreateMeeting}
                     setOpen={setShowCreateMeeting}
                   >
-                    <MeetingCreateModal
+                    <CreateMeetingModal
                       projectID={projectID}
                       onClose={() => setShowCreateMeeting(false)}
                     />

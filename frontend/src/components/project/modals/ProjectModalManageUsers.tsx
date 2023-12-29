@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
 import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 import useDebounce from "@/hooks/debounce"
 
@@ -95,7 +95,7 @@ export default function ProjectModalManageUsers({
               )}
             >
               <div className="flex items-center space-x-4">
-                <UserAvatar userID={user.id} />
+                <UserAvatarImage userID={user.id} />
                 <div className="flex flex-col">
                   <span>{user.name}</span>
                   {isAlreadyInProject && (

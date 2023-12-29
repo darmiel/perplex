@@ -3,7 +3,7 @@ import { ReactNode } from "react"
 import { BsX } from "react-icons/bs"
 import { ClipLoader } from "react-spinners"
 
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function UserTag({
@@ -34,7 +34,7 @@ export default function UserTag({
       })}
     >
       <div>
-        <UserAvatar userID={userID} className="h-4 w-4 rounded-full" />
+        <UserAvatarImage userID={userID} className="h-4 w-4 rounded-full" />
       </div>
       <div>
         <span>{displayName}</span>

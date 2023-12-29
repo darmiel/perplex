@@ -5,7 +5,7 @@ import Popup from "reactjs-popup"
 import { Action } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import Button from "@/components/ui/Button"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function ActionSectionAssigned({ action }: { action: Action }) {
@@ -21,7 +21,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
         <div key={user.id} className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="h-5 w-5">
-              <UserAvatar userID={user.id} />
+              <UserAvatarImage userID={user.id} />
             </div>
             <span
               className={user.id === loggedUser?.uid ? "text-primary-500" : ""}
@@ -90,7 +90,7 @@ export default function ActionSectionAssigned({ action }: { action: Action }) {
                 <div className="flex flex-row items-center space-x-4">
                   <div className="flex flex-row items-center space-x-2">
                     <div className="h-5 w-5">
-                      <UserAvatar userID={user.id} />
+                      <UserAvatarImage userID={user.id} />
                     </div>
                     <div>{user.name}</div>
                   </div>

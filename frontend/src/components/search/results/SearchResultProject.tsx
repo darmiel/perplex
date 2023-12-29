@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { Project } from "@/api/types"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 
 export default function SearchResultProject({
   project,
@@ -23,7 +23,7 @@ export default function SearchResultProject({
       onMouseOver={() => onMouseOver(href)}
     >
       <div className="h-5 w-5">
-        <UserAvatar userID={String(project.ID)} />
+        <UserAvatarImage userID={String(project.ID)} />
       </div>
       <div className="flex flex-col">
         <h4 className="space-x-1 text-sm">

@@ -18,8 +18,8 @@ import CardContainer from "@/components/ui/card/CardContainer"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
 import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
+import { getUserAvatarURL } from "@/util/avatar"
 
 type TopicType = "acknowledge" | "discuss"
 
