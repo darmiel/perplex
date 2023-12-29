@@ -1,5 +1,4 @@
 import { useState } from "react"
-import ReactDatePicker from "react-datepicker"
 import {
   BsBookmarkStarFill,
   BsBookmarkX,
@@ -25,7 +24,6 @@ import { Accordion, AccordionItem } from "@nextui-org/react"
 import Head from "next/head"
 import { toast } from "sonner"
 
-import { PickerCustomInput } from "@/api/util"
 import ActionTag from "@/components/action/ActionTag"
 import ActionSectionAssigned from "@/components/action/sections/ActionSectionAssigned"
 import ActionSectionTopics from "@/components/action/sections/ActionSectionTopics"
@@ -130,7 +128,7 @@ export default function ActionOverview({ action }: { action: Action }) {
             {/* Due Date Edit */}
             {isEdit ? (
               <>
-                <ReactDatePicker
+                {/* <ReactDatePicker
                   selected={editDueDate ? new Date(editDueDate) : undefined}
                   onChange={(date) =>
                     setEditDueDate((old) => date?.toString() || old)
@@ -138,7 +136,7 @@ export default function ActionOverview({ action }: { action: Action }) {
                   showTimeSelect
                   dateFormat="Pp"
                   customInput={<PickerCustomInput />}
-                />
+                /> */}
                 <Button style="neutral" onClick={() => setEditDueDate("")}>
                   No Due Date
                 </Button>

@@ -31,7 +31,7 @@ import { extractErrorMessage } from "@/api/util"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import BadgeHeader from "@/components/ui/BadgeHeader"
 import Flex from "@/components/ui/layout/Flex"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 function FileQuota({ projectID }: { projectID: number }) {
@@ -198,7 +198,7 @@ function FileList({ projectID }: { projectID: number }) {
           <TableRow key={file.ID}>
             <TableCell>{file.name}</TableCell>
             <TableCell className="flex items-center space-x-1 text-neutral-400">
-              <UserAvatar
+              <UserAvatarImage
                 userID={file.creator_id}
                 className="h-5 w-5 rounded-full"
               />
