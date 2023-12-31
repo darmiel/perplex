@@ -16,20 +16,17 @@ export default function GlowingModalCard({
   classNames,
   onClick,
 }: GlowingModalCardProps) {
-  const containerClassName =
-    classNames?.container ?? defaultClassNames.container
-  const contentClassName = classNames?.content ?? defaultClassNames.content
+  const containerCls = classNames?.container ?? defaultClassNames.container
+  const contentCls = classNames?.content ?? defaultClassNames.content
   return (
     <div
-      className={clsx(containerClassName, "glowing-card", {
+      className={clsx(containerCls, "glowing-card flex", {
         "cursor-pointer": !!onClick,
       })}
       onMouseMove={onMouseMove}
       onClick={onClick}
     >
-      <div className={clsx("glowing-card-content", contentClassName)}>
-        {children}
-      </div>
+      <div className={clsx("glowing-card-content", contentCls)}>{children}</div>
     </div>
   )
 }
