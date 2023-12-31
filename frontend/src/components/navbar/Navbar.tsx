@@ -142,12 +142,25 @@ export default function Navbar() {
                       tooltip_id={`tooltip-project-${project.ID}`}
                       selected={String(project.ID) === projectID}
                     >
-                      <UserAvatarImage
-                        userID={String(project.ID)}
-                        className={`${
-                          String(project.ID) === projectID ? "" : "grayscale"
-                        } w-full rounded-[50%] transition duration-150 ease-in-out hover:scale-110 hover:rounded-md hover:grayscale-0`}
-                      />
+                      <motion.div
+                        whileHover={{
+                          scale: 1.2,
+                          borderRadius: "10%",
+                        }}
+                        whileTap={{
+                          scale: 0.9,
+                          rotate: -90,
+                          borderRadius: "100%",
+                        }}
+                        className="rounded-[50%]"
+                      >
+                        <UserAvatarImage
+                          userID={String(project.ID)}
+                          className={`${
+                            String(project.ID) === projectID ? "" : "grayscale"
+                          } br-inherit w-full transition duration-150 ease-in-out hover:grayscale-0`}
+                        />
+                      </motion.div>
                     </NavbarItem>
                     <Tooltip
                       id={`tooltip-project-${project.ID}`}

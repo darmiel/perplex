@@ -79,8 +79,6 @@ export default function RootLayout({ Component, pageProps }: AppProps) {
               <main className="bg-darker flex flex-1 overflow-y-auto dark">
                 <Component {...pageProps} />
               </main>
-
-              {/*</Register>*/}
             </div>
           </FollowUpProvider>
           <Toaster theme="dark" closeButton={true} position="bottom-right" />
