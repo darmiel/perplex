@@ -23,6 +23,10 @@ You can also use it to brainstorm ideas and provide feedback. You can take a loo
 
 ![](./assets/Scr-Project-Overview.png)
 
+### Create Meeting
+
+![](./assets/Scr-Create-Meeting.png)
+
 ### Create Topic
 
 ![](./assets/Scr-Create-Topic.png)
