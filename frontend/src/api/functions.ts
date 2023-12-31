@@ -74,11 +74,13 @@ export type meetingCreateVars = {
 }
 
 export type meetingLinkUserVars = {
+  meetingID: number
   userID: string
   link: boolean
 }
 
 export type meetingLinkTagVars = {
+  meetingID: number
   tagID: number
   link: boolean
 }
@@ -549,28 +551,28 @@ export const functions = (axios: Axios, client: QueryClient) => {
         return ["upcoming-meetings"]
       },
 
-      linkUserMutFn(projectID: number, meetingID: number) {
-        return async ({ userID, link }: meetingLinkUserVars) =>
+      linkUserMutFn(projectID: number) {
+        return async ({ meetingID, userID, link }: meetingLinkUserVars) =>
           (
             await axios![link ? "post" : "delete"](
               `/project/${projectID}/meeting/${meetingID}/link/user/${userID}`,
             )
           ).data
       },
-      linkUserMutKey(projectID: number, meetingID: number) {
-        return [{ projectID }, { meetingID }, "link-user-mut"]
+      linkUserMutKey(projectID: number) {
+        return [{ projectID }, "meetings", "link-user-mut"]
       },
 
-      linkTagMutFn(projectID: number, meetingID: number) {
-        return async ({ tagID, link }: meetingLinkTagVars) =>
+      linkTagMutFn(projectID: number) {
+        return async ({ meetingID, tagID, link }: meetingLinkTagVars) =>
           (
             await axios![link ? "post" : "delete"](
               `/project/${projectID}/meeting/${meetingID}/link/tag/${tagID}`,
             )
           ).data
       },
-      linkTagMutKey(projectID: number, meetingID: number) {
-        return [{ projectID }, { meetingID }, "link-tag-mut"]
+      linkTagMutKey(projectID: number) {
+        return [{ projectID }, "meetings", "link-tag-mut"]
       },
 
       setReadyMutFn(projectID: number, meetingID: number) {
@@ -1377,16 +1379,16 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useLinkUser(
         projectID: number,
-        meetingID: number,
         callback: SuccessCallback<never, meetingLinkUserVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, meetingLinkUserVars>({
-          mutationKey: functions.meetings.linkUserMutKey(projectID, meetingID),
-          mutationFn: functions.meetings.linkUserMutFn(projectID, meetingID),
+          mutationKey: functions.meetings.linkUserMutKey(projectID),
+          mutationFn: functions.meetings.linkUserMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
             functions.meetings.listQueryKey(projectID),
-            functions.meetings.findQueryKey(projectID, meetingID),
+            ({ meetingID }) =>
+              functions.meetings.findQueryKey(projectID, meetingID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} User:`,
@@ -1395,16 +1397,16 @@ export const functions = (axios: Axios, client: QueryClient) => {
       },
       useLinkTag(
         projectID: number,
-        meetingID: number,
         callback: SuccessCallback<never, meetingLinkTagVars>,
       ) {
         return useMutation<BackendResponse, AxiosError, meetingLinkTagVars>({
-          mutationKey: functions.meetings.linkTagMutKey(projectID, meetingID),
-          mutationFn: functions.meetings.linkTagMutFn(projectID, meetingID),
+          mutationKey: functions.meetings.linkTagMutKey(projectID),
+          mutationFn: functions.meetings.linkTagMutFn(projectID),
           onSuccess: invalidateAllCallback(
             callback,
             functions.meetings.listQueryKey(projectID),
-            functions.meetings.findQueryKey(projectID, meetingID),
+            ({ meetingID }) =>
+              functions.meetings.findQueryKey(projectID, meetingID),
           ),
           onError: toastError(
             ({ link }) => `Cannot ${link ? "link" : "unlink"} Tag:`,

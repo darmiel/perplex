@@ -369,7 +369,7 @@ export default function TopicOverview({
         <OverviewContent>
           {!!topic.solution_id && (
             <>
-              <div className="flex w-full items-center justify-between rounded-md border border-primary-500 p-4">
+              <div className="flex w-full items-center justify-between rounded-lg border border-primary-500 p-4">
                 <div className="flex flex-row items-center space-x-2 text-primary-500">
                   <BsCheck />
                   <strong>Good News!</strong>

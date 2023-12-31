@@ -8,7 +8,7 @@ import { User } from "@/api/types"
 import { extractErrorMessage, includesFold } from "@/api/util"
 import Flex from "@/components/ui/layout/Flex"
 import ManageUsersButton from "@/components/ui/overview/common/ManageUsersButton"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function TooltipAssignUsers({
@@ -105,7 +105,7 @@ export default function TooltipAssignUsers({
                     disabled={isLoading}
                   >
                     {/* User Avatar */}
-                    <UserAvatar
+                    <UserAvatarImage
                       className="h-6 w-6 rounded-full"
                       userID={user.id}
                     />

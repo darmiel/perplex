@@ -5,7 +5,7 @@ import { BsCheck } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 import { toast } from "sonner"
 
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function User() {
@@ -44,7 +44,7 @@ export default function User() {
   return (
     <div className="flex space-x-5 p-10">
       <div>
-        <UserAvatar
+        <UserAvatarImage
           userID={user.uid}
           height={512}
           width={512}

@@ -28,7 +28,7 @@ import NotificationModal from "@/components/notification/NotificationModal"
 import ProjectModalManageProjects from "@/components/project/modals/ProjectModalManageProjects"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
-import UserAvatar from "@/components/user/UserAvatar"
+import { UserAvatarImage } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useFollowUp } from "@/contexts/FollowUp"
 
@@ -142,7 +142,7 @@ export default function Navbar() {
                       tooltip_id={`tooltip-project-${project.ID}`}
                       selected={String(project.ID) === projectID}
                     >
-                      <UserAvatar
+                      <UserAvatarImage
                         userID={String(project.ID)}
                         className={`${
                           String(project.ID) === projectID ? "" : "grayscale"

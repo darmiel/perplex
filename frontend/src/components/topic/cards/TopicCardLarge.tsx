@@ -13,8 +13,8 @@ import { Topic } from "@/api/types"
 import ResolveMeetingName from "@/components/resolve/ResolveMeetingName"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
+import { getUserAvatarURL } from "@/util/avatar"
 
 export default function TopicCardLarge({
   projectID,

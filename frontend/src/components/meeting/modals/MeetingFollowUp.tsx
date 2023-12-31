@@ -46,9 +46,9 @@ import Flex from "@/components/ui/layout/Flex"
 import ModalContainerNG from "@/components/ui/modal/ModalContainerNG"
 import ModalPopup from "@/components/ui/modal/ModalPopup"
 import { TruncateTitle } from "@/components/ui/text/TruncateText"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useFollowUp } from "@/contexts/FollowUp"
+import { getUserAvatarURL } from "@/util/avatar"
 
 export function MeetingFollowUpMeetingSelection({
   projectID,

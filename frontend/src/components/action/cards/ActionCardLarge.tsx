@@ -6,7 +6,7 @@ import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
+import { getUserAvatarURL } from "@/util/avatar"
 
 export default function ActionCardLarge({
   action,
@@ -41,7 +41,7 @@ export default function ActionCardLarge({
         {/* Project Header */}
         {!hideProjectName && (
           <Link
-            className="text-default-400 flex items-center gap-2"
+            className="flex items-center gap-2 text-default-400"
             href={`/project/${action.project_id}`}
           >
             <ResolveProjectName projectID={action.project_id} />
@@ -70,7 +70,7 @@ export default function ActionCardLarge({
             <DurationTag date={actionDueDate} />
           </>
         ) : (
-          <span className="text-default-400 italic">No Due Date</span>
+          <span className="italic text-default-400">No Due Date</span>
         )}
       </p>
 
@@ -94,7 +94,7 @@ export default function ActionCardLarge({
                 </Chip>
               ))
             ) : (
-              <span className="text-default-400 text-sm italic">No Tags</span>
+              <span className="text-sm italic text-default-400">No Tags</span>
             )}
           </Flex>
         </ScrollShadow>

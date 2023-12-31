@@ -17,7 +17,8 @@ import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import { getUserAvatarURL } from "@/components/user/UserAvatar"
+import GlowingModalCard from "@/components/ui/modal/GlowingModalCard"
+import { getUserAvatarURL } from "@/util/avatar"
 
 export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
   const meetingStartDate = new Date(meeting.start_date)
@@ -64,15 +65,17 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       hour12: false,
     })
   return (
-    <div
-      className={clsx(
-        "flex w-full flex-col justify-between space-y-2 rounded-lg",
-        "border border-neutral-800 px-5 py-4 transition-colors",
-        "hover:border-neutral-700 hover:bg-neutral-800/30",
-        {
-          "border-red-600 hover:border-red-500": !meeting.is_ready,
-        },
-      )}
+    <GlowingModalCard
+      classNames={{
+        container: "w-full",
+        content: clsx(
+          "flex flex-col justify-between space-y-2 rounded-lg",
+          "px-5 py-4 transition-colors bg-neutral-950",
+          {
+            "border-red-600 hover:border-red-500": !meeting.is_ready,
+          },
+        ),
+      }}
     >
       <div>
         {/* Project Header */}
@@ -160,6 +163,6 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
           ))}
         </AvatarGroup>
       </Flex>
-    </div>
+    </GlowingModalCard>
   )
 }
