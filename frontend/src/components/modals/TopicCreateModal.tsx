@@ -6,6 +6,7 @@ import {
   Input,
   Textarea,
 } from "@nextui-org/react"
+import clsx from "clsx"
 import { useState } from "react"
 import {
   BsCheck2Circle,
@@ -19,9 +20,9 @@ import { toast } from "sonner"
 import { User } from "@/api/types"
 import { extractErrorMessage } from "@/api/util"
 import PriorityPicker from "@/components/project/priority/PriorityPicker"
+import GlowingCard from "@/components/ui/card/glow/GlowingCardItem"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import GlowingModalCard from "@/components/ui/modal/GlowingModalCard"
 import TooltipAssignUsers from "@/components/ui/overview/common/TooltipAssignUsers"
 import { useAuth } from "@/contexts/AuthContext"
 import { getUserAvatarURL } from "@/util/avatar"
@@ -42,10 +43,14 @@ export function TopicTypeCard({
   onClick?: () => void
 }) {
   return (
-    <GlowingModalCard
+    <GlowingCard
+      isSingle
+      as={"button"}
       onClick={() => onClick?.()}
       classNames={{
-        content: selected ? "space-y-4 bg-white text-black p-4" : undefined,
+        content: clsx("space-y-4 p-4 bg-neutral-950 text-left", {
+          "bg-white text-black": selected,
+        }),
       }}
     >
       <div className="flex flex-row items-center space-x-3">
@@ -57,7 +62,7 @@ export function TopicTypeCard({
           <span className="text-sm text-neutral-500">{subtitle}</span>
         </div>
       </div>
-    </GlowingModalCard>
+    </GlowingCard>
   )
 }
 
@@ -165,7 +170,7 @@ export default function CreateTopicModal({
   }
 
   return (
-    <GlowingModalCard>
+    <GlowingCard isSingle>
       <Flex x={2}>
         <Input
           type="text"
@@ -266,6 +271,6 @@ export default function CreateTopicModal({
           </Button>
         </div>
       </div>
-    </GlowingModalCard>
+    </GlowingCard>
   )
 }

@@ -1,10 +1,11 @@
 import { ReactNode } from "react"
 
-// TODO: Add more admonition types if needed
-export type AdmonitionStyle = "danger"
+// Add more admonition types if needed
+export type AdmonitionStyle = keyof typeof admonitionColors
 
-const admonitionColors: Record<AdmonitionStyle, string> = {
+const admonitionColors = {
   danger: "bg-red-500 bg-opacity-25 text-red-500",
+  success: "bg-green-500 bg-opacity-25 text-green-500",
 } as const
 
 export default function Admonition({

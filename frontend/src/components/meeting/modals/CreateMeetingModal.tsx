@@ -27,7 +27,7 @@ import { Tag, User } from "@/api/types"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
 import ResolveUserName from "@/components/resolve/ResolveUserName"
 import { StartEndDateTimePicker } from "@/components/ui/calendar/StartEndDateTimePicker"
-import GlowingModalCard from "@/components/ui/modal/GlowingModalCard"
+import GlowingCard from "@/components/ui/card/glow/GlowingCardItem"
 import TopicTagChip from "@/components/ui/TagChip"
 import { EditOrRenderMarkdown } from "@/components/ui/text/EditOrRenderMarkdown"
 import { UserAvatar } from "@/components/user/UserAvatar"
@@ -123,7 +123,7 @@ export default function CreateMeetingModal({
     assignUserMut.isLoading
 
   return (
-    <GlowingModalCard>
+    <GlowingCard isSingle>
       {/* Meeting Name */}
       <Input
         type="text"
@@ -263,6 +263,6 @@ export default function CreateMeetingModal({
           </Button>
         </div>
       </div>
-    </GlowingModalCard>
+    </GlowingCard>
   )
 }

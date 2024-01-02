@@ -18,3 +18,7 @@ export function getProjectURL(projectID: number): string {
 export function getMeetingURL(projectID: number, meetingID: number): string {
   return buildURL(["project", projectID, "meeting", meetingID])
 }
+
+export function getActionURL(projectID: number, actionID: number): string {
+  return buildURL(["project", projectID, "action", actionID])
+}
