@@ -12,7 +12,7 @@ export type GlowingCardProps<As extends ElementType> = {
   isSingle?: boolean
   // as is the element type for the GlowingCard
   as?: As
-} & Omit<ComponentPropsWithoutRef<As>, "as">
+} & Omit<ComponentPropsWithoutRef<As>, "as" | "onMouseMove">
 
 export default function GlowingCard<As extends ElementType>(
   props: GlowingCardProps<As>,

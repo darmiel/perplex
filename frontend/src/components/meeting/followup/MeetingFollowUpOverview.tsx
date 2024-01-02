@@ -3,10 +3,13 @@ import {
   AccordionItem,
   BreadcrumbItem,
   Breadcrumbs,
+  Card,
   Divider,
   ScrollShadow,
 } from "@nextui-org/react"
+import clsx from "clsx"
 import Head from "next/head"
+import { Fragment, ReactNode } from "react"
 import { BsChevronRight, BsHouse } from "react-icons/bs"
 import { BarLoader } from "react-spinners"
 
@@ -42,6 +45,14 @@ export default function MeetingFollowUpOverview({
   }
 
   const meeting = meetingInfoQuery.data.data
+
+  const actionList = actionListQuery.data?.data ?? []
+  const openActions = actionList.filter((action) => !action.closed_at.Valid)
+  const closedActions = actionList.filter((action) => action.closed_at.Valid)
+
+  const topicList = topicListQuery.data?.data ?? []
+  const openTopics = topicList.filter((topic) => !topic.closed_at.Valid)
+  const closedTopics = topicList.filter((topic) => topic.closed_at.Valid)
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -98,53 +109,85 @@ export default function MeetingFollowUpOverview({
           <Divider />
 
           <GlowingCards className="grid w-full gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            <GlowingCard
-              classNames={{
-                content:
-                  "bg-black py-4 px-6 flex items-center justify-between space-x-4",
-              }}
-              style={{
-                "--glow-color": "251, 146, 60",
-              }}
-            >
-              <Flex col>
-                <h2 className="text-tiny uppercase text-neutral-400">
-                  Open Actions
-                </h2>
-                <h1 className="text-4xl font-bold text-orange-600">2</h1>
-              </Flex>
-              <BsChevronRight className="text-neutral-400" />
-              <Flex col>
-                <h2 className="text-tiny uppercase text-neutral-400">
-                  Closed Actions
-                </h2>
-                <h1 className="text-4xl font-bold">11</h1>
-              </Flex>
-            </GlowingCard>
-
-            <GlowingCard
-              classNames={{
-                content:
-                  "bg-black py-4 px-6 flex items-center justify-between space-x-4",
-              }}
-            >
-              <Flex col>
-                <h2 className="text-tiny uppercase text-neutral-400">
-                  Open Topics
-                </h2>
-                <h1 className="text-4xl font-bold text-white">0</h1>
-              </Flex>
-              <BsChevronRight className="text-neutral-400" />
-              <Flex col>
-                <h2 className="text-tiny uppercase text-neutral-400">
-                  Closed Topics
-                </h2>
-                <h1 className="text-4xl font-bold">11</h1>
-              </Flex>
-            </GlowingCard>
+            <StatisticCard
+              title="Topics"
+              stats={[
+                {
+                  title: "Open",
+                  value: openTopics.length,
+                  isDanger: !!openTopics.length,
+                },
+                { title: "Closed", value: closedTopics.length },
+              ]}
+            />
+            <StatisticCard
+              title="Actions"
+              stats={[
+                {
+                  title: "Open",
+                  value: openActions.length,
+                  isDanger: !!openActions.length,
+                },
+                { title: "Closed", value: closedActions.length },
+              ]}
+            />
+            <StatisticCard
+              title="Comments"
+              stats={[
+                { title: "During", value: 11 },
+                { title: "After", value: 4 },
+              ]}
+            />
           </GlowingCards>
         </main>
       </div>
     </div>
+  )
+}
+
+type Statistic = {
+  title: string
+  value: any
+  isDanger?: boolean
+}
+
+function StatisticCard({
+  title,
+  stats,
+}: {
+  title: string | ReactNode
+  stats: Statistic[]
+}) {
+  return (
+    <GlowingCard
+      as={Card}
+      isPressable
+      classNames={{
+        content: "bg-neutral-900 flex flex-col items-center overflow-hidden",
+      }}
+    >
+      <span className="w-full bg-neutral-950 p-2 text-center text-sm font-semibold uppercase text-neutral-200">
+        {title}
+      </span>
+      <div className="flex w-full items-center justify-between space-x-4 px-6 py-4">
+        {stats.map((stat, index) => (
+          <Fragment key={index}>
+            {index > 0 && <BsChevronRight className="text-neutral-400" />}
+            <Flex col>
+              <h2 className="text-tiny uppercase text-neutral-400">
+                {stat.title}
+              </h2>
+              <h1
+                className={clsx("text-4xl font-bold", {
+                  "text-orange-500": stat.isDanger,
+                })}
+              >
+                {stat.value}
+              </h1>
+            </Flex>
+          </Fragment>
+        ))}
+      </div>
+    </GlowingCard>
   )
 }
