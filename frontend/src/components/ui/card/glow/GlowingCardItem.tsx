@@ -4,7 +4,7 @@ import { ComponentPropsWithoutRef, ElementType, ReactNode } from "react"
 // GlowingCardProps contains the props for the GlowingCard
 export type GlowingCardProps<As extends ElementType> = {
   // children is the content of the GlowingCard
-  children: ReactNode
+  children?: ReactNode
   // classNames is the class names for the GlowingCard
   classNames?: GlowingCardClassNames
   // isSingle is whether the GlowingCard is a single card
