@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, useState } from "react"
+import { ReactNode, useMemo } from "react"
 
 import { extractErrorMessage } from "@/api/util"
 import { useAuth } from "@/contexts/AuthContext"
@@ -27,7 +27,6 @@ import {
   BsCalendar2,
   BsCheck,
   BsSearch,
-  BsSignpost,
   BsTag,
   BsTriangle,
 } from "react-icons/bs"
@@ -35,10 +34,8 @@ import {
 import { Meeting } from "@/api/types"
 import MeetingChip from "@/components/meeting/chips/MeetingChips"
 import { getMeetingTenseByMeeting } from "@/components/meeting/MeetingTag"
-import MeetingFollowUp from "@/components/meeting/modals/MeetingFollowUp"
 import { useToggleButton } from "@/components/navbar/ExtendedNavbar"
 import Flex from "@/components/ui/layout/Flex"
-import ModalPopup from "@/components/ui/modal/ModalPopup"
 import useSearch from "@/components/ui/SearchBar"
 import TopicTagChip from "@/components/ui/TagChip"
 import { useLocalState } from "@/hooks/localStorage"
@@ -251,8 +248,6 @@ export function MeetingListNG({
   projectID: number
   selectedMeetingID?: number
 }) {
-  const [showFollowUp, setShowFollowUp] = useState(false)
-
   // load the order by target from local storage
   const [orderByTarget, setOrderByTarget] = useLocalState<OrderTarget>(
     "meeting-list-order-by",
@@ -412,18 +407,7 @@ export function MeetingListNG({
           </Dropdown>
         </Flex>
 
-        <Flex>
-          {SearchButton}
-          <Tooltip content="Follow Up" delay={500} closeDelay={0}>
-            <Button
-              isIconOnly
-              startContent={<BsSignpost />}
-              variant="light"
-              size="sm"
-              onClick={() => setShowFollowUp(true)}
-            />
-          </Tooltip>
-        </Flex>
+        {SearchButton}
       </Flex>
 
       {showSearchBar && <div className="my-2 px-2">{SearchBar}</div>}
@@ -486,13 +470,6 @@ export function MeetingListNG({
           </div>
         )}
       </ScrollShadow>
-
-      <ModalPopup open={showFollowUp} setOpen={setShowFollowUp}>
-        <MeetingFollowUp
-          projectID={projectID}
-          onClose={() => setShowFollowUp(false)}
-        />
-      </ModalPopup>
     </ul>
   )
 }

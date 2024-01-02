@@ -55,8 +55,11 @@ body {
   position: relative;
 }
 
-.glowing-card:hover::before,
-.glowing-card:hover::after {
+.glowing-card:hover::before {
+  opacity: 1;
+}
+
+.glowing-card-container:hover > .glowing-card::after {
   opacity: 1;
 }
 

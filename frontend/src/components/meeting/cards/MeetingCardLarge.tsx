@@ -1,7 +1,6 @@
 import {
   Avatar,
   AvatarGroup,
-  Chip,
   Progress,
   ScrollShadow,
   Tooltip,
@@ -13,14 +12,21 @@ import { BsTriangleFill } from "react-icons/bs"
 import { Meeting } from "@/api/types"
 import MeetingChip from "@/components/meeting/chips/MeetingChips"
 import { getMeetingTenseByMeeting } from "@/components/meeting/MeetingTag"
+import { MeetingTagChips } from "@/components/meeting/MeetingTagChips"
 import ResolveProjectName from "@/components/resolve/ResolveProjectName"
+import GlowingCard from "@/components/ui/card/glow/GlowingCardItem"
 import DurationTag from "@/components/ui/DurationTag"
 import Hr from "@/components/ui/Hr"
 import Flex from "@/components/ui/layout/Flex"
-import GlowingModalCard from "@/components/ui/modal/GlowingModalCard"
 import { getUserAvatarURL } from "@/util/avatar"
 
-export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
+export default function MeetingCardLarge({
+  meeting,
+  isSingle,
+}: {
+  meeting: Meeting
+  isSingle?: boolean
+}) {
   const meetingStartDate = new Date(meeting.start_date)
   const meetingEndDate = new Date(meeting.end_date)
   const meetingProgress = Math.round(
@@ -65,7 +71,8 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       hour12: false,
     })
   return (
-    <GlowingModalCard
+    <GlowingCard
+      isSingle={isSingle}
       classNames={{
         container: "w-full",
         content: clsx(
@@ -138,24 +145,7 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
       {/* Meeting Actions */}
       <Flex justify="between" gap={2} className="mt-4">
         <ScrollShadow orientation="horizontal" hideScrollBar>
-          <Flex gap={1}>
-            {meeting.tags?.length > 0 ? (
-              meeting.tags.map((tag) => (
-                <Chip
-                  key={tag.ID}
-                  className="whitespace-nowrap"
-                  variant="bordered"
-                  style={{
-                    borderColor: tag.color,
-                  }}
-                >
-                  {tag.title}
-                </Chip>
-              ))
-            ) : (
-              <span className="text-sm italic text-default-400">No Tags</span>
-            )}
-          </Flex>
+          <MeetingTagChips tags={meeting.tags} displayNoTagsLabel />
         </ScrollShadow>
         <AvatarGroup max={3} size="sm">
           {meeting.assigned_users?.map((user) => (
@@ -163,6 +153,6 @@ export default function MeetingCardLarge({ meeting }: { meeting: Meeting }) {
           ))}
         </AvatarGroup>
       </Flex>
-    </GlowingModalCard>
+    </GlowingCard>
   )
 }

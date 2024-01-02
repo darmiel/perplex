@@ -1,5 +1,4 @@
 import { Button, Tab, Tabs, Tooltip } from "@nextui-org/react"
-import { useRouter } from "next/router"
 import { ReactNode, useState } from "react"
 import { BsBoxes, BsCalendar } from "react-icons/bs"
 
@@ -41,35 +40,17 @@ export function ExtendedNavBar({
   projectID,
   meetingID,
   topicID,
+  forceMeetings = false,
 }: {
   projectID: number
   meetingID?: number
   topicID?: number
+  forceMeetings?: boolean
 }) {
-  const hasMeetingID = meetingID !== undefined
+  const hasMeetingID = meetingID != null
 
   const [showMeetingsOnTopicOverview, setShowMeetingsOnTopicOverview] =
     useLocalBoolState("topic-overview/show-meetings", false)
-
-  const router = useRouter()
-
-  const { component: topicsButton, isToggled: topicsToggled } = useToggleButton(
-    "Show Topics",
-    <BsBoxes />,
-    true,
-  )
-
-  const { component: meetingsButton, isToggled: meetingsToggled } =
-    useToggleButton(
-      "Show Meetings",
-      <BsCalendar />,
-      !hasMeetingID || showMeetingsOnTopicOverview,
-      (toggled) => {
-        if (hasMeetingID) {
-          setShowMeetingsOnTopicOverview(toggled)
-        }
-      },
-    )
 
   return (
     <section className="flex w-full flex-col">
@@ -78,9 +59,10 @@ export function ExtendedNavBar({
         classNames={{
           tabList: "px-3 pt-3",
         }}
+        selectedKey={forceMeetings ? "meetings" : undefined}
       >
         {/* Display Topics if Meeting selected */}
-        {meetingID !== undefined && (
+        {!forceMeetings && hasMeetingID && (
           <Tab
             key="topics"
             title={
@@ -97,6 +79,7 @@ export function ExtendedNavBar({
             />
           </Tab>
         )}
+
         {/* Always display meetings since we're in a project */}
         <Tab
           key="meetings"

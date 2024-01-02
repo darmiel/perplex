@@ -6,6 +6,7 @@ import { BarLoader } from "react-spinners"
 import { extractErrorMessage, includesFold } from "@/api/util"
 import MeetingCardLarge from "@/components/meeting/cards/MeetingCardLarge"
 import BadgeHeader from "@/components/ui/BadgeHeader"
+import GlowingCards from "@/components/ui/card/glow/GlowingCardsContainer"
 import Flex from "@/components/ui/layout/Flex"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -84,11 +85,11 @@ export function MeetingGrid({
         fullWidth
         size="sm"
       />
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <GlowingCards className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {meetings?.map((meeting) => (
           <MeetingCardLarge key={meeting.ID} meeting={meeting} />
         ))}
-      </div>
+      </GlowingCards>
     </section>
   )
 }
