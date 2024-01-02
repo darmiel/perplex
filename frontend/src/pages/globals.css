@@ -6,6 +6,8 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+
+  --glow-color: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,7 +52,7 @@ body {
 }
 
 .glowing-card {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(var(--glow-color), 0.2);
   border-radius: 10px;
   position: relative;
 }
@@ -81,7 +83,7 @@ body {
 .glowing-card::before {
   background: radial-gradient(
     800px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 255, 255, 0.03),
+    rgba(var(--glow-color), 0.03),
     transparent 40%
   );
   z-index: 3;
@@ -92,7 +94,7 @@ body {
 .glowing-card::after {
   background: radial-gradient(
     400px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 255, 255, 0.3),
+    rgba(var(--glow-color), 0.3),
     transparent 40%
   );
   z-index: 1;
