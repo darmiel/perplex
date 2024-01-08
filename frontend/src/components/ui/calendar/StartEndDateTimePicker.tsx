@@ -1,10 +1,16 @@
-import { Button } from "@nextui-org/react"
+import { Button, Tooltip } from "@nextui-org/react"
 import { add, format, intervalToDuration, sub } from "date-fns"
-import { MouseEventHandler, useState } from "react"
+import { useState } from "react"
 import { BsChevronRight } from "react-icons/bs"
 
 import { DateTimePicker } from "@/components/ui/calendar/DateTimePicker"
 import { formatDuration, mergeDates } from "@/util/date"
+
+const quickDurations: Duration[] = [
+  { minutes: 15 },
+  { minutes: 30 },
+  { hours: 1 },
+] as const
 
 export type StartEndDateTimePickerProps = {
   // the start date
@@ -64,12 +70,6 @@ export function StartEndDateTimePicker({
           : "danger"
       : "default"
 
-  const quickDurations: Duration[] = [
-    { minutes: 15 },
-    { minutes: 30 },
-    { hours: 1 },
-  ]
-
   const dateDifference = intervalToDuration({ start: startDate, end: endDate })
 
   return (
@@ -105,52 +105,40 @@ export function StartEndDateTimePicker({
         >
           RST
         </Button>
-        {quickDurations.map((duration, index) => (
-          <AddTimeButton
-            key={index}
-            duration={duration}
-            isEnabled={!!endDate}
-            onClick={(event) => {
-              // if shift is pressed, subtract the duration
-              // otherwise add the duration
-              const action = event.shiftKey ? sub : add
-              updateEndTime(action(endDate!, duration))
-            }}
-          />
-        ))}
+        {quickDurations.map((duration, index) => {
+          const formatted = formatDuration(duration)
+          return (
+            <Tooltip
+              key={index}
+              content={`[Shift]: +${formatted}, [Alt]: -${formatted}`}
+            >
+              <Button
+                key={index}
+                isDisabled={!endDate}
+                size="sm"
+                radius="full"
+                className="min-w-0"
+                onClick={(event) => {
+                  const action = event.shiftKey
+                    ? add
+                    : event.altKey || event.ctrlKey
+                      ? sub
+                      : () => add(startDate, duration)
+                  // if shift is pressed, subtract the duration
+                  // otherwise add the duration
+                  updateEndTime(action(endDate!, duration))
+                }}
+              >
+                {formatDuration(duration)}
+              </Button>
+            </Tooltip>
+          )
+        })}
       </div>
       {/* Show Meeting Duration */}
       <span className="text-tiny text-neutral-300">
         {`(${formatDuration(dateDifference)})`}
       </span>
     </div>
-  )
-}
-
-type AddTimeButtonProps = {
-  // the function to call when the button is clicked
-  onClick: MouseEventHandler<HTMLButtonElement>
-  // whether the button is enabled
-  isEnabled?: boolean
-  // the duration to add
-  duration: Duration
-}
-
-/**
- * AddTimeButton is a button that adds a certain duration to a date.
- * @param param0 The props for the AddTimeButton component.
- * @returns
- */
-function AddTimeButton({ onClick, isEnabled, duration }: AddTimeButtonProps) {
-  return (
-    <Button
-      isDisabled={!isEnabled}
-      size="sm"
-      radius="full"
-      className="min-w-0"
-      onClick={onClick}
-    >
-      {formatDuration(duration)}
-    </Button>
   )
 }
