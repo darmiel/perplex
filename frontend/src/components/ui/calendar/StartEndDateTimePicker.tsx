@@ -10,7 +10,7 @@ const quickDurations: Duration[] = [
   { minutes: 15 },
   { minutes: 30 },
   { hours: 1 },
-] as const
+]
 
 export type StartEndDateTimePickerProps = {
   // the start date
