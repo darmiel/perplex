@@ -31,6 +31,7 @@ export function UserAvatarImage({
       className={`${className ?? "w-10 rounded-full"} `}
       height={height}
       width={width}
+      onDragStart={() => false}
     />
   )
 }
